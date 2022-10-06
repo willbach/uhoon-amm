@@ -52,7 +52,6 @@
     (result ~ [%& rice]~ ~ ~)
   ::
       %swap
-    ~>  %helloch-governor
     =,  act
     =/  pool-rice
       =+  (need (scry-granary pool-id))
