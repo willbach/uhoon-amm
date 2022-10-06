@@ -37,4 +37,17 @@
           payment=[meta=id amount=@ud]
       ==
   ==
+::
+::  helpers
+::
+++  get-take-args
+  |=  [metadata-id=id me=id them=id town-id=id]
+  ^-  [contract=id their-acc=id our-acc=(unit id)]
+  =/  metadata=rice
+    =-  ?>  ?=(%& -.m)  +.m
+    m=(need (scry-granary metadata-id))
+  :+  lord.metadata
+    (fry-rice lord.metadata them town-id salt.metadata)
+  =-  ?~(found=(scry-granary -) ~ `id.p.u.found)
+  (fry-rice lord.metadata me town-id salt.metadata)
 --
