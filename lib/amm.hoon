@@ -1,11 +1,10 @@
-/+  *zig-sys-smart
+::  /+  *zig-sys-smart
 |%
 ::  values
 ++  trading-fee   30
 ++  lp-fee        25
 ++  protocol-fee  5
-++  our-fungible-contract
-  0x1234.5678.1234.5678
+++  our-fungible-contract  0x1234
 ::  data types
 +$  pool
   $:  token-a=[meta=id liq=@ud]  ::  id of metadata grain
