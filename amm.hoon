@@ -52,6 +52,7 @@
     (result ~ [%& rice]~ ~ ~)
   ::
       %swap
+    ~>  %helloch-governor
     =,  act
     =/  pool-rice
       =+  (need (scry-granary pool-id))
@@ -89,7 +90,7 @@
       ::
           :+  give-contract
             town-id.cart
-          [%give me.cart amount-received our-acc-give their-acc-give]
+          [%give id.from.cart amount-received our-acc-give their-acc-give]
       ==
     =/  new-pool
       ?:  =(meta.payment meta.token-a.pool)
