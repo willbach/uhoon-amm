@@ -128,6 +128,25 @@
       id:fungible-wheat
       town-id
   ==
+++  ecs-sal-lt-token
+  ^-  grain:smart
+  =+  salt=`@`(cat 3 `@`'ecs-metadata' `@`'sal-metadata')
+  :*  %&  salt  %metadata
+      :*  name='Liquidity Token: xx'
+          'LT'
+          decimals=18
+          supply=173.205.080.756.887.728.352
+          cap=~
+          mintable=%.y
+          minters=(make-pset:smart ~[id:amm-wheat])
+          deployer=id:amm-wheat
+          salt
+      ==
+      (fry-rice:smart id:fungible-wheat id:fungible-wheat town-id salt)
+      id:fungible-wheat
+      id:fungible-wheat
+      town-id
+  ==
 ::
 ++  make-fun-account
   |=  [holder=id:smart amt=@ud meta=grain:smart allowances=(pmap:smart address:smart @ud)]
@@ -159,6 +178,14 @@
       (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
   ==
 ::
+++  ecs-sal-lt-account
+  %:  make-fun-account
+      pubkey-1
+      173.205.080.756.887.728.352
+      ecs-sal-lt-token
+      ~
+  ==
+::
 ::  these are held by amm contract
 ::
 ++  amm-ecs-account
@@ -183,6 +210,7 @@
       :*  [`@ux`'ecs-metadata' 100.000.000.000.000.000.000]
           [`@ux`'sal-metadata' 300.000.000.000.000.000.000]
           liq-shares=173.205.080.756.887.728.352
+          liq-token-meta=id.p:ecs-sal-lt-token
       ==
       (fry-rice:smart id:amm-wheat id:amm-wheat town-id salt)
       id:amm-wheat
@@ -199,8 +227,10 @@
       [id.p:cgy-token cgy-token]
       [id.p:ecs-token ecs-token]
       [id.p:sal-token sal-token]
+      [id.p:ecs-sal-lt-token ecs-sal-lt-token]
       [id.p:cgy-account cgy-account]
       [id.p:ecs-account ecs-account]
+      [id.p:ecs-sal-lt-account ecs-sal-lt-account]
       [id.p:amm-ecs-account amm-ecs-account]
       [id.p:amm-sal-account amm-sal-account]
       [id.p:ecs-sal-pool ecs-sal-pool]
