@@ -116,7 +116,7 @@
       :*  name='SAL Token'
           'SAL'
           decimals=18
-          supply=300.000.000.000.000.000.000
+          supply=400.000.000.000.000.000.000
           cap=~
           mintable=%.n
           minters=~
@@ -178,6 +178,14 @@
       (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
   ==
 ::
+++  sal-account
+  %:  make-fun-account
+      pubkey-1
+      100.000.000.000.000.000.000
+      sal-token
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
+  ==
+::
 ++  ecs-sal-lt-account
   %:  make-fun-account
       pubkey-1
@@ -230,6 +238,7 @@
       [id.p:ecs-sal-lt-token ecs-sal-lt-token]
       [id.p:cgy-account cgy-account]
       [id.p:ecs-account ecs-account]
+      [id.p:sal-account sal-account]
       [id.p:ecs-sal-lt-account ecs-sal-lt-account]
       [id.p:amm-ecs-account amm-ecs-account]
       [id.p:amm-sal-account amm-sal-account]
@@ -278,6 +287,28 @@
     :+  %swap
       id.p:ecs-sal-pool
     [id.p:ecs-token 50.000.000.000.000.000.000]
+  =/  shel=shell:smart
+    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ~&  >>>  "fee: {<fee.res>}"
+  ~&  >>  "result:"
+  ~&  >>  land.res
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+    !>(%0)  !>(errorcode.res)
+  ==
+::
+++  test-add-liq
+  =/  =yolk:smart
+    :^    %add-liq
+        id.p:ecs-sal-pool
+      [id.p:ecs-token 10.000.000.000.000.000.000]
+    [id.p:sal-token 30.000.000.000.000.000.000]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result

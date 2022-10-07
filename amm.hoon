@@ -132,7 +132,7 @@
     ::
     =/  their-lt-account=(unit id)
       =-  ?~(found=(scry-granary -) ~ `id.p.u.found)
-      (fry-rice liq-token-meta.pool id.from.cart town-id.cart salt.pool-rice)
+      (fry-rice our-fungible-contract:lib id.from.cart town-id.cart salt.pool-rice)
     %+  continuation
       :~  :+  contract-a
             town-id.cart
