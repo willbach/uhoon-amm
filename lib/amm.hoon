@@ -5,6 +5,7 @@
 ++  lp-fee        25
 ++  protocol-fee  5
 ++  our-fungible-contract  0x1234
+++  dec-18  1.000.000.000.000.000.000
 ::  data types
 +$  pool
   $:  token-a=[meta=id liq=@ud]  ::  id of metadata grain
@@ -31,8 +32,6 @@
           pool-id=id
           liq-shares-account=id
           amount=@ud
-          token-account-a=(unit id)
-          token-account-b=(unit id)
       ==
   ::
       $:  %swap
@@ -42,6 +41,13 @@
   ==
 ::
 ::  helpers
+::
+++  get-pool-salt
+  |=  [meta-a=id meta-b=id]
+  ^-  @
+  ?:  (gth meta-a meta-b)
+    (cat 3 meta-a meta-b)
+  (cat 3 meta-b meta-a)
 ::
 ++  get-take-args
   |=  [metadata-id=id me=id them=id town-id=id]

@@ -13,10 +13,7 @@
       %-  sub  :_  1.000
       -:(sqt (mul liq.token-a liq.token-b))
     ::  determine unique salt for new pool
-    =/  salt=@
-      ?:  (gth meta.token-a meta.token-b)
-        (cat 3 meta.token-a meta.token-b)
-      (cat 3 meta.token-b meta.token-a)
+    =/  salt=@  (get-pool-salt:lib meta.token-a meta.token-b)
     ::  take the tokens from caller,
     ::  mint liq token to caller
     =/  [contract-a=id their-acc-a=id our-acc-a=(unit id)]
@@ -152,7 +149,55 @@
     (result [%& pool-rice(data pool)]~ ~ ~ ~)
   ::
       %remove-liq
-    !!
+    =/  pool-rice
+      =+  (need (scry-granary pool-id.act))
+      (husk pool:lib - `me.cart `me.cart)
+    =/  =pool:lib  data.pool-rice
+    ::  assert that liquidity shares match the pool
+    =/  pool-salt=@  (get-pool-salt:lib meta.token-a.pool meta.token-b.pool)
+    ?>  =-  =(- liq-shares-account.act)
+        %-  fry-rice
+        [our-fungible-contract:lib id.from.cart town-id.cart pool-salt]
+    ::  calculate reward in each token
+    ::  tokenWithdrawn = (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
+    =/  token-a-withdraw
+      (div (mul liq.token-a.pool (div (mul amount.act dec-18:lib) liq-shares.pool)) dec-18:lib)
+    =/  token-b-withdraw
+      (div (mul liq.token-b.pool (div (mul amount.act dec-18:lib) liq-shares.pool)) dec-18:lib)
+    ::  modify pool with new amounts
+    =:  liq.token-a.pool
+      (sub liq.token-a.pool token-a-withdraw)
+        liq.token-b.pool
+      (sub liq.token-b.pool token-b-withdraw)
+        liq-shares.pool
+      (sub liq-shares.pool amount.act)
+    ==
+    ::  get information for token %gives
+    =/  [give-contract-a=id their-acc-give-a=(unit id) our-acc-give-a=id]
+      (get-give-args:lib meta.token-a.pool me.cart id.from.cart town-id.cart)
+    =/  [give-contract-b=id their-acc-give-b=(unit id) our-acc-give-b=id]
+      (get-give-args:lib meta.token-b.pool me.cart id.from.cart town-id.cart)
+    ::  execute %take of liquidity token and %gives for tokens a&b
+    ::  we always %burn our liq token account, so we will never have one
+    %+  continuation
+      :~  :+  our-fungible-contract:lib
+            town-id.cart
+          [%take me.cart amount.act liq-shares-account.act ~]
+      ::
+          :+  0x0
+            town-id.cart
+          =-  [%burn - 0x0]
+          (fry-rice our-fungible-contract:lib me.cart town-id.cart pool-salt)
+      ::
+          :+  give-contract-a
+            town-id.cart
+          [%give id.from.cart token-a-withdraw our-acc-give-a their-acc-give-a]
+      ::
+          :+  give-contract-b
+            town-id.cart
+          [%give id.from.cart token-b-withdraw our-acc-give-b their-acc-give-b]
+      ==
+    (result [%& pool-rice(data pool)]~ ~ ~ ~)
   ==
 ++  read
   |_  =path

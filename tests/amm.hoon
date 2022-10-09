@@ -191,7 +191,7 @@
       pubkey-1
       173.205.080.756.887.728.352
       ecs-sal-lt-token
-      ~
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 173.205.080.756.887.728.352]])
   ==
 ::
 ::  these are held by amm contract
@@ -309,6 +309,29 @@
         id.p:ecs-sal-pool
       [id.p:ecs-token 10.000.000.000.000.000.000]
     [id.p:sal-token 30.000.000.000.000.000.000]
+  =/  shel=shell:smart
+    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  ~&  >>>  "fee: {<fee.res>}"
+  ~&  >>  "result:"
+  ~&  >>  land.res
+  ;:  weld
+  ::  assert that our call went through
+    %+  expect-eq
+    !>(%0)  !>(errorcode.res)
+  ==
+::
+++  test-remove-liq
+  ::  removing liquidity from ECS-SAL pool
+  =/  =yolk:smart
+    :^    %remove-liq
+        id.p:ecs-sal-pool
+      id.p:ecs-sal-lt-account
+    73.000.000.000.000.000.000
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
