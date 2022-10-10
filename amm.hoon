@@ -68,6 +68,15 @@
     ::  p = ra / rb
     =/  price   (div liq.swap-output liq.swap-input)
     =/  amount-received  (div (sub amount.payment fee) price)
+    ::  determine allowed output w/ slippage
+    ::  TODO also set max? probably not needed
+    =/  min-out
+      ?:  =(0 allowed-slippage)
+        expected-output
+      %+  sub  expected-output
+      %+  div  (mul expected-output allowed-slippage)
+      10.000
+    ?>  (gte amount-received min-out)
     ::  deposit payment and extract output from pool
     =:  liq.swap-input
       (add liq.swap-input amount.payment)

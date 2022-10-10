@@ -76,7 +76,7 @@
       :*  name='CGY Token'
           'CGY'
           decimals=18
-          supply=100.000.000.000.000.000.000
+          supply=(price 100)
           cap=~
           mintable=%.n
           minters=~
@@ -96,7 +96,7 @@
       :*  name='ECS Token'
           'ECS'
           decimals=18
-          supply=200.000.000.000.000.000.000
+          supply=(price 200)
           cap=~
           mintable=%.n
           minters=~
@@ -116,7 +116,7 @@
       :*  name='SAL Token'
           'SAL'
           decimals=18
-          supply=400.000.000.000.000.000.000
+          supply=(price 400)
           cap=~
           mintable=%.n
           minters=~
@@ -128,7 +128,7 @@
       id:fungible-wheat
       town-id
   ==
-++  ecs-sal-lt-token
+++  ecs-sal-token
   ^-  grain:smart
   =+  salt=`@`(cat 3 `@`'ecs-metadata' `@`'sal-metadata')
   :*  %&  salt  %metadata
@@ -165,32 +165,32 @@
 ++  cgy-account
   %:  make-fun-account
       pubkey-1
-      100.000.000.000.000.000.000
+      (price 100)
       cgy-token
-      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat (price 100)]])
   ==
 ::
 ++  ecs-account
   %:  make-fun-account
       pubkey-1
-      100.000.000.000.000.000.000
+      (price 100)
       ecs-token
-      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat (price 100)]])
   ==
 ::
 ++  sal-account
   %:  make-fun-account
       pubkey-1
-      100.000.000.000.000.000.000
+      (price 100)
       sal-token
-      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 100.000.000.000.000.000.000]])
+      (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat (price 100)]])
   ==
 ::
 ++  ecs-sal-lt-account
   %:  make-fun-account
       pubkey-1
       173.205.080.756.887.728.352
-      ecs-sal-lt-token
+      ecs-sal-token
       (~(gas py:smart *(pmap:smart address:smart @ud)) ~[[id:amm-wheat 173.205.080.756.887.728.352]])
   ==
 ::
@@ -199,14 +199,14 @@
 ++  amm-ecs-account
   %:  make-fun-account
       id:amm-wheat
-      100.000.000.000.000.000.000
+      (price 100)
       ecs-token
       ~
   ==
 ++  amm-sal-account
   %:  make-fun-account
       id:amm-wheat
-      300.000.000.000.000.000.000
+      (price 300)
       sal-token
       ~
   ==
@@ -215,10 +215,10 @@
   ^-  grain:smart
   =/  salt  (cat 3 `@`'ecs-metadata' `@`'sal-metadata')
   :*  %&  salt  %pool
-      :*  [`@ux`'ecs-metadata' 100.000.000.000.000.000.000]
-          [`@ux`'sal-metadata' 300.000.000.000.000.000.000]
+      :*  [`@ux`'ecs-metadata' (price 100)]
+          [`@ux`'sal-metadata' (price 300)]
           liq-shares=173.205.080.756.887.728.352
-          liq-token-meta=id.p:ecs-sal-lt-token
+          liq-token-meta=id.p:ecs-sal-token
       ==
       (fry-rice:smart id:amm-wheat id:amm-wheat town-id salt)
       id:amm-wheat
@@ -235,7 +235,7 @@
       [id.p:cgy-token cgy-token]
       [id.p:ecs-token ecs-token]
       [id.p:sal-token sal-token]
-      [id.p:ecs-sal-lt-token ecs-sal-lt-token]
+      [id.p:ecs-sal-token ecs-sal-token]
       [id.p:cgy-account cgy-account]
       [id.p:ecs-account ecs-account]
       [id.p:sal-account sal-account]
@@ -244,49 +244,111 @@
       [id.p:amm-sal-account amm-sal-account]
       [id.p:ecs-sal-pool ecs-sal-pool]
   ==
-++  fake-populace
-  ^-  populace
-  %+  gas:pig  *(merk:merk id:smart @ud)
-  ~[[id:caller-1 0]]
 ++  fake-land
   ^-  land
-  [fake-granary fake-populace]
+  [fake-granary *populace]
 ::
-::  begin tests
+::  helpers
 ::
-++  test-pool-start
+++  price  |=(p=@ud (mul p 1.000.000.000.000.000.000))
+::
+++  get-pool-id
+  |=  [t1=id:smart t2=id:smart]
+  ^-  id:smart
+  =-  (fry-rice:smart id:amm-wheat id:amm-wheat town-id -)
+  ?:  (gth t1 t2)
+    (cat 3 t1 t2)
+  (cat 3 t2 t1)
+::
+++  get-lt-metadata-id
+  |=  [t1=id:smart t2=id:smart]
+  ^-  id:smart
+  =-  (fry-rice:smart id:fungible-wheat id:fungible-wheat town-id -)
+  ?:  (gth t1 t2)
+    (cat 3 t1 t2)
+  (cat 3 t2 t1)
+::
++$  pool
+  $:  token-a=[meta=id:smart liq=@ud]  ::  id of metadata grain
+      token-b=[meta=id:smart liq=@ud]
+      liq-shares=@ud
+      liq-token-meta=id:smart
+  ==
+::
+++  check-pool
+  |=  [=granary expected-id=id:smart =pool]
+  ^-  tang
+  =/  pool-grain  (got:big granary expected-id)
+  ?>  ?=(%& -.pool-grain)
+  %+  expect-eq
+    !>(pool)
+  !>(data.p.pool-grain)
+::
+++  assert-balance
+  |=  [=granary who=address:smart meta-id=id:smart expected=@ud]
+  ^-  tang
+  =/  md  (got:big granary meta-id)
+  ?>  ?=(%& -.md)
+  =/  it  (fry-rice:smart lord.p.md who town-id salt.p.md)
+  %+  expect-eq
+    !>(`expected)
+  !>
+  ?~  found=(get:big granary it)    ~
+  ?.  ?=(%& -.u.found)              ~
+  ?.  ?=([@ * @ @] data.p.u.found)  ~
+  `-.data.p.u.found
+::
+::  begin single-transaction tests
+::
+++  test-start-pool
   =/  =yolk:smart
     :+  %start-pool
-      [id.p:cgy-token 100.000.000.000.000.000.000]
-    [id.p:ecs-token 50.000.000.000.000.000.000]
+      [id.p:cgy-token (price 100)]
+    [id.p:ecs-token (price 50)]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
-  ::  ~&  >  "starting state:"
-  ::  ~&  >  %+  turn  ~(tap by fake-granary)
-  ::         |=  [@ux @ux =grain:smart]
-  ::         ^-  (unit grain:smart)
-  ::         ?:  ?=(%& -.grain)
-  ::           `grain
-  ::         ~
   =/  res=mill-result
     %+  ~(mill mil miller town-id 1)
       fake-land
     `egg:smart`[fake-sig shel yolk]
   ::
-  ~&  >>>  "fee: {<fee.res>}"
-  ~&  >>  "result:"
-  ~&  >>  land.res
+  =/  new-gran  (dif:big (uni:big p:fake-land p.land.res) burned.res)
+  ::
+  ::  expected side effects:
+  ::  - new pool grain for CGY/ECS
+  ::  - user has 0 CGY tokens, pool has 100
+  ::  - user has 50 ECS tokens, pool has 150 (it starts with 100)
+  ::  - liquidity token deployed (metadata exists)
+  ::  - user has 70.7106781187 liquidity tokens
+  =/  pool-id  (get-pool-id id.p:cgy-token id.p:ecs-token)
+  =/  lt-metadata-id  (get-lt-metadata-id id.p:cgy-token id.p:ecs-token)
+  =/  expected-pool
+    :^    [id.p:cgy-token (price 100)]
+        [id.p:ecs-token (price 50)]
+      70.710.678.118.654.751.440
+    lt-metadata-id
   ;:  weld
   ::  assert that our call went through
-    %+  expect-eq
-    !>(%0)  !>(errorcode.res)
+    (expect-eq !>(%0) !>(errorcode.res))
+  ::  expected number of side effects (added/altered grains)
+    (expect-eq !>(8) !>(~(wyt by p.land.res)))
+  ::
+    (check-pool new-gran pool-id expected-pool)
+    (assert-balance new-gran pubkey-1 id.p:cgy-token 0)
+    (assert-balance new-gran pubkey-1 id.p:ecs-token (price 50))
+    (assert-balance new-gran id:amm-wheat id.p:cgy-token (price 100))
+    (assert-balance new-gran id:amm-wheat id.p:ecs-token (price 150))
+    (assert-balance new-gran pubkey-1 lt-metadata-id 70.710.678.118.654.751.440)
   ==
 ::
 ++  test-swap
   =/  =yolk:smart
-    :+  %swap
-      id.p:ecs-sal-pool
-    [id.p:ecs-token 50.000.000.000.000.000.000]
+    :*  %swap
+        id.p:ecs-sal-pool
+        [id.p:ecs-token (price 50)]
+        16.616.666.666.666.666.666
+        0
+    ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
@@ -294,21 +356,99 @@
       fake-land
     `egg:smart`[fake-sig shel yolk]
   ::
-  ~&  >>>  "fee: {<fee.res>}"
-  ~&  >>  "result:"
-  ~&  >>  land.res
+  =/  new-gran  (dif:big (uni:big p:fake-land p.land.res) burned.res)
+  ::  expected side effects:
+  ::  - pool has (100+50)=150 ecs tokens
+  ::  - pool has 283.383.333.333.333.333.334 sal tokens
+  ::  - caller has (100-50)=50 ecs tokens
+  ::  - caller has 116.616.666.666.666.666.666 sal tokens
+  =/  expected-pool
+    :^    [id.p:ecs-token (price 150)]
+        [id.p:sal-token 283.383.333.333.333.333.334]
+      173.205.080.756.887.728.352
+    id.p:ecs-sal-token
+  ::
   ;:  weld
   ::  assert that our call went through
-    %+  expect-eq
-    !>(%0)  !>(errorcode.res)
+    (expect-eq !>(%0) !>(errorcode.res))
+    (expect-eq !>(6) !>(~(wyt by p.land.res)))
+  ::
+    (check-pool new-gran id.p:ecs-sal-pool expected-pool)
+    (assert-balance new-gran pubkey-1 id.p:ecs-token (price 50))
+    (assert-balance new-gran pubkey-1 id.p:sal-token 116.616.666.666.666.666.666)
+    (assert-balance new-gran id:amm-wheat id.p:ecs-token (price 150))
+    (assert-balance new-gran id:amm-wheat id.p:sal-token 283.383.333.333.333.333.334)
+  ==
+::
+++  test-swap-with-slippage
+  =/  =yolk:smart
+    :*  %swap
+        id.p:ecs-sal-pool
+        [id.p:ecs-token (price 50)]
+        (price 17)
+        300
+    ==
+  =/  shel=shell:smart
+    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  =/  new-gran  (dif:big (uni:big p:fake-land p.land.res) burned.res)
+  ::  expected side effects:
+  ::  - pool has (100+50)=150 ecs tokens
+  ::  - pool has 283.383.333.333.333.333.334 sal tokens
+  ::  - caller has (100-50)=50 ecs tokens
+  ::  - caller has 116.616.666.666.666.666.666 sal tokens
+  =/  expected-pool
+    :^    [id.p:ecs-token (price 150)]
+        [id.p:sal-token 283.383.333.333.333.333.334]
+      173.205.080.756.887.728.352
+    id.p:ecs-sal-token
+  ::
+  ;:  weld
+  ::  assert that our call went through
+    (expect-eq !>(%0) !>(errorcode.res))
+    (expect-eq !>(6) !>(~(wyt by p.land.res)))
+  ::
+    (check-pool new-gran id.p:ecs-sal-pool expected-pool)
+    (assert-balance new-gran pubkey-1 id.p:ecs-token (price 50))
+    (assert-balance new-gran pubkey-1 id.p:sal-token 116.616.666.666.666.666.666)
+    (assert-balance new-gran id:amm-wheat id.p:ecs-token (price 150))
+    (assert-balance new-gran id:amm-wheat id.p:sal-token 283.383.333.333.333.333.334)
+  ==
+::
+++  test-swap-slip-too-high
+  =/  =yolk:smart
+    :*  %swap
+        id.p:ecs-sal-pool
+        [id.p:ecs-token (price 50)]
+        (price 17)
+        200
+    ==
+  =/  shel=shell:smart
+    [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
+  =/  res=mill-result
+    %+  ~(mill mil miller town-id 1)
+      fake-land
+    `egg:smart`[fake-sig shel yolk]
+  ::
+  =/  new-gran  (dif:big (uni:big p:fake-land p.land.res) burned.res)
+  ::  expected side effects: none
+  ::
+  ;:  weld
+  ::  assert that our call went through
+    (expect-eq !>(%6) !>(errorcode.res))
+    (expect-eq !>(1) !>(~(wyt by p.land.res)))
   ==
 ::
 ++  test-add-liq
   =/  =yolk:smart
     :^    %add-liq
         id.p:ecs-sal-pool
-      [id.p:ecs-token 10.000.000.000.000.000.000]
-    [id.p:sal-token 30.000.000.000.000.000.000]
+      [id.p:ecs-token (price 10)]
+    [id.p:sal-token (price 30)]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
@@ -316,9 +456,6 @@
       fake-land
     `egg:smart`[fake-sig shel yolk]
   ::
-  ~&  >>>  "fee: {<fee.res>}"
-  ~&  >>  "result:"
-  ~&  >>  land.res
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq
@@ -331,7 +468,7 @@
     :^    %remove-liq
         id.p:ecs-sal-pool
       id.p:ecs-sal-lt-account
-    73.000.000.000.000.000.000
+    (price 73)
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
@@ -339,12 +476,12 @@
       fake-land
     `egg:smart`[fake-sig shel yolk]
   ::
-  ~&  >>>  "fee: {<fee.res>}"
-  ~&  >>  "result:"
-  ~&  >>  land.res
   ;:  weld
   ::  assert that our call went through
     %+  expect-eq
     !>(%0)  !>(errorcode.res)
   ==
+::
+::  begin multi-transaction tests
+::
 --
