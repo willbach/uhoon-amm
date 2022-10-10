@@ -347,7 +347,6 @@
         id.p:ecs-sal-pool
         [id.p:ecs-token (price 50)]
         16.616.666.666.666.666.666
-        0
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
@@ -381,12 +380,17 @@
   ==
 ::
 ++  test-swap-with-slippage
+  =/  min-out
+    ?:  =(0 allowed-slippage)
+      expected-output
+    %+  sub  expected-output
+    %+  div  (mul expected-output allowed-slippage)
+    10.000
   =/  =yolk:smart
     :*  %swap
         id.p:ecs-sal-pool
         [id.p:ecs-token (price 50)]
-        (price 17)
-        300
+        min-out
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
@@ -420,12 +424,17 @@
   ==
 ::
 ++  test-swap-slip-too-high
+  =/  min-out
+    ?:  =(0 allowed-slippage)
+      expected-output
+    %+  sub  expected-output
+    %+  div  (mul expected-output allowed-slippage)
+    10.000
   =/  =yolk:smart
     :*  %swap
         id.p:ecs-sal-pool
         [id.p:ecs-token (price 50)]
-        (price 17)
-        200
+        min-out
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]

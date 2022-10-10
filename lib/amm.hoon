@@ -37,10 +37,7 @@
       $:  %swap
           pool-id=id
           payment=[meta=id amount=@ud]
-          expected-output=@ud
-          ::  allowed-slippage stored in basis-points,
-          ::  ticks of 0.01% -- i.e. 100 = 1% slippage
-          allowed-slippage=@ud
+          min-output=@ud
       ==
   ==
 ::
