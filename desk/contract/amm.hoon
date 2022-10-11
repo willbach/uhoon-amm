@@ -16,23 +16,27 @@
     =/  salt=@  (get-pool-salt:lib meta.token-a meta.token-b)
     ::  take the tokens from caller,
     ::  mint liq token to caller
-    =/  [contract-a=id their-acc-a=id our-acc-a=(unit id)]
-      (get-take-args:lib meta.token-a me.cart id.from.cart town-id.cart)
-    ::
-    =/  [contract-b=id their-acc-b=id our-acc-b=(unit id)]
-      (get-take-args:lib meta.token-b me.cart id.from.cart town-id.cart)
-    ::
     =/  liq-token-meta-id
       (fry-rice our-fungible-contract:lib our-fungible-contract:lib town-id.cart salt)
     ::
     %+  continuation
-      :~  :+  contract-a
+      :~  :+  contract.token-a
             town-id.cart
-          [%take me.cart liq.token-a their-acc-a our-acc-a]
+          :*  %take
+              me.cart
+              liq.token-a
+              caller-account.token-a
+              pool-account.token-a
+          ==
       ::
-          :+  contract-b
+          :+  contract.token-b
             town-id.cart
-          [%take me.cart liq.token-b their-acc-b our-acc-b]
+          :*  %take
+              me.cart
+              liq.token-b
+              caller-account.token-b
+              pool-account.token-b
+          ==
       ::
           :+  our-fungible-contract:lib
             town-id.cart
@@ -101,46 +105,51 @@
     (result [%& pool-rice(data new-pool)]~ ~ ~ ~)
   ::
       %add-liq
+    =,  act
     =/  pool-rice
-      =+  (need (scry-granary pool-id.act))
+      =+  (need (scry-granary pool-id))
       (husk pool:lib - `me.cart `me.cart)
     =/  =pool:lib  data.pool-rice
     ::  assert that added liquidity is valid for pool
-    ?>  ?&  =(meta.token-a.pool meta.token-a.act)
-            =(meta.token-b.pool meta.token-b.act)
+    ?>  ?&  =(meta.token-a.pool meta.token-a)
+            =(meta.token-b.pool meta.token-b)
         ==
     ::  calculate liquidity token mint amount
     =/  liq-to-mint
       %+  add
         %+  mul  liq-shares.pool
-        (div liq.token-a.act liq.token-a.pool)
+        (div liq.token-a liq.token-a.pool)
       %+  mul  liq-shares.pool
-      (div liq.token-b.act liq.token-b.pool)
+      (div liq.token-b liq.token-b.pool)
     ::  add token-a and token-b to pool,
     ::  and mint liquidity tokens to caller
     =:  liq.token-a.pool
-      (add liq.token-a.pool liq.token-a.act)
+      (add liq.token-a.pool liq.token-a)
         liq.token-b.pool
-      (add liq.token-b.pool liq.token-b.act)
+      (add liq.token-b.pool liq.token-b)
     ==
-    ::  take tokens from caller, mint new liquidity tokens
-    =/  [contract-a=id their-acc-a=id our-acc-a=(unit id)]
-      (get-take-args:lib meta.token-a.pool me.cart id.from.cart town-id.cart)
-    ::
-    =/  [contract-b=id their-acc-b=id our-acc-b=(unit id)]
-      (get-take-args:lib meta.token-b.pool me.cart id.from.cart town-id.cart)
     ::
     =/  their-lt-account=(unit id)
       =-  ?~(found=(scry-granary -) ~ `id.p.u.found)
       (fry-rice our-fungible-contract:lib id.from.cart town-id.cart salt.pool-rice)
     %+  continuation
-      :~  :+  contract-a
+      :~  :+  contract.token-a
             town-id.cart
-          [%take me.cart liq.token-a.act their-acc-a our-acc-a]
+          :*  %take
+              me.cart
+              liq.token-a
+              caller-account.token-a
+              pool-account.token-a
+          ==
       ::
-          :+  contract-b
+          :+  contract.token-b
             town-id.cart
-          [%take me.cart liq.token-b.act their-acc-b our-acc-b]
+          :*  %take
+              me.cart
+              liq.token-b
+              caller-account.token-b
+              pool-account.token-b
+          ==
       ::
           :+  our-fungible-contract:lib
             town-id.cart

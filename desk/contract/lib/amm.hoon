@@ -14,18 +14,26 @@
       liq-token-meta=id
   ==
 ::
++$  token-args
+  $:  meta=id
+      liq=@ud
+      contract=id
+      pool-account=(unit id)
+      caller-account=id
+  ==
+::
 ::  actions
 ::
 +$  action
   $%  $:  %start-pool
-          token-a=[meta=id liq=@ud]
-          token-b=[meta=id liq=@ud]
+          token-a=token-args
+          token-b=token-args
       ==
   ::
       $:  %add-liq
           pool-id=id
-          token-a=[meta=id liq=@ud]
-          token-b=[meta=id liq=@ud]
+          token-a=token-args
+          token-b=token-args
       ==
   ::
       $:  %remove-liq
