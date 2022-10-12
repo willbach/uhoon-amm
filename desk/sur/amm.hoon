@@ -41,34 +41,43 @@
 ::  Types from AMM contract:
 ::
 +$  pool
-  $:  token-a=[meta=id:smart liq=@ud]  ::  id of metadata grain
-      token-b=[meta=id:smart liq=@ud]
+  $:  token-a=[meta=id:smart contract=id:smart liq=@ud]
+      token-b=[meta=id:smart contract=id:smart liq=@ud]
       liq-shares=@ud
       liq-token-meta=id:smart
   ==
 ::
++$  token-args
+  $:  meta=id:smart
+      amount=@ud
+      pool-account=(unit id:smart)
+      caller-account=(unit id:smart)
+  ==
+::
 +$  contract-action
   $%  $:  %start-pool
-          token-a=[meta=id:smart liq=@ud]
-          token-b=[meta=id:smart liq=@ud]
+          token-a=token-args
+          token-b=token-args
       ==
   ::
       $:  %add-liq
           pool-id=id:smart
-          token-a=[meta=id:smart liq=@ud]
-          token-b=[meta=id:smart liq=@ud]
+          token-a=token-args
+          token-b=token-args
       ==
   ::
       $:  %remove-liq
           pool-id=id:smart
           liq-shares-account=id:smart
           amount=@ud
+          token-a=token-args
+          token-b=token-args
       ==
   ::
       $:  %swap
           pool-id=id:smart
-          payment=[meta=id:smart amount=@ud]
-          min-output=@ud
+          payment=token-args
+          receive=token-args
       ==
   ==
 ::
