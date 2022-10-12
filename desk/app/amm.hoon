@@ -21,8 +21,34 @@
   ^-  (quip card _this)
   `this(state !<(state-0 old-vase))
 ::
-++  on-poke   on-poke:def
-++  on-watch  on-watch:def
+++  on-poke
+  |=  [=mark =vase]
+  ^-  (quip card _this)
+  |^
+  =^  cards  state
+  ?+    mark  !!
+      %amm-action
+    (handle-frontend-poke !<(action vase))
+  ==
+  [cards this]
+  ::
+  ++  handle-frontend-poke
+    |=  act=action
+    ^-  (quip card _state)
+    ?-    -.act
+        %fe-test
+      :_  state
+      ~[[%give %fact ~[/test] %amm-update !>([%test 'return'])]]
+    ::
+    ==    
+  --
+++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?+    path  !!
+      [%test ~]
+    ~&  >  "got test subscription from {<src.bowl>}"  `this
+  ==
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-agent  on-agent:def
