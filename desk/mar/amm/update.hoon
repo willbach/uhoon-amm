@@ -1,22 +1,21 @@
 /-  *amm
 =,  format
-|_  upd=action
+|_  upd=update
 ++  grab
   |%
-  ++  noun  action
+  ++  noun  update
   --
 ++  grow
   |%
-  ++  noun  act
+  ++  noun  upd
   ++  json
-    |=  jon=json
-    |^  ^-  action
-    %-  action
-    %.  jon
-    %-  of
-    :~  fe-test+(ot ~[squid+ni])
+    ?-  -.upd
+      %test
+      %-  pairs:enjs
+      :~
+        ['frombackend' [%s msg.upd]]
+      ==
     ==
-    --  
   --
 ++  grad  %noun
 --
