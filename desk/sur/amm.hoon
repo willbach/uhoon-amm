@@ -66,6 +66,7 @@
   ::
       $:  %add-liq
           pool-id=id:smart
+          liq-shares-account=(unit id:smart)
           token-a=token-args
           token-b=token-args
       ==
