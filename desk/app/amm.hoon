@@ -21,7 +21,29 @@
   ^-  (quip card _this)
   `this(state !<(state-0 old-vase))
 ::
-++  on-poke   on-poke:def
+++  on-poke
+  |=  [=mark =vase]
+  ^-  (quip card _this)
+  |^
+  =^  cards  state
+  ~&  >  "Got a poke"
+  ~&  >  [mark vase]
+  ?+  mark  !!
+      %amm-action
+    (handle-frontend-poke !<(action vase))
+  ==
+  [cards this]
+  ::
+  ++  handle-frontend-poke
+    |=  act=action
+    ^-  (quip card _state)
+    ?-    -.act
+        %fe-test
+      ~&  >>  "Poked from frontend: {<act>}"
+      `state
+    ::
+    ==    
+  --
 ++  on-watch  on-watch:def
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
