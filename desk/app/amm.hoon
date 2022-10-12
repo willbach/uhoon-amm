@@ -26,9 +26,7 @@
   ^-  (quip card _this)
   |^
   =^  cards  state
-  ~&  >  "Got a poke"
-  ~&  >  [mark vase]
-  ?+  mark  !!
+  ?+    mark  !!
       %amm-action
     (handle-frontend-poke !<(action vase))
   ==
@@ -39,12 +37,18 @@
     ^-  (quip card _state)
     ?-    -.act
         %fe-test
-      ~&  >>  "Poked from frontend: {<act>}"
-      `state
+      :_  state
+      ~[[%give %fact ~[/test] %amm-update !>([%test 'return'])]]
     ::
     ==    
   --
-++  on-watch  on-watch:def
+++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?+    path  !!
+      [%test ~]
+    ~&  >  "got test subscription from {<src.bowl>}"  `this
+  ==
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-agent  on-agent:def

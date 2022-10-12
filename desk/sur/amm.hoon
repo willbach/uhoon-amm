@@ -19,6 +19,10 @@
   $%  [%fe-test num=@ud]
   ==
 ::
++$  update
+  $%  [%test msg=@t]
+  ==
+::
 +$  pool-data
   $:  name=@t  ::  token A symbol + token B symbol
       liq-shares=@ud
