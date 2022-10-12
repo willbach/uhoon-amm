@@ -40,7 +40,7 @@
       :_  state
       ~[[%give %fact ~[/test] %amm-update !>([%test 'return'])]]
     ::
-    ==    
+    ==
   --
 ++  on-watch
   |=  =path
