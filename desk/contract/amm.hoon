@@ -150,10 +150,6 @@
       (add liq.token-b.pool amount.token-b)
     ==
     ::
-    =/  their-lt-account=(unit id)
-      =-  ?~(found=(scry-granary -) ~ `id.p.u.found)
-      %-  fry-rice
-      [our-fungible-contract:lib id.from.cart town-id.cart salt.pool-rice]
     %+  continuation
       :~  :+  contract.token-a.pool
             town-id.cart
@@ -177,7 +173,7 @@
             town-id.cart
           :*  %mint
               token=liq-token-meta.pool
-              [[to=id.from.cart their-lt-account amount=liq-to-mint] ~]
+              [[to=id.from.cart liq-shares-account amount=liq-to-mint] ~]
           ==
       ==
     (result [%& pool-rice(data pool)]~ ~ ~ ~)
@@ -231,7 +227,7 @@
               id.from.cart
               token-a-withdraw
               (need pool-account.token-a)
-              caller-account.token-b
+              caller-account.token-a
           ==
       ::
           :+  contract.token-b.pool

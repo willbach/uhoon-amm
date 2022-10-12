@@ -31,6 +31,7 @@
   ::
       $:  %add-liq
           pool-id=id
+          liq-shares-account=(unit id)
           token-a=token-args
           token-b=token-args
       ==
