@@ -5,7 +5,7 @@
 /+  *test, smart=zig-sys-smart, *sequencer, merk
 /*  smart-lib-noun  %noun  /lib/zig/compiled/smart-lib/noun
 /*  zink-cax-noun   %noun  /lib/zig/compiled/hash-cache/noun
-/*  amm-contract    %noun  /lib/zig/contracts/uhoon-amm/compiled/amm/noun
+/*  amm-contract    %noun  /lib/zig/contracts/uhoon-amm/desk/compiled/amm/noun
 /*  fungible-contract  %noun  /lib/zig/compiled/fungible/noun
 |%
 ::
@@ -215,8 +215,8 @@
   ^-  grain:smart
   =/  salt  (cat 3 `@`'ecs-metadata' `@`'sal-metadata')
   :*  %&  salt  %pool
-      :*  [`@ux`'ecs-metadata' (price 100)]
-          [`@ux`'sal-metadata' (price 300)]
+      :*  [`@ux`'ecs-metadata' id:fungible-wheat (price 100)]
+          [`@ux`'sal-metadata' id:fungible-wheat (price 300)]
           liq-shares=173.205.080.756.887.728.352
           liq-token-meta=id.p:ecs-sal-token
       ==
@@ -269,8 +269,8 @@
   (cat 3 t2 t1)
 ::
 +$  pool
-  $:  token-a=[meta=id:smart liq=@ud]  ::  id of metadata grain
-      token-b=[meta=id:smart liq=@ud]
+  $:  token-a=[meta=id:smart contract=id:smart liq=@ud]  ::  id of metadata grain
+      token-b=[meta=id:smart contract=id:smart liq=@ud]
       liq-shares=@ud
       liq-token-meta=id:smart
   ==
@@ -303,8 +303,8 @@
 ++  test-start-pool
   =/  =yolk:smart
     :+  %start-pool
-      [id.p:cgy-token (price 100)]
-    [id.p:ecs-token (price 50)]
+      [id.p:cgy-token (price 100) ~ `id.p:cgy-account]
+    [id.p:ecs-token (price 50) `id.p:amm-ecs-account `id.p:ecs-account]
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
@@ -323,8 +323,8 @@
   =/  pool-id  (get-pool-id id.p:cgy-token id.p:ecs-token)
   =/  lt-metadata-id  (get-lt-metadata-id id.p:cgy-token id.p:ecs-token)
   =/  expected-pool
-    :^    [id.p:cgy-token (price 100)]
-        [id.p:ecs-token (price 50)]
+    :^    [id.p:cgy-token id:fungible-wheat (price 100)]
+        [id.p:ecs-token id:fungible-wheat (price 50)]
       70.710.678.118.654.751.440
     lt-metadata-id
   ;:  weld
@@ -345,8 +345,9 @@
   =/  =yolk:smart
     :*  %swap
         id.p:ecs-sal-pool
-        [id.p:ecs-token (price 50)]
-        16.616.666.666.666.666.666
+        payment=[id.p:ecs-token (price 50) `id.p:amm-ecs-account `id.p:ecs-account]
+        ::  the amount here is the minimum amount we'll accept
+        receive=[id.p:sal-token 16.616.666.666.666.666.666 `id.p:amm-sal-account `id.p:sal-account]
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
@@ -362,8 +363,8 @@
   ::  - caller has (100-50)=50 ecs tokens
   ::  - caller has 116.616.666.666.666.666.666 sal tokens
   =/  expected-pool
-    :^    [id.p:ecs-token (price 150)]
-        [id.p:sal-token 283.383.333.333.333.333.334]
+    :^    [id.p:ecs-token id:fungible-wheat (price 150)]
+        [id.p:sal-token id:fungible-wheat 283.383.333.333.333.333.334]
       173.205.080.756.887.728.352
     id.p:ecs-sal-token
   ::
@@ -380,17 +381,12 @@
   ==
 ::
 ++  test-swap-with-slippage
-  =/  min-out
-    ?:  =(0 allowed-slippage)
-      expected-output
-    %+  sub  expected-output
-    %+  div  (mul expected-output allowed-slippage)
-    10.000
   =/  =yolk:smart
     :*  %swap
         id.p:ecs-sal-pool
-        [id.p:ecs-token (price 50)]
-        min-out
+        payment=[id.p:ecs-token (price 50) `id.p:amm-ecs-account `id.p:ecs-account]
+        ::  the amount here is the minimum amount we'll accept
+        receive=[id.p:sal-token (price 16) `id.p:amm-sal-account `id.p:sal-account]
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
@@ -406,8 +402,8 @@
   ::  - caller has (100-50)=50 ecs tokens
   ::  - caller has 116.616.666.666.666.666.666 sal tokens
   =/  expected-pool
-    :^    [id.p:ecs-token (price 150)]
-        [id.p:sal-token 283.383.333.333.333.333.334]
+    :^    [id.p:ecs-token id:fungible-wheat (price 150)]
+        [id.p:sal-token id:fungible-wheat 283.383.333.333.333.333.334]
       173.205.080.756.887.728.352
     id.p:ecs-sal-token
   ::
@@ -424,17 +420,12 @@
   ==
 ::
 ++  test-swap-slip-too-high
-  =/  min-out
-    ?:  =(0 allowed-slippage)
-      expected-output
-    %+  sub  expected-output
-    %+  div  (mul expected-output allowed-slippage)
-    10.000
   =/  =yolk:smart
     :*  %swap
         id.p:ecs-sal-pool
-        [id.p:ecs-token (price 50)]
-        min-out
+        payment=[id.p:ecs-token (price 50) `id.p:amm-ecs-account `id.p:ecs-account]
+        ::  the amount here is the minimum amount we'll accept
+        receive=[id.p:sal-token (price 17) `id.p:amm-sal-account `id.p:sal-account]
     ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
@@ -451,13 +442,14 @@
     (expect-eq !>(%6) !>(errorcode.res))
     (expect-eq !>(1) !>(~(wyt by p.land.res)))
   ==
-::
 ++  test-add-liq
   =/  =yolk:smart
-    :^    %add-liq
+    :*  %add-liq
         id.p:ecs-sal-pool
-      [id.p:ecs-token (price 10)]
-    [id.p:sal-token (price 30)]
+        `id.p:ecs-sal-lt-account
+        [id.p:ecs-token (price 10) `id.p:amm-ecs-account `id.p:ecs-account]
+        [id.p:sal-token (price 30) `id.p:amm-sal-account `id.p:sal-account]
+    ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
@@ -474,10 +466,13 @@
 ++  test-remove-liq
   ::  removing liquidity from ECS-SAL pool
   =/  =yolk:smart
-    :^    %remove-liq
+    :*  %remove-liq
         id.p:ecs-sal-pool
-      id.p:ecs-sal-lt-account
-    (price 73)
+        id.p:ecs-sal-lt-account
+        (price 73)
+        [id.p:ecs-token 0 `id.p:amm-ecs-account `id.p:ecs-account]
+        [id.p:sal-token 0 `id.p:amm-sal-account `id.p:sal-account]
+    ==
   =/  shel=shell:smart
     [caller-1 ~ id:amm-wheat 1 1.000.000 town-id 0]
   =/  res=mill-result
