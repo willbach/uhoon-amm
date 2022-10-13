@@ -17,10 +17,12 @@
 ::
 +$  action
   $%  [%fe-test num=@ud]
+      [%token-in token=@t amount=@ud]
   ==
 ::
 +$  update
-  $%  [%test msg=@t]
+  $%  [%test rnum=@ud]
+      [%confirmation token=@t amount=@ud]
   ==
 ::
 +$  pool-data
@@ -66,7 +68,6 @@
   ::
       $:  %add-liq
           pool-id=id:smart
-          liq-shares-account=(unit id:smart)
           token-a=token-args
           token-b=token-args
       ==

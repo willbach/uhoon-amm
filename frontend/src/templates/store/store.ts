@@ -1,7 +1,7 @@
 import { SubscriptionRequestInterface } from "@urbit/http-api"
 import create from "zustand"
 import api from "../api"
-import { TemplateValue } from "../types/TemplateValue"
+import { TestValue } from "../types/TestValue"
 import { handleTemplateUpdate } from "./subscriptions"
 
 export function createSubscription(app: string, path: string, e: (data: any) => void): SubscriptionRequestInterface {
@@ -19,7 +19,7 @@ export function createSubscription(app: string, path: string, e: (data: any) => 
 }
 
 export interface Store {
-  templateValues: TemplateValue[];
+  templateValues: TestValue[];
   init: () => Promise<void>;
   templateScry: () => void;
   testPoke: () => void;
@@ -29,19 +29,20 @@ const useStore = create<Store>((set, get) => ({
   templateValues: [],
   init: async () => {
     // Update the subscriptions and scries to match your app's routes
-    api.subscribe(createSubscription('amm', '/test', handleTemplateUpdate(get, set)));
+    api.subscribe(createSubscription('amm', '/testpath', handleTemplateUpdate(get, set)));
 
     // get().templateScry();
   },
   templateScry: async () => {
-    const templateValues = await api.scry<TemplateValue[]>({ app: 'amm', path: '/template' });
+    const templateValues = await api.scry<TestValue[]>({ app: 'amm', path: '/testpath' });
     set({ templateValues });
   },
   testPoke: async () => {
     await api.poke({
       app: 'amm',
       mark: 'amm-action',
-      json: { 'fe-test': {'squid': 69420} }
+      // json: { 'fe-test': {'squid': 69420} }
+      json: {'fe-test': 69420}
     });
   },
 }))
