@@ -1,9 +1,11 @@
 /+  *amm, default-agent, dbug
 |%
-+$  card  card:agent:gall
 +$  versioned-state
   $%  state-0
   ==
+::
++$  card  card:agent:gall
+::
 --
 =|  state-0
 =*  state  -
@@ -39,7 +41,16 @@
         %fe-test
       =/  info  ~(chain-state fetch our-town-id [our now]:bowl)
       :_  state
-      ~[[%give %fact ~[/test] %amm-update !>([%test 'return'])]]
+      ~[[%give %fact ~[/testpath] %amm-update !>([%test num.act])]]
+    ::
+        %token-in
+      ~&  >  act
+      :_  state
+      ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
+    ::
+        %make-pool
+      ~&  >  act
+      `state
     ::
     ==
   --
@@ -47,7 +58,7 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
-      [%test ~]
+      [%testpath ~]
     ~&  >  "got test subscription from {<src.bowl>}"  `this
   ==
 ++  on-leave  on-leave:def

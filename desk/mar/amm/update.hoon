@@ -13,7 +13,12 @@
       %test
       %-  pairs:enjs
       :~
-        ['frombackend' [%s msg.upd]]
+        ['from-backend' (numb:enjs rnum.upd)]
+      ==
+      %confirmation
+      %-  pairs:enjs
+      :~
+        ['confirmation' (tape:enjs "Order Received: {<amount.upd token.upd>}")]
       ==
     ==
   --
