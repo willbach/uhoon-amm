@@ -1,9 +1,11 @@
 /+  *amm, default-agent, dbug
 |%
-+$  card  card:agent:gall
 +$  versioned-state
   $%  state-0
   ==
+::
++$  card  card:agent:gall
+::
 --
 =|  state-0
 =*  state  -
@@ -44,6 +46,11 @@
       ~&  >  act
       :_  state
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
+    ::
+        %make-pool
+      ~&  >  act
+      `state
+    ::
     ==
   --
 ++  on-watch

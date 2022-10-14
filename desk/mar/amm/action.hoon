@@ -14,12 +14,27 @@
       :: :~  fe-test+(ot ~[squid+ni])
       :~  
           [%fe-test ni]
-          [%token-in get-token]
+          [%token-in (ot ~[[%token so] [%amount ni]])]
+          [%make-pool parse-pool]
       ==
-    ++  get-token
+    ++  parse-pool
       %-  ot
-      :~  [%token so]
-          [%amount ni]
+      :~  [%name so]
+          [%liq-shares ni]
+          [%liq-token-meta (se %ux)]
+          [%our-liq-token-account (se %ux)]
+          [%token-a parse-token]
+          [%token-b parse-token]
+      ==
+    ++  parse-token
+      %-  ot
+      :~  [%name so]
+          [%symbol so]
+          [%metadata (se %ux)]
+          [%our-account (mu (se %ux))]
+          [%pool-account (mu (se %ux))]
+          [%liquidity ni]
+          [%current-price ni]
       ==
     --
   --

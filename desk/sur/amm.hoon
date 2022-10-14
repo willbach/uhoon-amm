@@ -18,6 +18,14 @@
 +$  action
   $%  [%fe-test num=@ud]
       [%token-in token=@t amount=@ud]
+      $:  %make-pool 
+          name=@t 
+          liq-shares=@ud 
+          liq-token-meta=id:smart 
+          our-liq-token-account=id:smart
+          token-a=token-data
+          token-b=token-data
+      ==
   ==
 ::
 +$  update
