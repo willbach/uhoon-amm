@@ -22,7 +22,7 @@
       :~  [%name so]
           [%liq-shares ni]
           [%liq-token-meta (se %ux)]
-          [%our-liq-token-account (se %ux)]
+          [%our-liq-token-account (mu (se %ux))]
           [%token-a parse-token]
           [%token-b parse-token]
       ==
