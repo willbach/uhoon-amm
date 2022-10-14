@@ -6,6 +6,8 @@
 ::  On init, the app subscribes to all grains controlled by the AMM contract,
 ::  the address of which is hardcoded below:
 ::
+++  our-addr  ::  for testing
+  0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70
 ++  amm-contract-id
   0x4d78.fd37.70db.a302.6ad1.c3e1.3517.dbfc.35db.7160.1e9c.d630.0dd0.c02b.ff13.054c
 ++  our-town-id  0x0

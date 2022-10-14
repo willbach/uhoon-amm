@@ -1,7 +1,7 @@
 /-  *amm, indexer
 |%
 ++  fetch
-  |_  [town-id=id:smart our=ship now=@da]
+  |_  [our-addr=address:smart town-id=id:smart our=ship now=@da]
   ++  i-scry
     /(scot %p our)/uqbar/(scot %da now)/indexer
   ++  chain-state
@@ -26,7 +26,7 @@
   ::
   ++  grain-data
     |=  =id:smart
-    ^-  (unit *)
+    ^-  (unit [lord=id:smart *])
     =/  =update:indexer
       .^  update:indexer  %gx
           %+  weld  i-scry
@@ -35,19 +35,19 @@
     ?~  update  ~
     ?.  ?=(%newest-grain -.update)  ~
     ?.  ?=(%& -.grain.update)  ~
-    `data.p.grain.update
+    `[lord data]:p.grain.update
   ::
   ++  token-meta
     |=  =id:smart
-    ^-  (unit token-metadata)
-    ?~  data=(grain-data id)  ~
-    ((soft token-metadata) u.data)
+    ^-  (unit [lord=id:smart token-metadata])
+    ?~  g=(grain-data id)  ~
+    ((soft ,[@ux ,token-metadata]) u.g)
   ::
   ++  token-account
     |=  =id:smart
-    ^-  (unit account)
-    ?~  data=(grain-data id)  ~
-    ((soft account) u.data)
+    ^-  (unit [lord=id:smart account])
+    ?~  g=(grain-data id)  ~
+    ((soft ,[@ux account]) u.g)
   ::
   ::  +fill-pool: take a pool's on-chain data and expand to give
   ::  everything we need to interact with it
@@ -56,36 +56,45 @@
     |=  raw=pool
     ^-  (unit pool-data)
     ::  gather metadata for each token in pool
-    ?~  meta-a=(token-meta meta.token-a.raw)  ~
-    ?~  meta-b=(token-meta meta.token-b.raw)  ~
-    ~&  >  raw
-    =/  pool-name=@t
-      %-  crip  %-  zing
-      :~  (trip symbol.u.meta-a)  "-"
-          (trip symbol.u.meta-b)  " Pool"
-      ==
-    =/  token-a=token-data
-      :*  name.u.meta-a
-          symbol.u.meta-a
+    ?~  a=(token-meta meta.token-a.raw)  ~
+    =*  metadata-a  +.u.a
+    ?~  b=(token-meta meta.token-b.raw)  ~
+    =*  metadata-b  +.u.b
+    ?~  liq=(token-meta liq-token-meta.raw)  ~
+    :-  ~
+    :*  %-  crip  %-  zing
+        :~  (trip symbol.metadata-a)  "-"
+            (trip symbol.metadata-b)  " Pool"
+        ==
+        liq-shares.raw
+        liq-token-meta.raw
+      ::  our account for this liquidity token, if we have one
+      =-  ?~((grain-data -) ~ `-)
+      (fry-rice:smart -.u.liq our-addr town-id salt.+.u.liq)
+      :*  name.metadata-a
+          symbol.metadata-a
           meta.token-a.raw
-          ~  ::  our-account-a
-          ~  ::  pool-account-a
+          ::  our account grain, if we have one
+          =-  ?~((grain-data -) ~ `-)
+          (fry-rice:smart -.u.a our-addr town-id salt.metadata-a)
+          ::  pool account grain
+          =-  ?~((grain-data -) ~ `-)
+          (fry-rice:smart -.u.a amm-contract-id town-id salt.metadata-a)
           liq.token-a.raw
           (div liq.token-a.raw liq.token-b.raw)
       ==
-    =/  token-b=token-data
-      :*  name.u.meta-b
-          symbol.u.meta-b
+      :*  name.metadata-b
+          symbol.metadata-b
           meta.token-b.raw
-          ~  ::  our-account-b
-          ~  ::  pool-account-b
+          ::  our account grain, if we have one
+          =-  ?~((grain-data -) ~ `-)
+          (fry-rice:smart -.u.b our-addr town-id salt.metadata-b)
+          ::  pool account grain
+          =-  ?~((grain-data -) ~ `-)
+          (fry-rice:smart -.u.b amm-contract-id town-id salt.metadata-b)
           liq.token-b.raw
           (div liq.token-b.raw liq.token-a.raw)
       ==
-
-
-    ~&  pool-name
-    !!
-    ::  =/  name  (zing "" "-" "")
+    ==
   --
 --
