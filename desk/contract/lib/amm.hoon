@@ -4,7 +4,8 @@
 ++  trading-fee   30
 ++  lp-fee        25
 ++  protocol-fee  5
-++  our-fungible-contract  0x1234
+++  our-fungible-contract
+  0x1243.45f7.fca9.a019.1c65.1316.bffa.10d6.cdb8.42e6.06fe.0f79.a3ee.e5a2.ca63.3327
 ++  dec-18  1.000.000.000.000.000.000
 ::  data types
 +$  pool

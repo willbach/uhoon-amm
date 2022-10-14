@@ -6,7 +6,11 @@
 ::  On init, the app subscribes to all grains controlled by the AMM contract,
 ::  the address of which is hardcoded below:
 ::
-++  amm-contract-id  0xcafe
+++  amm-contract-id
+  0x4d78.fd37.70db.a302.6ad1.c3e1.3517.dbfc.35db.7160.1e9c.d630.0dd0.c02b.ff13.054c
+++  our-town-id  0x0
+::  fungible contract id:
+::  0x1243.45f7.fca9.a019.1c65.1316.bffa.10d6.cdb8.42e6.06fe.0f79.a3ee.e5a2.ca63.3327
 ::
 ::  The app then tracks pools and their prices, providing to the user an
 ::  interface for building transactions for swaps and liquidity management.

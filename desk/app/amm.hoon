@@ -39,6 +39,7 @@
     ^-  (quip card _state)
     ?-    -.act
         %fe-test
+      =/  info  ~(chain-state fetch our-town-id [our now]:bowl)
       :_  state
       ~[[%give %fact ~[/testpath] %amm-update !>([%test num.act])]]
     ::
