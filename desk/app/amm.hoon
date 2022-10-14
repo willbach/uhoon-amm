@@ -39,8 +39,8 @@
     ^-  (quip card _state)
     ?-    -.act
         %fe-test
-      =/  info  ~(chain-state fetch our-town-id [our now]:bowl)
-      :_  state
+      =+  ~(chain-state fetch our-addr our-town-id [our now]:bowl)
+      :_  state(pools (~(uni by pools) -))
       ~[[%give %fact ~[/testpath] %amm-update !>([%test num.act])]]
     ::
         %token-in
