@@ -49,7 +49,7 @@
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
     ::
         %make-pool
-      ~&  >  `pool-data`+.act
+      ~&  >  ;;(pool-data +.act)
       `state
     ::
     ==
