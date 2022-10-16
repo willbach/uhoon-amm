@@ -15,13 +15,18 @@
     ?@  update  ~
     ::  for each pool, parse
     ?:  ?=(%grain -.update)
-      ~
+      =+  `(list grain-update-value:indexer)`(zing ~(val by grains.update))
+      %-  ~(gas by *(map id:smart pool-data))
+      %+  murn  -
+      |=  grain-update-value:indexer
+      ?.  ?=(%& -.grain)  ~
+      ?~  p=(fill-pool ;;(pool data.p.grain))  ~
+      `[id.p.grain u.p]
     ::  parse single pool
     ?:  ?=(%newest-grain -.update)
       ?>  ?=(%& -.grain.update)
-      ?~  pool-one=(fill-pool ;;(pool data.p.grain.update))
-        ~
-      [id.p.grain.update^u.pool-one ~ ~]
+      ?~  p=(fill-pool ;;(pool data.p.grain.update))  ~
+      [id.p.grain.update^u.p ~ ~]
     !!  ::  got an unexpected update type
   ::
   ++  grain-data
