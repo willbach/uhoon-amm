@@ -41,7 +41,7 @@
         %fe-test
       =+  ~(chain-state fetch our-addr our-town-id [our now]:bowl)
       :_  state(pools (~(uni by pools) -))
-      ~[[%give %fact ~[/testpath] %amm-update !>([%test num.act])]]
+      ~[[%give %fact ~[/testpath] %amm-update !>([%test 777])]]
     ::
         %token-in
       ~&  >  act
@@ -49,7 +49,10 @@
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
     ::
         %make-pool
-      ~&  >  ;;(pool-data +.act)
+      =+  %-  %~  put  by
+          *(map id:smart pool-data)
+          [0x17 ;;(pool-data +.act)]
+      ~&  >  state
       `state
     ::
     ==

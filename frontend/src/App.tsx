@@ -9,7 +9,7 @@ function App() {
 
   useEffect(() => {
     init()
-    // testPoke()
+    testPoke()
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const poolData = {
