@@ -12,33 +12,37 @@ function App() {
     testPoke()
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const poolData = {
-    'name': 'testpool',
-    'liq-shares': 1000,
-    'liq-token-meta': '0x1',
-    'our-liq-token-account': '0x2',
-    'token-a': {
-      'name': 'token-a',
-      'symbol': 'TKA',
-      'metadata': '0x3',
-      'our-account': '0x4',
-      'pool-account': '0x5',
-      'liquidity': 1000,
-      'current-price': 50
-    },
-    'token-b': {
-      'name': 'token-b',
-      'symbol': 'TKB',
-      'metadata': '0x6',
-      'our-account': '0x7',
-      'pool-account': '0x8',
-      'liquidity': 2000,
-      'current-price': 80    
-    },
-  }
+  // const poolData = {
+  //   'name': 'testpool',
+  //   'liq-shares': 1000,
+  //   'liq-token-meta': '0x1',
+  //   'our-liq-token-account': '0x2',
+  //   'token-a': {
+  //     'name': 'token-a',
+  //     'symbol': 'TKA',
+  //     'metadata': '0x3',
+  //     'our-account': '0x4',
+  //     'pool-account': '0x5',
+  //     'liquidity': 1000,
+  //     'current-price': 50
+  //   },
+  //   'token-b': {
+  //     'name': 'token-b',
+  //     'symbol': 'TKB',
+  //     'metadata': '0x6',
+  //     'our-account': '0x7',
+  //     'pool-account': '0x8',
+  //     'liquidity': 2000,
+  //     'current-price': 80    
+  //   },
+  // }
 
-  function addPoolPoke() {
-    api.poke({app: 'amm', mark: 'amm-action', json: {'make-pool': poolData}})
+  // function addPoolPoke() {
+  //   api.poke({app: 'amm', mark: 'amm-action', json: {'make-pool': poolData}})
+  // }
+
+  function getPoolPoke() {
+    api.poke({app: 'amm', mark: 'amm-action', json: { 'get-pool': null }})
   }
 
   function tokenPoke(token: string, amount: number) {
@@ -81,10 +85,10 @@ function App() {
       <form
       onSubmit={(e: React.SyntheticEvent) => {
         e.preventDefault();
-        addPoolPoke();
+        getPoolPoke();
       }}
       >
-        <input type="submit" value="Make Test Pool"/>
+        <input type="submit" value="Log Test Pool"/>
       </form>
       </header>
     </div>

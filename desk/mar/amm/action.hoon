@@ -16,6 +16,7 @@
           [%fe-test ni]
           [%token-in (ot ~[[%token so] [%amount ni]])]
           [%make-pool parse-pool]
+          [%get-pool ul]
       ==
     ++  parse-pool
       %-  ot

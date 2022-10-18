@@ -44,17 +44,21 @@
       ~[[%give %fact ~[/testpath] %amm-update !>([%test 777])]]
     ::
         %token-in
-      ~&  >  act
+      :: ~&  >  act
       :_  state
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
     ::
         %make-pool
-      =+  %-  %~  put  by
-          *(map id:smart pool-data)
-          [0x17 ;;(pool-data +.act)]
-      ~&  >  state
+      :: =+  %-  %~  put  by
+      ::     *(map id:smart pool-data)
+      ::     [0x17 ;;(pool-data +.act)]
+      :: ~&  >  state
       `state
     ::
+        %get-pool
+      :: ~&  >  pools.state
+      :_  state
+      ~[[%give %fact ~[/testpath] %amm-update !>([%got-pool state])]]
     ==
   --
 ++  on-watch

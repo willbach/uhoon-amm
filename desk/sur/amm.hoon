@@ -25,11 +25,13 @@
   $%  [%fe-test num=@ud]
       [%token-in token=@t amount=@ud]
       [%make-pool pool-data]
+      [%get-pool ~]
   ==
 ::
 +$  update
   $%  [%test rnum=@ud]
       [%confirmation token=@t amount=@ud]
+      [%got-pool pools=(map id:smart pool-data)]
   ==
 ::
 +$  pool-data
