@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import api from "./templates/api";
 import useStore from './templates/store/store';
+import Pools from './templates/components/Pools';
+import { forEachChild } from 'typescript';
 
 function App() {
-  const { init, testPoke } = useStore();
+  const { init, getPoolPoke, testPoke, poolValue } = useStore();
 
   useEffect(() => {
     init()
-    testPoke()
+    getPoolPoke()
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // const poolData = {
@@ -40,10 +43,6 @@ function App() {
   // function addPoolPoke() {
   //   api.poke({app: 'amm', mark: 'amm-action', json: {'make-pool': poolData}})
   // }
-
-  function getPoolPoke() {
-    api.poke({app: 'amm', mark: 'amm-action', json: { 'get-pool': null }})
-  }
 
   function tokenPoke(token: string, amount: number) {
     api.poke({ app: 'amm', mark: 'amm-action', json: { 'token-in': { token, amount } } })
@@ -82,14 +81,15 @@ function App() {
         <input type="submit" value="Send It" />
       </form>
       <br/>
-      <form
+      {/* <form
       onSubmit={(e: React.SyntheticEvent) => {
         e.preventDefault();
         getPoolPoke();
       }}
       >
         <input type="submit" value="Log Test Pool"/>
-      </form>
+      </form> */}
+      <Pools pools={poolValue}/>
       </header>
     </div>
   );

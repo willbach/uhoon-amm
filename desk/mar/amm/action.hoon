@@ -11,7 +11,6 @@
     |%
     ++  fe-action
       %-  of
-      :: :~  fe-test+(ot ~[squid+ni])
       :~  
           [%fe-test ni]
           [%token-in (ot ~[[%token so] [%amount ni]])]

@@ -29,8 +29,7 @@
   ==
 ::
 +$  update
-  $%  [%test rnum=@ud]
-      [%confirmation token=@t amount=@ud]
+  $%  [%confirmation token=@t amount=@ud]
       [%got-pool pools=(map id:smart pool-data)]
   ==
 ::

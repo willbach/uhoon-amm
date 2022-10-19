@@ -40,8 +40,7 @@
     ?-    -.act
         %fe-test
       =+  ~(chain-state fetch our-addr our-town-id [our now]:bowl)
-      :_  state(pools (~(uni by pools) -))
-      ~[[%give %fact ~[/testpath] %amm-update !>([%test 777])]]
+      `state
     ::
         %token-in
       :: ~&  >  act
@@ -58,7 +57,7 @@
         %get-pool
       :: ~&  >  pools.state
       :_  state
-      ~[[%give %fact ~[/testpath] %amm-update !>([%got-pool state])]]
+      ~[[%give %fact ~[/pools] %amm-update !>([%got-pool state])]]
     ==
   --
 ++  on-watch
@@ -67,6 +66,9 @@
   ?+    path  !!
       [%testpath ~]
     ~&  >  "got test subscription from {<src.bowl>}"  `this
+    ::
+      [%pools ~]
+    ~&  >  "frontend sub on /pools"  `this
   ==
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def

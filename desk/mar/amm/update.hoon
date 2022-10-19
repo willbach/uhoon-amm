@@ -10,12 +10,6 @@
   ++  noun  upd
   ++  json
     ?-  -.upd
-      %test
-      %-  pairs:enjs
-      :~
-        ['from-backend' (numb:enjs rnum.upd)]
-      ==
-      ::
       %confirmation
       %-  pairs:enjs
       :~
@@ -32,7 +26,6 @@
   ++  parse-pool
     |=  pool=pool-data
     ^-  ^json
-    ~&  >>  pool
     %-  pairs:enjs
     :~  ['name' [%s name.pool]]
         ['liq-shares' [%s `@t`(scot %ud liq-shares.pool)]]
