@@ -11,8 +11,8 @@ export const handleTemplateUpdate = (get: GetState<Store>, set: SetState<Store>)
 }
 
 export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) => (newValue: PoolValue) => {
-  const{ poolValue } = get();
+  const{ rawPools } = get();
   // console.log("Got a pool: ");
   // console.log(newValue);
-  set({ poolValue: poolValue.concat([newValue]) });
+  set({ rawPools: rawPools.concat([newValue]) });
 }

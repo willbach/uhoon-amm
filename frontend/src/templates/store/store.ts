@@ -21,7 +21,7 @@ export function createSubscription(app: string, path: string, e: (data: any) => 
 
 export interface Store {
   templateValues: TestValue[];
-  poolValue: PoolValue[]
+  rawPools: PoolValue[]
   init: () => Promise<void>;
   getPoolPoke: () => Promise<void>;
   templateScry: () => void;
@@ -30,7 +30,7 @@ export interface Store {
 
 const useStore = create<Store>((set, get) => ({
   templateValues: [],
-  poolValue: [],
+  rawPools: [],
   init: async () => {
     // Update the subscriptions and scries to match your app's routes
     api.subscribe(createSubscription('amm', '/pools', handlePoolsUpdate(get, set)));

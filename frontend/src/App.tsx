@@ -7,7 +7,7 @@ import Pools from './templates/components/Pools';
 import { forEachChild } from 'typescript';
 
 function App() {
-  const { init, getPoolPoke, testPoke, poolValue } = useStore();
+  const { init, getPoolPoke, testPoke, rawPools } = useStore();
 
   useEffect(() => {
     init()
@@ -89,7 +89,7 @@ function App() {
       >
         <input type="submit" value="Log Test Pool"/>
       </form> */}
-      <Pools pools={poolValue}/>
+      <Pools pools={rawPools}/>
       </header>
     </div>
   );
