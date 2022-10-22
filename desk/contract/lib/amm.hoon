@@ -1,4 +1,4 @@
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ::  values
 ++  trading-fee   30
