@@ -24,19 +24,19 @@
       %-  hash-data
       :^  our-fungible-contract:lib
         our-fungible-contract:lib
-      shard.context  salt
+      town.context  salt
     ::  create new pool
-    =/  pool-id=id  (hash-data this.context this.context shard.context salt)
+    =/  pool-id=id  (hash-data this.context this.context town.context salt)
     =/  =pool:lib
       :^    [meta.token-a contract-a amount.token-a]
           [meta.token-b contract-b amount.token-b]
         liq-shares
       liq-token-meta-id
-    =/  =data  [pool-id this.context this.context shard.context salt %pool pool]
+    =/  =data  [pool-id this.context this.context town.context salt %pool pool]
     ::
     :_  (result ~ [%& data]~ ~ ~)
     :~  :+  contract-a
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.token-a
@@ -45,7 +45,7 @@
         ==
     ::
         :+  contract-b
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.token-b
@@ -54,7 +54,7 @@
         ==
     ::
         :+  our-fungible-contract:lib
-          shard.context
+          town.context
         :*  %deploy
             name='Liquity Token: xx'
             symbol='LT'
@@ -105,7 +105,7 @@
       pool(token-a swap-output, token-b swap-input)
     :_  (result [%& pool-data]~ ~ ~ ~)
     :~  :+  contract.swap-input
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.payment
@@ -114,7 +114,7 @@
         ==
     ::
         :+  contract.swap-output
-          shard.context
+          town.context
         :*  %give
             id.caller.context
             amount-received
@@ -150,7 +150,7 @@
     ::
     :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
     :~  :+  contract.token-a.pool
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.token-a
@@ -159,7 +159,7 @@
         ==
     ::
         :+  contract.token-b.pool
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.token-b
@@ -168,7 +168,7 @@
         ==
     ::
         :+  our-fungible-contract:lib
-          shard.context
+          town.context
         :*  %mint
             token=liq-token-meta.pool
             [[to=id.caller.context liq-shares-account amount=liq-to-mint] ~]
@@ -185,7 +185,7 @@
     =/  pool-salt=@  (get-pool-salt:lib meta.token-a.pool meta.token-b.pool)
     ?>  =-  =(- liq-shares-account.act)
         %-  hash-data
-        [our-fungible-contract:lib id.caller.context shard.context pool-salt]
+        [our-fungible-contract:lib id.caller.context town.context pool-salt]
     ::  calculate reward in each token
     ::  tokenWithdrawn = (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
     =/  token-a-withdraw
@@ -204,7 +204,7 @@
     ::  we always %burn our liq token account, so we will never have one
     :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
     :~  :+  our-fungible-contract:lib
-          shard.context
+          town.context
         :*  %take
             this.context
             amount.act
@@ -213,13 +213,13 @@
         ==
     ::
         :+  0x0
-          shard.context
+          town.context
         =-  [%burn - 0x0]
         %-  hash-data
-        [our-fungible-contract:lib this.context shard.context pool-salt]
+        [our-fungible-contract:lib this.context town.context pool-salt]
     ::
         :+  contract.token-a.pool
-          shard.context
+          town.context
         :*  %give
             id.caller.context
             token-a-withdraw
@@ -228,7 +228,7 @@
         ==
     ::
         :+  contract.token-b.pool
-          shard.context
+          town.context
         :*  %give
             id.caller.context
             token-b-withdraw
