@@ -1,11 +1,11 @@
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 |%
 ::  values
 ++  trading-fee   30
 ++  lp-fee        25
 ++  protocol-fee  5
 ++  our-fungible-contract
-  0x1243.45f7.fca9.a019.1c65.1316.bffa.10d6.cdb8.42e6.06fe.0f79.a3ee.e5a2.ca63.3327
+  0x5856.b89a.1915.b17a.7bab.9be2.5bc7.7c47.1c9b.ffdf.79f6.5d13.8893.7ca3.137a.7d3e
 ++  dec-18  1.000.000.000.000.000.000
 ::  data types
 +$  pool

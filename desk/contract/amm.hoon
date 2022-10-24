@@ -1,9 +1,9 @@
-::  /+  *zig-sys-smart
+/+  *zig-sys-smart
 /=  lib  /contract/lib/amm
-|_  =cart
+|_  =context
 ++  write
   |=  act=action:lib
-  ^-  chick
+  ^-  (quip call diff)
   ?-    -.act
       %start-pool
     =,  act
@@ -16,62 +16,61 @@
     ::  determine unique salt for new pool
     =/  salt=@  (get-pool-salt:lib meta.token-a meta.token-b)
     ::  find contract IDs for the two tokens
-    =/  contract-a  lord.p:(need (scry-granary meta.token-a))
-    =/  contract-b  lord.p:(need (scry-granary meta.token-b))
+    =/  contract-a  source.p:(need (scry-state meta.token-a))
+    =/  contract-b  source.p:(need (scry-state meta.token-b))
     ::  take the tokens from caller,
     ::  mint liq token to caller
     =/  liq-token-meta-id
-      %-  fry-rice
+      %-  hash-data
       :^  our-fungible-contract:lib
         our-fungible-contract:lib
-      town-id.cart  salt
-    ::
-    %+  continuation
-      :~  :+  contract-a
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.token-a
-              (need caller-account.token-a)
-              pool-account.token-a
-          ==
-      ::
-          :+  contract-b
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.token-b
-              (need caller-account.token-b)
-              pool-account.token-b
-          ==
-      ::
-          :+  our-fungible-contract:lib
-            town-id.cart
-          :*  %deploy
-              name='Liquity Token: xx'
-              symbol='LT'
-              salt
-              ~
-              minters=[me.cart ~ ~]
-              [[id.from.cart liq-shares] ~]
-          ==
-      ==
+      town.context  salt
     ::  create new pool
-    =/  pool-id=id  (fry-rice me.cart me.cart town-id.cart salt)
+    =/  pool-id=id  (hash-data this.context this.context town.context salt)
     =/  =pool:lib
       :^    [meta.token-a contract-a amount.token-a]
           [meta.token-b contract-b amount.token-b]
         liq-shares
       liq-token-meta-id
-    =/  =rice  [salt %pool pool pool-id me.cart me.cart town-id.cart]
-    (result ~ [%& rice]~ ~ ~)
+    =/  =data  [pool-id this.context this.context town.context salt %pool pool]
+    ::
+    :_  (result ~ [%& data]~ ~ ~)
+    :~  :+  contract-a
+          town.context
+        :*  %take
+            this.context
+            amount.token-a
+            (need caller-account.token-a)
+            pool-account.token-a
+        ==
+    ::
+        :+  contract-b
+          town.context
+        :*  %take
+            this.context
+            amount.token-b
+            (need caller-account.token-b)
+            pool-account.token-b
+        ==
+    ::
+        :+  our-fungible-contract:lib
+          town.context
+        :*  %deploy
+            name='Liquity Token: xx'
+            symbol='LT'
+            salt
+            ~
+            minters=[this.context ~ ~]
+            [[id.caller.context liq-shares] ~]
+        ==
+    ==
   ::
       %swap
     =,  act
-    =/  pool-rice
-      =+  (need (scry-granary pool-id))
-      (husk pool:lib - `me.cart `me.cart)
-    =/  =pool:lib  data.pool-rice
+    =/  pool-data
+      =+  (need (scry-state pool-id))
+      (husk pool:lib - `this.context `this.context)
+    =/  =pool:lib  noun.pool-data
     =/  fee  ::  fee is 0.3% of swap amount
       %+  mul  trading-fee:lib  ::  30
       (div amount.payment 10.000)
@@ -86,10 +85,10 @@
     ?>  ?&  =(meta.payment meta.swap-input)
             =(meta.receive meta.swap-output)
         ==
-    ::  constant product formula determines price
+    ::  constant product formula determines pdata
     ::  p = ra / rb
-    =/  price  (div liq.swap-output liq.swap-input)
-    =/  amount-received  (div (sub amount.payment fee) price)
+    =/  pdata  (div liq.swap-output liq.swap-input)
+    =/  amount-received  (div (sub amount.payment fee) pdata)
     ::  determine allowed output w/ slippage
     ::  TODO also set max? probably not needed
     ?>  (gte amount-received amount.receive)
@@ -100,37 +99,36 @@
     ::  take the payment from caller,
     ::  give the output to caller
     ::
-    %+  continuation
-      :~  :+  contract.swap-input
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.payment
-              (need caller-account.payment)
-              pool-account.payment
-          ==
-      ::
-          :+  contract.swap-output
-            town-id.cart
-          :*  %give
-              id.from.cart
-              amount-received
-              (need pool-account.receive)
-              caller-account.receive
-          ==
-      ==
-    =/  new-pool
+    =.  noun.pool-data
       ?:  =(meta.payment meta.token-a.pool)
-          pool(token-a swap-input, token-b swap-output)
-        pool(token-a swap-output, token-b swap-input)
-    (result [%& pool-rice(data new-pool)]~ ~ ~ ~)
+        pool(token-a swap-input, token-b swap-output)
+      pool(token-a swap-output, token-b swap-input)
+    :_  (result [%& pool-data]~ ~ ~ ~)
+    :~  :+  contract.swap-input
+          town.context
+        :*  %take
+            this.context
+            amount.payment
+            (need caller-account.payment)
+            pool-account.payment
+        ==
+    ::
+        :+  contract.swap-output
+          town.context
+        :*  %give
+            id.caller.context
+            amount-received
+            (need pool-account.receive)
+            caller-account.receive
+        ==
+    ==
   ::
       %add-liq
     =,  act
-    =/  pool-rice
-      =+  (need (scry-granary pool-id))
-      (husk pool:lib - `me.cart `me.cart)
-    =/  =pool:lib  data.pool-rice
+    =/  pool-data
+      =+  (need (scry-state pool-id))
+      (husk pool:lib - `this.context `this.context)
+    =/  =pool:lib  noun.pool-data
     ::  assert that added liquidity is valid for pool
     ?>  ?&  =(meta.token-a.pool meta.token-a)
             =(meta.token-b.pool meta.token-b)
@@ -150,45 +148,44 @@
       (add liq.token-b.pool amount.token-b)
     ==
     ::
-    %+  continuation
-      :~  :+  contract.token-a.pool
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.token-a
-              (need caller-account.token-a)
-              pool-account.token-a
-          ==
-      ::
-          :+  contract.token-b.pool
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.token-b
-              (need caller-account.token-b)
-              pool-account.token-b
-          ==
-      ::
-          :+  our-fungible-contract:lib
-            town-id.cart
-          :*  %mint
-              token=liq-token-meta.pool
-              [[to=id.from.cart liq-shares-account amount=liq-to-mint] ~]
-          ==
-      ==
-    (result [%& pool-rice(data pool)]~ ~ ~ ~)
+    :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
+    :~  :+  contract.token-a.pool
+          town.context
+        :*  %take
+            this.context
+            amount.token-a
+            (need caller-account.token-a)
+            pool-account.token-a
+        ==
+    ::
+        :+  contract.token-b.pool
+          town.context
+        :*  %take
+            this.context
+            amount.token-b
+            (need caller-account.token-b)
+            pool-account.token-b
+        ==
+    ::
+        :+  our-fungible-contract:lib
+          town.context
+        :*  %mint
+            token=liq-token-meta.pool
+            [[to=id.caller.context liq-shares-account amount=liq-to-mint] ~]
+        ==
+    ==
   ::
       %remove-liq
     =,  act
-    =/  pool-rice
-      =+  (need (scry-granary pool-id.act))
-      (husk pool:lib - `me.cart `me.cart)
-    =/  =pool:lib  data.pool-rice
+    =/  pool-data
+      =+  (need (scry-state pool-id.act))
+      (husk pool:lib - `this.context `this.context)
+    =/  =pool:lib  noun.pool-data
     ::  assert that liquidity shares match the pool
     =/  pool-salt=@  (get-pool-salt:lib meta.token-a.pool meta.token-b.pool)
     ?>  =-  =(- liq-shares-account.act)
-        %-  fry-rice
-        [our-fungible-contract:lib id.from.cart town-id.cart pool-salt]
+        %-  hash-data
+        [our-fungible-contract:lib id.caller.context town.context pool-salt]
     ::  calculate reward in each token
     ::  tokenWithdrawn = (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
     =/  token-a-withdraw
@@ -205,41 +202,40 @@
     ==
     ::  execute %take of liquidity token and %gives for tokens a&b
     ::  we always %burn our liq token account, so we will never have one
-    %+  continuation
-      :~  :+  our-fungible-contract:lib
-            town-id.cart
-          :*  %take
-              me.cart
-              amount.act
-              liq-shares-account.act
-              ~
-          ==
-      ::
-          :+  0x0
-            town-id.cart
-          =-  [%burn - 0x0]
-          %-  fry-rice
-          [our-fungible-contract:lib me.cart town-id.cart pool-salt]
-      ::
-          :+  contract.token-a.pool
-            town-id.cart
-          :*  %give
-              id.from.cart
-              token-a-withdraw
-              (need pool-account.token-a)
-              caller-account.token-a
-          ==
-      ::
-          :+  contract.token-b.pool
-            town-id.cart
-          :*  %give
-              id.from.cart
-              token-b-withdraw
-              (need pool-account.token-b)
-              caller-account.token-b
-          ==
-      ==
-    (result [%& pool-rice(data pool)]~ ~ ~ ~)
+    :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
+    :~  :+  our-fungible-contract:lib
+          town.context
+        :*  %take
+            this.context
+            amount.act
+            liq-shares-account.act
+            ~
+        ==
+    ::
+        :+  0x0
+          town.context
+        =-  [%burn - 0x0]
+        %-  hash-data
+        [our-fungible-contract:lib this.context town.context pool-salt]
+    ::
+        :+  contract.token-a.pool
+          town.context
+        :*  %give
+            id.caller.context
+            token-a-withdraw
+            (need pool-account.token-a)
+            caller-account.token-a
+        ==
+    ::
+        :+  contract.token-b.pool
+          town.context
+        :*  %give
+            id.caller.context
+            token-b-withdraw
+            (need pool-account.token-b)
+            caller-account.token-b
+        ==
+    ==
   ==
 ++  read
   |_  =path
