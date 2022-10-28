@@ -247,22 +247,54 @@
         ==
     ==
   ::
-  ::  treasury management actions
-  ::
-      %init
-    ::  called once at contract instantiation
-    !!
-  ::
       %offload
     ::  burn treasury tokens to receive share
     =,  act
     =/  treasury-meta  (need (scry-state meta.treasury-token))
     ?>  ?&  ?=(%& -.treasury-meta)
-            =(source.p.treasury-meta our-fungible-contract)
-            ?=([@ @ @ supply=@ud ^ @ ^ deployer=@ @])
-            =(deployer this.context)
+            =(source.p.treasury-meta our-fungible-contract:lib)
+            =(meta.treasury-token treasury-token-metadata:lib)
+            ::  hacky way to read token metadata
+            ?=([@ @ @ supply=@ud ^ @ ^ deployer=id @] noun.p.treasury-meta)
+            =(deployer.noun.p.treasury-meta treasury-token-deployer:lib)
         ==
-    =/  (div (mul amount.treasury-token dec-18) (mul supply dec-18))
+    :_  (result ~ ~ ~ ~)
+    %-  snoc
+    :_  :+  our-fungible-contract:lib
+          town.context
+        :*  %take
+            this.context
+            amount.treasury-token
+            (need caller-account.treasury-token)
+            pool-account.treasury-token
+        ==
+    %+  turn  treasury-accounts
+    |=  =token-args:lib
+    ^-  call
+    =/  token-contract  source.p:(need (scry-state meta.token-args))
+    =/  token-account  (need (scry-state (need pool-account.token-args)))
+    ?>  ?&  ?=(%& -.token-account)
+            ::  hacky way to read token account
+            ?=([reserves=@ud ^ meta=id ^] noun.p.token-account)
+            =(meta.noun.p.token-account meta.token-args)
+        ==
+    :+  token-contract
+      this.context
+    :*  %give
+        id.caller.context
+        ::  if treasury token supply = 1 million, and user has 1 treasury token,
+        ::  they are entitled to 1 one millionth of each treasury account
+        ::  formula: divide (treasury account)*10^18 by (treasury token supply),
+        ::  then multiply result by (amount of user treasury tokens), then divide by 10^18
+        %+  div
+          %+  mul
+            %+  div  reserves.noun.p.token-account
+            supply.noun.p.treasury-meta
+          amount.treasury-token
+        dec-18:lib
+        (need pool-account.token-args)
+        caller-account.token-args
+    ==
   ==
 ++  read
   |_  =path
