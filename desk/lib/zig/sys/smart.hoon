@@ -43,16 +43,16 @@
 ::  +hash: standard hashing functions for items
 ::
 ++  hash-pact
-  |=  [source=id holder=id shard=id code=*]
+  |=  [source=id holder=id town=id code=*]
   ^-  id
   ^-  @ux  %-  shax
-  :((cury cat 3) shard source holder (sham code))
+  :((cury cat 3) town source holder (sham code))
 ::
 ++  hash-data
-  |=  [source=id holder=id shard=id salt=@]
+  |=  [source=id holder=id town=id salt=@]
   ^-  id
   ^-  @ux  %-  shax
-  :((cury cat 3) shard source holder salt)
+  :((cury cat 3) town source holder salt)
 ::
 ::  +result: generate a diff
 ::
@@ -86,19 +86,19 @@
 +$  item  (each data pact)
 ::
 ::  each piece of data includes a contract-defined salt and label
-::  salt is for hashing, to be combined with source/holder/shard for
+::  salt is for hashing, to be combined with source/holder/town for
 ::  a unique rice ID without needing to jam data. label matches
 ::  types defined in pact and allows apps to find a type
 ::  representation for the contained data.
 ::
 +$  data
-  $:  =id  source=id  holder=id  shard=id
+  $:  =id  source=id  holder=id  town=id
       salt=@  label=@tas
       noun=*
   ==
 ::
 +$  pact
-  $:  =id  source=id  holder=id  shard=id
+  $:  =id  source=id  holder=id  town=id
       code=[bat=* pay=*]
       interface=(map @tas json)
       types=(map @tas json)
@@ -111,7 +111,7 @@
       caller=[=id nonce=@ud]  ::  information about caller
       batch=@ud
       eth-block=@ud
-      shard=id
+      town=id
   ==
 ::
 ::  smart contract definition
@@ -140,7 +140,7 @@
       burned=(merk id item)
       =events
   ==
-+$  call  [contract=id shard=id =calldata]
++$  call  [contract=id town=id =calldata]
 +$  event   (pair @tas json)
 +$  events  (list event)
 ::
@@ -154,7 +154,7 @@
       eth-hash=(unit @)  ::  if signed with eth wallet, use verify signature
       contract=id
       gas=[rate=@ud bud=@ud]
-      shard=id
+      town=id
       status=@ud  ::  error code
   ==
 ::
@@ -162,18 +162,19 @@
 ::
 +$  errorcode
   $%  %0  ::  0: successfully performed
-      %1  ::  1: submitted with raw id / no account info
-      %2  ::  2: bad signature
-      %3  ::  3: incorrect nonce
-      %4  ::  4: lack zigs to fulfill budget
-      %5  ::  5: couldn't find contract
+      %1  ::  1: bad signature
+      %2  ::  2: incorrect nonce
+      %3  ::  3: lack zigs to fulfill budget
+      %4  ::  4: couldn't find contract
+      %5  ::  5: data was under contract ID
       %6  ::  6: crash in contract execution
-      %7  ::  7: validation of changed/issued/burned rice failed
+      %7  ::  7: validation of diff failed
       %8  ::  8: ran out of gas while executing
-      %9  ::  9: was not parallel / superceded by another txn in batch
+      %9  ::  9: dedicated burn transaction failed
   ==
 ::
-+$  typed-message  [domain=id message=@]
+::  EIP-712 mold for offchain data signing
++$  typed-message  [domain=id type-hash=@ message=@]
 ::
 ::  typed paths inside contracts
 ::  taken from: https://github.com/urbit/urbit/pull/5887
@@ -573,10 +574,10 @@
     =|  [l=(unit) r=(unit)]
     |.  ^-  ?
     ?~  a   &
-    ?&  ?~(l & (sore n.a u.l))
-        ?~(r & (sore u.r n.a))
-        ?~(l.a & ?&((sure n.a n.l.a) $(a l.a, l `n.a)))
-        ?~(r.a & ?&((sure n.a n.r.a) $(a r.a, r `n.a)))
+    ?&  ?~(l & &((sore n.a u.l) !=(n.a u.l)))
+        ?~(r & &((sore u.r n.a) !=(u.r n.a)))
+        ?~(l.a & ?&((sure n.a n.l.a) !=(n.a n.l.a) $(a l.a, l `n.a)))
+        ?~(r.a & ?&((sure n.a n.r.a) !=(n.a n.r.a) $(a r.a, r `n.a)))
     ==
   ::
   ++  bif                                               ::  splits a by b

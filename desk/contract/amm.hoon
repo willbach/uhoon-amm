@@ -74,6 +74,7 @@
     =/  fee  ::  fee is 0.3% of swap amount
       %+  mul  trading-fee:lib  ::  30
       (div amount.payment 10.000)
+    =/  protocol-fee  (div fee 10)  ::  10% of total fee
     ::  determine which token is being given, and which received
     =+  ^-  $:  swap-input=[meta=id contract=id liq=@ud]
                 swap-output=[meta=id contract=id liq=@ud]
@@ -120,6 +121,15 @@
             amount-received
             (need pool-account.receive)
             caller-account.receive
+        ==
+    ::  award protocol fee to treasury account
+        :+  contract.swap-input
+          town.context
+        :*  %give
+            this.context
+            protocol-fee
+            (need pool-account.payment)
+            treasury-account
         ==
     ==
   ::
@@ -236,6 +246,23 @@
             caller-account.token-b
         ==
     ==
+  ::
+  ::  treasury management actions
+  ::
+      %init
+    ::  called once at contract instantiation
+    !!
+  ::
+      %offload
+    ::  burn treasury tokens to receive share
+    =,  act
+    =/  treasury-meta  (need (scry-state meta.treasury-token))
+    ?>  ?&  ?=(%& -.treasury-meta)
+            =(source.p.treasury-meta our-fungible-contract)
+            ?=([@ @ @ supply=@ud ^ @ ^ deployer=@ @])
+            =(deployer this.context)
+        ==
+    =/  (div (mul amount.treasury-token dec-18) (mul supply dec-18))
   ==
 ++  read
   |_  =path
