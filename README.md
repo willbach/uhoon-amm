@@ -3,7 +3,7 @@ AMM contract for Uqbar in the style of Uniswap V2
 
 These commands assume:
 
-fungible contract ID `0x5856.b89a.1915.b17a.7bab.9be2.5bc7.7c47.1c9b.ffdf.79f6.5d13.8893.7ca3.137a.7d3e`
+fungible contract ID `0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8`
 
 AMM contract ID `0xa774.098d.e071.3637.4a04.6d2b.e7e1.e7c6.9de3.2837.7dc6.2516.f7a7.2100.6249.23f8`
 

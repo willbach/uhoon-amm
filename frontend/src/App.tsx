@@ -7,7 +7,7 @@ import Pools from './templates/components/Pools';
 import { forEachChild } from 'typescript';
 
 function App() {
-  const { init, getPoolPoke, testPoke, rawPools } = useStore();
+  const { init, getPoolPoke, rawPools } = useStore();
 
   useEffect(() => {
     init()

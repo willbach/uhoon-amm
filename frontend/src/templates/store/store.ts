@@ -25,7 +25,7 @@ export interface Store {
   init: () => Promise<void>;
   getPoolPoke: () => Promise<void>;
   templateScry: () => void;
-  testPoke: () => void;
+  initState: () => void;
 }
 
 const useStore = create<Store>((set, get) => ({
@@ -33,8 +33,14 @@ const useStore = create<Store>((set, get) => ({
   rawPools: [],
   init: async () => {
     // Update the subscriptions and scries to match your app's routes
-    api.subscribe(createSubscription('amm', '/pools', handlePoolsUpdate(get, set)));
-
+    await api.subscribe(createSubscription('amm', '/pools', handlePoolsUpdate(get, set)));
+    
+    await api.poke({
+      app: 'amm',
+      mark: 'amm-action',
+      // json: { 'fe-test': {'squid': 69420} }
+      json: {'fe-test': 69420}
+    });
     // get().templateScry();
   },
   getPoolPoke: async () => {
@@ -44,7 +50,7 @@ const useStore = create<Store>((set, get) => ({
     const templateValues = await api.scry<TestValue[]>({ app: 'amm', path: '/testpath' });
     set({ templateValues });
   },
-  testPoke: async () => {
+  initState: async () => {
     await api.poke({
       app: 'amm',
       mark: 'amm-action',

@@ -40,6 +40,7 @@
     ?-    -.act
         %fe-test
       =+  ~(chain-state fetch our-addr our-town-id [our now]:bowl)
+      ~&  >>  "init FE poke {<state>}"
       `state
     ::
         %token-in
