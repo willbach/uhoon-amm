@@ -1,16 +1,17 @@
 /-  *amm, indexer=zig-indexer
 |%
 ++  fetch
-  |_  [our-addr=address:smart town-id=id:smart our=ship now=@da]
+  |_  [[our=ship now=@da] =address:smart amm-id=id:smart town=id:smart]
   ++  i-scry
     /(scot %p our)/uqbar/(scot %da now)/indexer
   ++  chain-state
     ^-  (map id:smart pool-data)
+    ~&  >>  "%amm: fetching latest chain state"
     ::  scry the indexer
     =/  =update:indexer
       .^  update:indexer  %gx
           %+  weld  i-scry
-          /newest/source/(scot %ux town-id)/(scot %ux amm-contract-id)/noun
+          /newest/source/(scot %ux town)/(scot %ux amm-id)/noun
       ==
     ?@  update  ~
     ::  for each pool, parse
@@ -35,7 +36,7 @@
     =/  =update:indexer
       .^  update:indexer  %gx
           %+  weld  i-scry
-          /newest/item/(scot %ux town-id)/(scot %ux id)/noun
+          /newest/item/(scot %ux town)/(scot %ux id)/noun
       ==
     ?~  update  ~
     ?.  ?=(%newest-item -.update)  ~
@@ -75,16 +76,16 @@
         liq-token-meta.raw
       ::  our account for this liquidity token, if we have one
       =-  ?~((item-data -) ~ `-)
-      (hash-data:smart -.u.liq our-addr town-id salt.+.u.liq)
+      (hash-data:smart -.u.liq address town salt.+.u.liq)
       :*  name.metadata-a
           symbol.metadata-a
           meta.token-a.raw
           ::  our account item, if we have one
           =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.a our-addr town-id salt.metadata-a)
+          (hash-data:smart -.u.a address town salt.metadata-a)
           ::  pool account item
           =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.a amm-contract-id town-id salt.metadata-a)
+          (hash-data:smart -.u.a amm-id town salt.metadata-a)
           liq.token-a.raw
           (div liq.token-a.raw liq.token-b.raw)
       ==
@@ -93,10 +94,10 @@
           meta.token-b.raw
           ::  our account item, if we have one
           =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.b our-addr town-id salt.metadata-b)
+          (hash-data:smart -.u.b address town salt.metadata-b)
           ::  pool account item
           =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.b amm-contract-id town-id salt.metadata-b)
+          (hash-data:smart -.u.b amm-id town salt.metadata-b)
           liq.token-b.raw
           (div liq.token-b.raw liq.token-a.raw)
       ==
