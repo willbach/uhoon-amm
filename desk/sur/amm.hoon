@@ -74,8 +74,18 @@
           token-b=token-args
       ==
   ::
+      $:  %swap
+          pool-id=id:smart
+          payment=token-args
+          receive=token-args
+          ::  the account for the swap payment token
+          ::  held by this contract, if any
+          treasury-account=(unit id:smart)
+      ==
+  ::
       $:  %add-liq
           pool-id=id:smart
+          liq-shares-account=(unit id:smart)
           token-a=token-args
           token-b=token-args
       ==
@@ -88,10 +98,17 @@
           token-b=token-args
       ==
   ::
-      $:  %swap
-          pool-id=id:smart
-          payment=token-args
-          receive=token-args
+      $:  %offload  ::  TODO name better
+          ::  exchange treasury token for proportional value
+          ::  of each token held in the given treasury accounts.
+          ::  note that caller must enumerate each token account
+          ::  that treasury holds which they wish to receive a
+          ::  portion of. this is to (a) not make AMM contract
+          ::  have to track all its own accounts, and (b) to give
+          ::  receivers the option not to receive certain tokens
+          ::  they may not wish to hold.
+          treasury-token=token-args
+          treasury-accounts=(list token-args)
       ==
   ==
 ::
@@ -113,6 +130,6 @@
   $:  balance=@ud
       allowances=(pmap:smart address:smart @ud)
       metadata=id:smart
-      nonce=@ud
+      nonces=(map address:smart @ud)
   ==
 --
