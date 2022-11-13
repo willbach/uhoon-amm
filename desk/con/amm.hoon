@@ -1,5 +1,5 @@
 /+  *zig-sys-smart
-/=  lib  /contract/lib/amm
+/=  lib  /con/lib/amm
 |_  =context
 ++  write
   |=  act=action:lib
@@ -22,9 +22,11 @@
     ::  mint liq token to caller
     =/  liq-token-meta-id
       %-  hash-data
-      :^  our-fungible-contract:lib
-        our-fungible-contract:lib
-      town.context  salt
+      :^    our-fungible-contract:lib
+          our-fungible-contract:lib
+        town.context
+      ::  fungible contract appends caller ID (our ID) to salt
+      (cat 3 salt this.context)
     ::  create new pool
     =/  pool-id=id  (hash-data this.context this.context town.context salt)
     =/  =pool:lib
@@ -86,10 +88,10 @@
     ?>  ?&  =(meta.payment meta.swap-input)
             =(meta.receive meta.swap-output)
         ==
-    ::  constant product formula determines pdata
+    ::  constant product formula determines price
     ::  p = ra / rb
-    =/  pdata  (div liq.swap-output liq.swap-input)
-    =/  amount-received  (div (sub amount.payment fee) pdata)
+    =/  price  (div liq.swap-output liq.swap-input)
+    =/  amount-received  (div (sub amount.payment fee) price)
     ::  determine allowed output w/ slippage
     ::  TODO also set max? probably not needed
     ?>  (gte amount-received amount.receive)
@@ -123,14 +125,14 @@
             caller-account.receive
         ==
     ::  award protocol fee to treasury account
-        :+  contract.swap-input
-          town.context
-        :*  %give
-            this.context
-            protocol-fee
-            (need pool-account.payment)
-            treasury-account
-        ==
+    ::  :+  contract.swap-input
+    ::    town.context
+    ::  :*  %give
+    ::      this.context
+    ::      protocol-fee
+    ::      (need pool-account.payment)
+    ::      treasury-account
+    ::  ==
     ==
   ::
       %add-liq
@@ -247,54 +249,54 @@
         ==
     ==
   ::
-      %offload
-    ::  burn treasury tokens to receive share
-    =,  act
-    =/  treasury-meta  (need (scry-state meta.treasury-token))
-    ?>  ?&  ?=(%& -.treasury-meta)
-            =(source.p.treasury-meta our-fungible-contract:lib)
-            =(meta.treasury-token treasury-token-metadata:lib)
-            ::  hacky way to read token metadata
-            ?=([@ @ @ supply=@ud ^ @ ^ deployer=id @] noun.p.treasury-meta)
-            =(deployer.noun.p.treasury-meta treasury-token-deployer:lib)
-        ==
-    :_  (result ~ ~ ~ ~)
-    %-  snoc
-    :_  :+  our-fungible-contract:lib
-          town.context
-        :*  %take
-            this.context
-            amount.treasury-token
-            (need caller-account.treasury-token)
-            pool-account.treasury-token
-        ==
-    %+  turn  treasury-accounts
-    |=  =token-args:lib
-    ^-  call
-    =/  token-contract  source.p:(need (scry-state meta.token-args))
-    =/  token-account  (need (scry-state (need pool-account.token-args)))
-    ?>  ?&  ?=(%& -.token-account)
-            ::  hacky way to read token account
-            ?=([reserves=@ud ^ meta=id ^] noun.p.token-account)
-            =(meta.noun.p.token-account meta.token-args)
-        ==
-    :+  token-contract
-      this.context
-    :*  %give
-        id.caller.context
-        ::  if treasury token supply = 1 million, and user has 1 treasury token,
-        ::  they are entitled to 1 one millionth of each treasury account
-        ::  formula: divide (treasury account)*10^18 by (treasury token supply),
-        ::  then multiply result by (amount of user treasury tokens), then divide by 10^18
-        %+  div
-          %+  mul
-            %+  div  reserves.noun.p.token-account
-            supply.noun.p.treasury-meta
-          amount.treasury-token
-        dec-18:lib
-        (need pool-account.token-args)
-        caller-account.token-args
-    ==
+  ::    %offload
+  ::  ::  burn treasury tokens to receive share
+  ::  =,  act
+  ::  =/  treasury-meta  (need (scry-state meta.treasury-token))
+  ::  ?>  ?&  ?=(%& -.treasury-meta)
+  ::          =(source.p.treasury-meta our-fungible-contract:lib)
+  ::          =(meta.treasury-token treasury-token-metadata:lib)
+  ::          ::  hacky way to read token metadata
+  ::          ?=([@ @ @ supply=@ud ^ @ ^ deployer=id @] noun.p.treasury-meta)
+  ::          =(deployer.noun.p.treasury-meta treasury-token-deployer:lib)
+  ::      ==
+  ::  :_  (result ~ ~ ~ ~)
+  ::  %-  snoc
+  ::  :_  :+  our-fungible-contract:lib
+  ::        town.context
+  ::      :*  %take
+  ::          this.context
+  ::          amount.treasury-token
+  ::          (need caller-account.treasury-token)
+  ::          pool-account.treasury-token
+  ::      ==
+  ::  %+  turn  treasury-accounts
+  ::  |=  =token-args:lib
+  ::  ^-  call
+  ::  =/  token-contract  source.p:(need (scry-state meta.token-args))
+  ::  =/  token-account  (need (scry-state (need pool-account.token-args)))
+  ::  ?>  ?&  ?=(%& -.token-account)
+  ::          ::  hacky way to read token account
+  ::          ?=([reserves=@ud ^ meta=id ^] noun.p.token-account)
+  ::          =(meta.noun.p.token-account meta.token-args)
+  ::      ==
+  ::  :+  token-contract
+  ::    this.context
+  ::  :*  %give
+  ::      id.caller.context
+  ::      ::  if treasury token supply = 1 million, and user has 1 treasury token,
+  ::      ::  they are entitled to 1 one millionth of each treasury account
+  ::      ::  formula: divide (treasury account)*10^18 by (treasury token supply),
+  ::      ::  then multiply result by (amount of user treasury tokens), then divide by 10^18
+  ::      %+  div
+  ::        %+  mul
+  ::          %+  div  reserves.noun.p.token-account
+  ::          supply.noun.p.treasury-meta
+  ::        amount.treasury-token
+  ::      dec-18:lib
+  ::      (need pool-account.token-args)
+  ::      caller-account.token-args
+  ::  ==
   ==
 ++  read
   |_  =path

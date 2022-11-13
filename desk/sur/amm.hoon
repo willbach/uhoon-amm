@@ -58,8 +58,8 @@
   $:  name=@t
       symbol=@t
       metadata=id:smart
-      our-account=(unit id:smart)
       pool-account=(unit id:smart)
+      our-account=(unit id:smart)
       liquidity=@ud
       current-price=@ud
   ==
@@ -92,7 +92,7 @@
           receive=token-args
           ::  the account for the swap payment token
           ::  held by this contract, if any
-          treasury-account=(unit id:smart)
+          ::  treasury-account=(unit id:smart)
       ==
   ::
       $:  %add-liq
@@ -110,38 +110,17 @@
           token-b=token-args
       ==
   ::
-      $:  %offload  ::  TODO name better
-          ::  exchange treasury token for proportional value
-          ::  of each token held in the given treasury accounts.
-          ::  note that caller must enumerate each token account
-          ::  that treasury holds which they wish to receive a
-          ::  portion of. this is to (a) not make AMM contract
-          ::  have to track all its own accounts, and (b) to give
-          ::  receivers the option not to receive certain tokens
-          ::  they may not wish to hold.
-          treasury-token=token-args
-          treasury-accounts=(list token-args)
-      ==
-  ==
-::
-::  Types from Fungible token standard:
-::
-+$  token-metadata
-  $:  name=@t                 ::  the name of a token (not unique!)
-      symbol=@t               ::  abbreviation (also not unique)
-      decimals=@ud            ::  granularity (maximum defined by implementation)
-      supply=@ud              ::  total amount of token in existence
-      cap=(unit @ud)          ::  supply cap (~ if no cap)
-      mintable=?              ::  whether or not more can be minted
-      minters=(pset:smart address:smart)  ::  pubkeys permitted to mint, if any
-      deployer=address:smart        ::  pubkey which first deployed token
-      salt=@                  ::  deployer-defined salt for account grains
-  ==
-::
-+$  account
-  $:  balance=@ud
-      allowances=(pmap:smart address:smart @ud)
-      metadata=id:smart
-      nonces=(map address:smart @ud)
+  ::  $:  %offload  ::  TODO name better
+  ::      ::  exchange treasury token for proportional value
+  ::      ::  of each token held in the given treasury accounts.
+  ::      ::  note that caller must enumerate each token account
+  ::      ::  that treasury holds which they wish to receive a
+  ::      ::  portion of. this is to (a) not make AMM contract
+  ::      ::  have to track all its own accounts, and (b) to give
+  ::      ::  receivers the option not to receive certain tokens
+  ::      ::  they may not wish to hold.
+  ::      treasury-token=token-args
+  ::      treasury-accounts=(list token-args)
+  ::  ==
   ==
 --

@@ -1,4 +1,4 @@
-/-  *amm, indexer=zig-indexer
+/-  *amm, indexer=zig-indexer, wallet=zig-wallet
 |%
 ++  fetch
   |_  [[our=ship now=@da] =address:smart amm-id=id:smart town=id:smart]
@@ -13,6 +13,7 @@
           %+  weld  i-scry
           /newest/source/(scot %ux town)/(scot %ux amm-id)/noun
       ==
+    ~&  update
     ?@  update  ~
     ::  for each pool, parse
     ?:  ?=(%item -.update)
@@ -28,7 +29,7 @@
       ?>  ?=(%& -.item.update)
       ?~  p=(fill-pool ;;(pool noun.p.item.update))  ~
       [id.p.item.update^u.p ~ ~]
-    !!  ::  got an unexpected update type
+    ~  ::  got an unexpected update type
   ::
   ++  item-data
     |=  =id:smart
@@ -45,15 +46,22 @@
   ::
   ++  token-meta
     |=  =id:smart
-    ^-  (unit [source=id:smart token-metadata])
+    ^-  (unit [source=id:smart token-metadata:wallet])
     ?~  g=(item-data id)  ~
-    ((soft ,[@ux ,token-metadata]) u.g)
+    ((soft ,[@ux ,token-metadata:wallet]) u.g)
   ::
   ++  token-account
     |=  =id:smart
-    ^-  (unit [source=id:smart account])
+    ^-  (unit [source=id:smart token-account:wallet])
     ?~  g=(item-data id)  ~
-    ((soft ,[@ux account]) u.g)
+    ((soft ,[@ux token-account:wallet]) u.g)
+  ::
+  ++  get-token-account-id
+    |=  [holder=address:smart meta-id=id:smart]
+    ^-  (unit id:smart)
+    ?~  found=(token-meta meta-id)  ~
+    =+  (hash-data:smart source.u.found holder town salt.u.found)
+    ?~  (token-account -)  ~  `-
   ::
   ::  +fill-pool: take a pool's on-chain data and expand to give
   ::  everything we need to interact with it
@@ -61,12 +69,17 @@
   ++  fill-pool
     |=  raw=pool
     ^-  (unit pool-data)
+    ~&  >  "filling pool"
+    ~&  raw
     ::  gather metadata for each token in pool
     ?~  a=(token-meta meta.token-a.raw)  ~
+    ~&  >  "a"
     =*  metadata-a  +.u.a
     ?~  b=(token-meta meta.token-b.raw)  ~
+    ~&  >  "b"
     =*  metadata-b  +.u.b
     ?~  liq=(token-meta liq-token-meta.raw)  ~
+    ~&  >  "c"
     :-  ~
     :*  %-  crip  %-  zing
         :~  (trip symbol.metadata-a)  "-"
@@ -103,4 +116,14 @@
       ==
     ==
   --
+::
+++  transaction-poke
+  |=  [our=ship call=wallet-poke:wallet]
+  ^-  card:agent:gall
+  ~&  call
+  :*  %pass  /pokur-wallet-poke
+      %agent  [our %uqbar]
+      %poke  %wallet-poke
+      !>(call)
+  ==
 --

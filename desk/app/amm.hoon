@@ -17,12 +17,12 @@
 ::
 ++  on-init
   :-  ~
-  =+  0xdf67.1e3d.95d1.41ef.9152.5164.4b10.811f.53e6.470d.4241.ac9d.1104.ab90.6d18.880a
+  =+  0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2
   %=  this
-    our-town     0x0
-    our-address  ~
-    amm-id       -
-    pools        ~
+    our-town                    0x0
+    our-address                 ~
+    amm-id                      -
+    pools                       ~
   ==
 ++  on-save  !>(state)
 ++  on-load
@@ -73,38 +73,101 @@
         our-address  `address.act
           pools
         %~  chain-state  fetch
-        [[our now]:bowl address.act [amm-id our-town]:state]
+        [[our now]:bowl address.act amm-id our-town]
       ==
     ::
         %connect
-      ?~  our-address.state  !!
+      ?~  our-address  !!
       :-  =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
-          /indexer/amm/batch-order/(scot %ux our-town.state)
+          /indexer/amm/batch-order/(scot %ux our-town)
+      ::  TODO do we always double scry here or is this good?
       %=    state
           pools
         %~  chain-state  fetch
-        [[our now]:bowl [u.our-address amm-id our-town]:state]
+        [[our now]:bowl u.our-address amm-id our-town]
       ==
     ::
         %start-pool
-      ?~  our-address.state  !!
+      ?~  our-address  !!
       ::  given token-a and token-b, fetch our accounts and pool accounts,
       ::  then generate transaction to AMM contract
-      !!
+      =/  our-token-a-account
+        %.  [u.our-address meta.token-a.act]
+        %~  get-token-account-id  fetch
+        [[our now]:bowl u.our-address amm-id our-town]
+      ::
+      =/  our-token-b-account
+        %.  [u.our-address meta.token-b.act]
+        %~  get-token-account-id  fetch
+        [[our now]:bowl u.our-address amm-id our-town]
+      ::
+      =/  pool-token-a-account
+        %.  [amm-id meta.token-a.act]
+        %~  get-token-account-id  fetch
+        [[our now]:bowl u.our-address amm-id our-town]
+      ::
+      =/  pool-token-b-account
+        %.  [amm-id meta.token-b.act]
+        %~  get-token-account-id  fetch
+        [[our now]:bowl u.our-address amm-id our-town]
+      ::
+      :_  state  :_  ~
+      %+  transaction-poke  our.bowl
+      :*  %transaction
+          from=u.our-address
+          contract=amm-id
+          town=our-town
+          :-  %noun
+          ^-  contract-action
+          :+  %start-pool
+            :^    meta.token-a.act
+                amount.token-a.act
+              pool-token-a-account
+            our-token-a-account
+
+          :^    meta.token-b.act
+              amount.token-b.act
+            pool-token-b-account
+          our-token-b-account
+      ==
     ::
         %swap
-      ?~  our-address.state  !!
-      ?~  pool=(~(get by pools.state) pool-id.act)  !!
-      !!
+      ?~  our-address  !!
+      ?~  pool=(~(get by pools) pool-id.act)  !!
+      =/  [payment=token-data receive=token-data]
+        ?:  =(metadata.token-a.u.pool meta.payment.act)
+          [token-a token-b]:u.pool
+        [token-b token-a]:u.pool
+      ::
+      :_  state  :_  ~
+      %+  transaction-poke  our.bowl
+      :*  %transaction
+          from=u.our-address
+          contract=amm-id
+          town=our-town
+          :-  %noun
+          ^-  contract-action
+          :*  %swap
+              pool-id.act
+              :^    metadata.payment
+                  amount.payment.act
+                pool-account.payment
+              our-account.payment
+              :^     metadata.receive
+                  amount.receive.act
+                pool-account.receive
+              our-account.receive
+          ==
+      ==
     ::
         %add-liq
-      ?~  our-address.state  !!
-      ?~  pool=(~(get by pools.state) pool-id.act)  !!
+      ?~  our-address  !!
+      ?~  pool=(~(get by pools) pool-id.act)  !!
       !!
     ::
         %remove-liq
-      ?~  our-address.state  !!
-      ?~  pool=(~(get by pools.state) pool-id.act)  !!
+      ?~  our-address  !!
+      ?~  pool=(~(get by pools) pool-id.act)  !!
       !!
     ==
   --

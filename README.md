@@ -3,41 +3,50 @@ AMM contract for Uqbar in the style of Uniswap V2
 
 These commands assume:
 
-fungible contract ID `0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8`
+- fungible contract ID `0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8`
 
-AMM contract ID `0xdf67.1e3d.95d1.41ef.9152.5164.4b10.811f.53e6.470d.4241.ac9d.1104.ab90.6d18.880a`
+- AMM contract ID `0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2`
 
-fungible deploy txn:
-```[%deploy 'squid token' 'ST' 999 ~ (make-pset ~[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70]) ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]```
+- You're running the `custom-init` generator here.
 
-set allowance ST:
-```[%set-allowance 0xdf67.1e3d.95d1.41ef.9152.5164.4b10.811f.53e6.470d.4241.ac9d.1104.ab90.6d18.880a 300.000.000.000.000.000.000 0x2a8d.36f4.63b1.1e0b.c6c9.c2e5.30cb.76e6.a8d8.ff52.5a73.a13d.ba83.c28d.78d1.5be7]```
+We'll first use the wallet dojo CLI to deploy a new token and set some allowances such that the AMM contract can pull from our accounts:
 
-set allowance ZIG:
-```[%set-allowance 0xdf67.1e3d.95d1.41ef.9152.5164.4b10.811f.53e6.470d.4241.ac9d.1104.ab90.6d18.880a 300.000.000.000.000.000.000 0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]```
+Deploy a token, `ST`:
+```
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8 town=0x0 action=[%noun [%deploy 'squid token' 'ST' 999 ~ [0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 0 0] ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x5c6f.32b8.c4d1.447e.0d30.5ce2.f46c.1625 gas=[rate=1 bud=1.000.000]]
+:sequencer|batch
+```
 
-start the pool: (initializing with 100 ZIG and 100 ST)
-```[%start-pool token-a=[0x61.7461.6461.7465.6d2d.7367.697a 100.000.000.000.000.000.000 ~ `0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6] token-b=[0x5140.1f3d.7237.a7b4.c6b3.8f73.d6e7.5366.4cea.4904.4d47.c43b.6d5e.e017.b1af.2652 100.000.000.000.000.000.000 ~ `0x2a8d.36f4.63b1.1e0b.c6c9.c2e5.30cb.76e6.a8d8.ff52.5a73.a13d.ba83.c28d.78d1.5be7]]```
+set allowance for `ST`:
+```
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8 town=0x0 action=[%noun [%set-allowance 0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2 300.000.000.000.000.000.000 0x1a37.ed03.1b12.8d6a.3c40.cc4f.758f.6219.44ee.bca1.e6fc.25c0.ef52.d757.7742.b9dc]]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xef51.9805.07e7.f693.e499.f705.777f.2d00 gas=[rate=1 bud=1.000.000]]
+:sequencer|batch
+```
 
-The pool ID from the above initialization *should* be `0xb7cd.ef98.7693.5569.4bc6.f939.b225.17e8.d180.a37e.6dbc.d25f.ac13.aeba.9402.420b`. If so, the below transaction should execute a swap, with an input of 1 ZIG to get a little less than one ST.
+set allowance for `ZIG`:
+```
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%set-allowance 0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2 300.000.000.000.000.000.000 0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6]]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x7f48.5427.e0d8.60ee.39b2.bbcb.23c5.9973 gas=[rate=1 bud=1.000.000]]
+:sequencer|batch
+```
 
-do a swap:
-```[%swap pool-id=0xb7cd.ef98.7693.5569.4bc6.f939.b225.17e8.d180.a37e.6dbc.d25f.ac13.aeba.9402.420b payment=[0x61.7461.6461.7465.6d2d.7367.697a 1.000.000.000.000.000.000 `0x623b.cd07.a921.08f6.7421.a086.f3c5.0d82.a697.89c0.2c90.fc9a.1a36.b18f.4b73.790b `0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6] receive=[0x5140.1f3d.7237.a7b4.c6b3.8f73.d6e7.5366.4cea.4904.4d47.c43b.6d5e.e017.b1af.2652 100.000.000.000.000.000 `0x50c7.73c0.2356.9fe6.95b9.0fa0.a960.609c.c5d3.8321.bc93.eb2d.0a94.808b.83f8.2f25 `0x2a8d.36f4.63b1.1e0b.c6c9.c2e5.30cb.76e6.a8d8.ff52.5a73.a13d.ba83.c28d.78d1.5be7]]```
+Initialize the AMM gall app with our wallet address:
+```
+:amm &amm-action [%set-our-address 0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70]
+:amm &amm-action [%connect ~]
+```
 
------
+start the pool! (initializing with 100 ZIG and 100 ST):
+```
+:amm &amm-action [%start-pool token-a=[0x61.7461.6461.7465.6d2d.7367.697a 100.000.000.000.000.000.000] token-b=[0xee48.d8de.129a.2d3b.e87b.6570.2621.35b3.dfac.da2f.0ee6.72ff.bbcc.7dc3.cafc.f92b 100.000.000.000.000.000.000]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x33c6.cf5a.7be4.066e.d512.7540.f0bb.4981 gas=[rate=1 bud=1.000.000]]
+:sequencer|batch
+```
 
-Deploy another fungible token and make another pool between it and ZIG:
-
-```[%deploy 'loach token' 'LOCH' 123 ~ (make-pset ~[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70]) ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]```
-
-set allowance LOCH:
-```[%set-allowance 0xdf67.1e3d.95d1.41ef.9152.5164.4b10.811f.53e6.470d.4241.ac9d.1104.ab90.6d18.880a 300.000.000.000.000.000.000 0xf198.5f90.0def.03f7.5e19.6ded.6d87.cc6f.dad1.05a8.31c0.5ca9.42ba.defc.ee98.2f04]```
-
-start the pool: (initializing with 1 ZIG and 50 LOCH this time)
-```[%start-pool token-a=[0x61.7461.6461.7465.6d2d.7367.697a 1.000.000.000.000.000.000 `0x623b.cd07.a921.08f6.7421.a086.f3c5.0d82.a697.89c0.2c90.fc9a.1a36.b18f.4b73.790b `0x89a0.89d8.dddf.d13a.418c.0d93.d4b4.e7c7.637a.d56c.96c0.7f91.3a14.8174.c7a7.71e6] token-b=[0x5472.4216.b1b2.20c2.63c3.5294.4e44.98cd.fa1c.30d0.6fb9.f40b.3acc.ccd5.513c.1773 50.000.000.000.000.000.000 ~ `0xf198.5f90.0def.03f7.5e19.6ded.6d87.cc6f.dad1.05a8.31c0.5ca9.42ba.defc.ee98.2f04]]```
-
------
-
-Now make a 3rd pool between ST and LOCH: (initializing with 50 LOCH and 2 ST) (arb available!)
-
-```[%start-pool token-a=[0x5140.1f3d.7237.a7b4.c6b3.8f73.d6e7.5366.4cea.4904.4d47.c43b.6d5e.e017.b1af.2652 2.000.000.000.000.000.000 `0x50c7.73c0.2356.9fe6.95b9.0fa0.a960.609c.c5d3.8321.bc93.eb2d.0a94.808b.83f8.2f25 `0x2a8d.36f4.63b1.1e0b.c6c9.c2e5.30cb.76e6.a8d8.ff52.5a73.a13d.ba83.c28d.78d1.5be7] token-b=[0x5472.4216.b1b2.20c2.63c3.5294.4e44.98cd.fa1c.30d0.6fb9.f40b.3acc.ccd5.513c.1773 50.000.000.000.000.000.000 `0xb38.cad7.d681.b149.8286.ecdc.8da6.b6ea.4f3f.ec87.9c76.76cf.399d.755c.b829.5d9f `0xf198.5f90.0def.03f7.5e19.6ded.6d87.cc6f.dad1.05a8.31c0.5ca9.42ba.defc.ee98.2f04]]```
+do a swap! (paying 0.01 ZIG, expecting to receive *at least* 0.009 ST):
+```
+:amm &amm-action [%swap pool-id=0x9dbb.4d86.ddf4.caaa.f3c3.4856.213d.98f4.46d6.5d2e.5d68.86cd.ba52.29df.7598.3dfb payment=[0x61.7461.6461.7465.6d2d.7367.697a 10.000.000.000.000.000] receive=[0xee48.d8de.129a.2d3b.e87b.6570.2621.35b3.dfac.da2f.0ee6.72ff.bbcc.7dc3.cafc.f92b 9.000.000.000.000.000]]
+:uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xbede.aca7.cfb6.7392.3e1d.3e76.1bfa.586b gas=[rate=1 bud=1.000.000]]
+```
