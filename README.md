@@ -3,7 +3,7 @@ AMM contract for Uqbar in the style of Uniswap V2
 
 These commands assume:
 
-- fungible contract ID `0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8`
+- fungible contract ID `0x3819.6d95.acd2.68bd.2b04.7641.e7ff.94d2.ac69.33db.3109.d80f.b9ab.6a47.237d.cd3f`
 
 - AMM contract ID `0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2`
 
@@ -13,14 +13,14 @@ We'll first use the wallet dojo CLI to deploy a new token and set some allowance
 
 Deploy a token, `ST`:
 ```
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8 town=0x0 action=[%noun [%deploy 'squid token' 'ST' 999 ~ [0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 0 0] ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3819.6d95.acd2.68bd.2b04.7641.e7ff.94d2.ac69.33db.3109.d80f.b9ab.6a47.237d.cd3f town=0x0 action=[%noun [%deploy 'squid token' 'ST' 999 ~ [0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 0 0] ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]]]
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x5c6f.32b8.c4d1.447e.0d30.5ce2.f46c.1625 gas=[rate=1 bud=1.000.000]]
 :sequencer|batch
 ```
 
 set allowance for `ST`:
 ```
-:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8 town=0x0 action=[%noun [%set-allowance 0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2 300.000.000.000.000.000.000 0x1a37.ed03.1b12.8d6a.3c40.cc4f.758f.6219.44ee.bca1.e6fc.25c0.ef52.d757.7742.b9dc]]]
+:uqbar &wallet-poke [%transaction from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x3819.6d95.acd2.68bd.2b04.7641.e7ff.94d2.ac69.33db.3109.d80f.b9ab.6a47.237d.cd3f town=0x0 action=[%noun [%set-allowance 0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2 300.000.000.000.000.000.000 0x1a37.ed03.1b12.8d6a.3c40.cc4f.758f.6219.44ee.bca1.e6fc.25c0.ef52.d757.7742.b9dc]]]
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xef51.9805.07e7.f693.e499.f705.777f.2d00 gas=[rate=1 bud=1.000.000]]
 :sequencer|batch
 ```
