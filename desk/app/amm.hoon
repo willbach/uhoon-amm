@@ -121,7 +121,7 @@
           :-  %noun
           ^-  contract-action
           :+  %start-pool
-            :^    meta.token-a.act
+            :^    meta.token-a.act  
                 amount.token-a.act
               pool-token-a-account
             our-token-a-account
