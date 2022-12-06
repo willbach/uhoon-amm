@@ -43,7 +43,7 @@
             this.context
             amount.token-a
             (need caller-account.token-a)
-            pool-account.token-a
+            :: pool-account.token-a
         ==
     ::
         :+  contract-b
@@ -52,7 +52,7 @@
             this.context
             amount.token-b
             (need caller-account.token-b)
-            pool-account.token-b
+            :: pool-account.token-b
         ==
     ::
         :+  our-fungible-contract:lib
@@ -113,7 +113,7 @@
             this.context
             amount.payment
             (need caller-account.payment)
-            pool-account.payment
+            :: pool-account.payment
         ==
     ::
         :+  contract.swap-output
@@ -122,7 +122,7 @@
             id.caller.context
             amount-received
             (need pool-account.receive)
-            caller-account.receive
+            :: caller-account.receive
         ==
     ::  award protocol fee to treasury account
     ::  :+  contract.swap-input
@@ -167,7 +167,7 @@
             this.context
             amount.token-a
             (need caller-account.token-a)
-            pool-account.token-a
+            :: pool-account.token-a
         ==
     ::
         :+  contract.token-b.pool
@@ -176,7 +176,7 @@
             this.context
             amount.token-b
             (need caller-account.token-b)
-            pool-account.token-b
+            :: pool-account.token-b
         ==
     ::
         :+  our-fungible-contract:lib
@@ -221,7 +221,7 @@
             this.context
             amount.act
             liq-shares-account.act
-            ~
+            :: ~
         ==
     ::
         :+  0x0

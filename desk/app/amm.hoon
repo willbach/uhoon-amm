@@ -17,7 +17,7 @@
 ::
 ++  on-init
   :-  ~
-  =+  0xbf0d.33d2.9bb8.182a.2ee7.385e.2be2.307e.d124.ed7f.e9c7.5bfd.cbba.179e.ac61.6fb2
+  =+  0xe254.6667.4c75.02f4.a7de.5d88.9ef6.3379.6175.8d6b.24b6.6a4a.9ffc.fffa.01cb.bbf5
   %=  this
     our-town                    0x0
     our-address                 ~
@@ -114,6 +114,7 @@
       :_  state  :_  ~
       %+  transaction-poke  our.bowl
       :*  %transaction
+          origin=~
           from=u.our-address
           contract=amm-id
           town=our-town
@@ -142,6 +143,7 @@
       :_  state  :_  ~
       %+  transaction-poke  our.bowl
       :*  %transaction
+          origin=~
           from=u.our-address
           contract=amm-id
           town=our-town

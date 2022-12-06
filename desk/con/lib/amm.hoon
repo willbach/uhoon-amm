@@ -7,7 +7,7 @@
 ::  of the 0.3% fee, protocol takes 10%, liquidity providers earn 90%
 ++  trading-fee  30
 ++  our-fungible-contract
-  0x3d34.bea2.8fab.dfdb.9591.bafd.4960.33aa.8418.2440.29c0.37d1.30c9.75ae.0f5b.c0b8
+  0x68d8.2cfb.987e.5bd1.23a7.ee97.a2d6.9581.fff6.8f31.bf9f.f307.c046.9298.706c.71d8
 ::  before this contract is deployed, mint and distribute the treasury token.
 ::  this is a standard fungible token which grants the holder ownership of a
 ::  portion of the protocol's fee revenue. the holder can use the %offload

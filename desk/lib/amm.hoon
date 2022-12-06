@@ -121,7 +121,7 @@
   |=  [our=ship call=wallet-poke:wallet]
   ^-  card:agent:gall
   ~&  call
-  :*  %pass  /pokur-wallet-poke
+  :*  %pass  /amm-wallet-poke
       %agent  [our %uqbar]
       %poke  %wallet-poke
       !>(call)
