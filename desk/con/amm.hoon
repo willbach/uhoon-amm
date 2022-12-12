@@ -90,8 +90,8 @@
         ==
     ::  constant product formula determines price
     ::  p = ra / rb
-    =/  price  (div liq.swap-output liq.swap-input)
-    =/  amount-received  (div (sub amount.payment fee) price)
+    =/  price  (div (mul liq.swap-output 1.000.000.000.000.000.000) liq.swap-input)
+    =/  amount-received  (div (mul (sub amount.payment fee) 1.000.000.000.000.000.000) price)
     ::  determine allowed output w/ slippage
     ::  TODO also set max? probably not needed
     ?>  (gte amount-received amount.receive)

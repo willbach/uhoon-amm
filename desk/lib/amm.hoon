@@ -95,11 +95,9 @@
           meta.token-a.raw
           ::  our account item, if we have one
           =-  ?~((item-data -) ~ `-)
-          :: (hash-data:smart -.u.a address town salt.metadata-a)
           (hash-data:smart -.u.a amm-id town salt.metadata-a)
           ::  pool account item
           =-  ?~((item-data -) ~ `-)
-          :: (hash-data:smart -.u.a amm-id town salt.metadata-a)
           (hash-data:smart -.u.a address town salt.metadata-a)
           liq.token-a.raw
           (div liq.token-a.raw liq.token-b.raw)
@@ -109,12 +107,10 @@
           meta.token-b.raw
           ::  our account item, if we have one
           =-  ?~((item-data -) ~ `-)
-          :: (hash-data:smart -.u.b address town salt.metadata-b)
           (hash-data:smart -.u.b amm-id town salt.metadata-b)          
           ::  pool account item
           =-  ?~((item-data -) ~ `-)
           (hash-data:smart -.u.b address town salt.metadata-b)
-          :: (hash-data:smart -.u.b amm-id town salt.metadata-b)
           liq.token-b.raw
           (div liq.token-b.raw liq.token-a.raw)
       ==

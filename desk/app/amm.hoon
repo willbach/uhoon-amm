@@ -17,7 +17,7 @@
 ::
 ++  on-init
   :-  ~
-  =+  0xe254.6667.4c75.02f4.a7de.5d88.9ef6.3379.6175.8d6b.24b6.6a4a.9ffc.fffa.01cb.bbf5
+  =+  0xd41b.9089.4706.3dda.ec13.6758.3611.0fd5.16b9.9414.707c.bf0a.7b81.909c.c829.c583
   %=  this
     our-town                    0x0
     our-address                 ~
