@@ -158,6 +158,8 @@
       (add liq.token-a.pool amount.token-a)
         liq.token-b.pool
       (add liq.token-b.pool amount.token-b)
+        liq-shares.pool
+      (add liq-to-mint liq-shares.pool)
     ==
     ::
     :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
