@@ -90,8 +90,8 @@
         ==
     ::  constant product formula determines price
     ::  p = ra / rb
-    =/  price  (div (mul liq.swap-output 1.000.000.000.000.000.000) liq.swap-input)
-    =/  amount-received  (div (mul (sub amount.payment fee) 1.000.000.000.000.000.000) price)
+    =/  price  (div (mul liq.swap-output dec-18:lib) liq.swap-input)
+    =/  amount-received  (div (mul (sub amount.payment fee) dec-18:lib) price)
     ::  determine allowed output w/ slippage
     ::  TODO also set max? probably not needed
     ?>  (gte amount-received amount.receive)
@@ -149,9 +149,9 @@
     =/  liq-to-mint
       %+  add
         %+  mul  liq-shares.pool
-        (div amount.token-a liq.token-a.pool)
+        (div (mul amount.token-a dec-18:lib) liq.token-a.pool)
       %+  mul  liq-shares.pool
-      (div amount.token-b liq.token-b.pool)
+      (div (mul amount.token-b dec-18:lib) liq.token-b.pool)
     ::  add token-a and token-b to pool,
     ::  and mint liquidity tokens to caller
     =:  liq.token-a.pool
@@ -183,7 +183,8 @@
           town.context
         :*  %mint
             token=liq-token-meta.pool
-            [[to=id.caller.context liq-shares-account amount=liq-to-mint] ~]
+            :: [[to=id.caller.context liq-shares-account amount=liq-to-mint] ~]
+            [[to=id.caller.context amount=liq-to-mint] ~]            
         ==
     ==
   ::
