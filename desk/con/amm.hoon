@@ -158,6 +158,8 @@
       (add liq.token-a.pool amount.token-a)
         liq.token-b.pool
       (add liq.token-b.pool amount.token-b)
+        liq-shares.pool
+      (add liq-to-mint liq-shares.pool)
     ==
     ::
     :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
@@ -200,11 +202,13 @@
         %-  hash-data
         [our-fungible-contract:lib id.caller.context town.context pool-salt]
     ::  calculate reward in each token
-    ::  tokenWithdrawn = (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
+    ::  (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
     =/  token-a-withdraw
-      (div (mul liq.token-a.pool (div (mul amount.act dec-18:lib) liq-shares.pool)) dec-18:lib)
+      %-  div  :_  dec-18:lib
+      (mul liq.token-a.pool (div (mul amount.act dec-18:lib) liq-shares.pool))
     =/  token-b-withdraw
-      (div (mul liq.token-b.pool (div (mul amount.act dec-18:lib) liq-shares.pool)) dec-18:lib)
+      %-  div  :_  dec-18:lib
+      (mul liq.token-b.pool (div (mul amount.act dec-18:lib) liq-shares.pool))
     ::  modify pool with new amounts
     =:  liq.token-a.pool
       (sub liq.token-a.pool token-a-withdraw)
