@@ -147,6 +147,7 @@
         ==
     ::  calculate liquidity token mint amount
     =/  liq-to-mint
+      %-  div  :_  dec-18:lib
       %+  add
         %+  mul  liq-shares.pool
         (div (mul amount.token-a dec-18:lib) liq.token-a.pool)
@@ -241,7 +242,7 @@
             id.caller.context
             token-a-withdraw
             (need pool-account.token-a)
-            caller-account.token-a
+            :: caller-account.token-a
         ==
     ::
         :+  contract.token-b.pool
@@ -250,7 +251,7 @@
             id.caller.context
             token-b-withdraw
             (need pool-account.token-b)
-            caller-account.token-b
+            :: caller-account.token-b
         ==
     ==
   ::

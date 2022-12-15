@@ -17,7 +17,7 @@
 ::
 ++  on-init
   :-  ~
-  =+  0x817e.668d.9f80.f577.007f.5d7a.66f8.3707.10f0.7f5b.b212.3296.06e7.e5a1.4b8c.ced0
+  =+  0x6f5a.2618.4e0c.00ac.0141.04c7.24fb.a3a0.5016.5270.b179.30c9.3d66.1d1c.860a.7a56
   %=  this
     our-town                    0x0
     our-address                 ~
@@ -194,7 +194,32 @@
         %remove-liq
       ?~  our-address  !!
       ?~  pool=(~(get by pools) pool-id.act)  !!
-      !!
+      =/  [token-a=token-data token-b=token-data]
+        [token-a token-b]:u.pool
+      ::
+      :_  state  :_  ~
+      %+  transaction-poke  our.bowl
+      :*  %transaction
+          origin=~
+          from=u.our-address
+          contract=amm-id
+          town=our-town
+          :-  %noun
+          ^-  contract-action
+          :*  %remove-liq
+              pool-id.act
+              +.our-liq-token-account.u.pool
+              amount.act
+              :^    metadata.token-a
+                  0
+                pool-account.token-a
+              our-account.token-a
+              :^    metadata.token-b
+                  0
+                pool-account.token-b
+              our-account.token-b
+          ==
+      ==
     ==
   --
 ++  on-watch
