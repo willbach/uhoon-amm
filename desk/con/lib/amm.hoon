@@ -4,7 +4,6 @@
 ::
 ::  fee values (in basis points)
 ::  0.3% fee charged on swaps
-::  of the 0.3% fee, protocol takes 10%, liquidity providers earn 90%
 ++  trading-fee  30
 ++  our-fungible-contract
   0x68d8.2cfb.987e.5bd1.23a7.ee97.a2d6.9581.fff6.8f31.bf9f.f307.c046.9298.706c.71d8
@@ -30,8 +29,14 @@
 +$  token-args
   $:  meta=id
       amount=@ud
-      pool-account=(unit id)
-      caller-account=(unit id)
+      from-account=id
+  ==
+::  from fungible standard
++$  token-account
+  $:  balance=@ud
+      allowances=(pmap address @ud)
+      metadata=id
+      nonces=(pmap address @ud)
   ==
 ::
 ::  actions
@@ -46,14 +51,10 @@
           pool-id=id
           payment=token-args
           receive=token-args
-          ::  the account for the swap payment token
-          ::  held by this contract, if any
-          ::  treasury-account=(unit id)
       ==
   ::
       $:  %add-liq
           pool-id=id
-          liq-shares-account=(unit id)
           token-a=token-args
           token-b=token-args
       ==
@@ -64,6 +65,12 @@
           amount=@ud
           token-a=token-args
           token-b=token-args
+      ==
+  ::
+      $:  %on-push    ::  we only support %swap and %remove-liq
+          from=id     ::  here, because these are the only two actions
+          amount=@ud  ::  that only require ONE token approval.
+          calldata=*
       ==
   ::
   ::  $:  %offload  ::  TODO name better

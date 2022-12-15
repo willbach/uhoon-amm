@@ -16,8 +16,15 @@
     ::  determine unique salt for new pool
     =/  salt=@  (get-pool-salt:lib meta.token-a meta.token-b)
     ::  find contract IDs for the two tokens
-    =/  contract-a  source.p:(need (scry-state meta.token-a))
-    =/  contract-b  source.p:(need (scry-state meta.token-b))
+    ::  get token symbols for liquidity token name
+    =/  a  (need (scry-state meta.token-a))
+    ?>  ?=(%& -.a)
+    =/  contract-a=id  source.p.a
+    =/  symbol-a=@t  symbol:;;([@t symbol=@t *] noun.p.a)
+    =/  b  (need (scry-state meta.token-b))
+    ?>  ?=(%& -.b)
+    =/  contract-b=id  source.p.b
+    =/  symbol-b=@t  symbol:;;([@t symbol=@t *] noun.p.b)
     ::  take the tokens from caller,
     ::  mint liq token to caller
     =/  liq-token-meta-id
@@ -42,8 +49,7 @@
         :*  %take
             this.context
             amount.token-a
-            (need caller-account.token-a)
-            :: pool-account.token-a
+            from-account.token-a
         ==
     ::
         :+  contract-b
@@ -51,15 +57,14 @@
         :*  %take
             this.context
             amount.token-b
-            (need caller-account.token-b)
-            :: pool-account.token-b
+            from-account.token-b
         ==
     ::
         :+  our-fungible-contract:lib
           town.context
         :*  %deploy
-            name='Liquity Token: xx'
-            symbol='LT'
+            :((cury cat 3) 'Liquity Token: ' symbol-a '-' symbol-b)
+            :((cury cat 3) 'LT' symbol-a symbol-b)
             salt
             ~
             minters=[this.context ~ ~]
@@ -76,7 +81,7 @@
     =/  fee  ::  fee is 0.3% of swap amount
       %+  mul  trading-fee:lib  ::  30
       (div amount.payment 10.000)
-    =/  protocol-fee  (div fee 10)  ::  10% of total fee
+    ::  =/  protocol-fee  (div fee 10)  ::  10% of total fee
     ::  determine which token is being given, and which received
     =+  ^-  $:  swap-input=[meta=id contract=id liq=@ud]
                 swap-output=[meta=id contract=id liq=@ud]
@@ -112,8 +117,7 @@
         :*  %take
             this.context
             amount.payment
-            (need caller-account.payment)
-            :: pool-account.payment
+            from-account.payment  ::  caller's token account
         ==
     ::
         :+  contract.swap-output
@@ -121,18 +125,8 @@
         :*  %give
             id.caller.context
             amount-received
-            (need pool-account.receive)
-            :: caller-account.receive
+            from-account.receive  ::  pool's token account
         ==
-    ::  award protocol fee to treasury account
-    ::  :+  contract.swap-input
-    ::    town.context
-    ::  :*  %give
-    ::      this.context
-    ::      protocol-fee
-    ::      (need pool-account.payment)
-    ::      treasury-account
-    ::  ==
     ==
   ::
       %add-liq
@@ -163,14 +157,13 @@
       (add liq-to-mint liq-shares.pool)
     ==
     ::
-    :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
+    :_  (result [%&^pool-data(noun pool) ~] ~ ~ ~)
     :~  :+  contract.token-a.pool
           town.context
         :*  %take
             this.context
             amount.token-a
-            (need caller-account.token-a)
-            :: pool-account.token-a
+            from-account.token-a
         ==
     ::
         :+  contract.token-b.pool
@@ -178,16 +171,14 @@
         :*  %take
             this.context
             amount.token-b
-            (need caller-account.token-b)
-            :: pool-account.token-b
+            from-account.token-b
         ==
     ::
         :+  our-fungible-contract:lib
           town.context
         :*  %mint
             token=liq-token-meta.pool
-            :: [[to=id.caller.context liq-shares-account amount=liq-to-mint] ~]
-            [[to=id.caller.context amount=liq-to-mint] ~]            
+            [[to=id.caller.context amount=liq-to-mint] ~]
         ==
     ==
   ::
@@ -198,10 +189,10 @@
       (husk pool:lib - `this.context `this.context)
     =/  =pool:lib  noun.pool-data
     ::  assert that liquidity shares match the pool
-    =/  pool-salt=@  (get-pool-salt:lib meta.token-a.pool meta.token-b.pool)
-    ?>  =-  =(- liq-shares-account.act)
-        %-  hash-data
-        [our-fungible-contract:lib id.caller.context town.context pool-salt]
+    =/  liq-shares-item
+      =+  (need (scry-state liq-shares-account.act))
+      (husk token-account:lib - `our-fungible-contract:lib `id.caller.context)
+    ?>  =(metadata.noun.liq-shares-item liq-token-meta.pool)
     ::  calculate reward in each token
     ::  (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
     =/  token-a-withdraw
@@ -219,7 +210,6 @@
       (sub liq-shares.pool amount.act)
     ==
     ::  execute %take of liquidity token and %gives for tokens a&b
-    ::  we always %burn our liq token account, so we will never have one
     :_  (result [%& pool-data(noun pool)]~ ~ ~ ~)
     :~  :+  our-fungible-contract:lib
           town.context
@@ -227,22 +217,14 @@
             this.context
             amount.act
             liq-shares-account.act
-            :: ~
         ==
-    ::
-        :+  0x0
-          town.context
-        =-  [%burn - 0x0]
-        %-  hash-data
-        [our-fungible-contract:lib this.context town.context pool-salt]
     ::
         :+  contract.token-a.pool
           town.context
         :*  %give
             id.caller.context
             token-a-withdraw
-            (need pool-account.token-a)
-            :: caller-account.token-a
+            from-account.token-a  ::  pool token account
         ==
     ::
         :+  contract.token-b.pool
@@ -250,9 +232,22 @@
         :*  %give
             id.caller.context
             token-b-withdraw
-            (need pool-account.token-b)
-            :: caller-account.token-b
+            from-account.token-b  ::  pool token account
         ==
+    ==
+  ::
+      %on-push
+    ::  we only support %swap and %remove-liq
+    ::  here, because these are the only two actions
+    ::  that only require ONE token approval.
+    =/  calldata  ;;(action:lib calldata.act)
+    ?>  ?+  -.calldata  %.n
+          %swap        =(amount.act amount.payment.calldata)
+          %remove-liq  =(amount.act amount.calldata)
+        ==
+    %=  $
+      act  calldata
+      id.caller.context  from.act
     ==
   ::
   ::    %offload
