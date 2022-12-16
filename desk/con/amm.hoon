@@ -94,9 +94,10 @@
             =(meta.receive meta.swap-output)
         ==
     ::  constant product formula determines price
-    ::  p = ra / rb
-    =/  price  (div (mul liq.swap-output dec-18:lib) liq.swap-input)
-    =/  amount-received  (div (mul (sub amount.payment fee) dec-18:lib) price)
+    =+  product=(div (mul liq.swap-output liq.swap-input) dec-18:lib)
+    =+  px=(add liq.swap-input (sub amount.payment fee))
+    ::  product / px = py, output = y - py
+    =+  amount-received=(sub liq.swap-output (div (mul product dec-18:lib) px))
     ::  determine allowed output w/ slippage
     ::  TODO also set max? probably not needed
     ?>  (gte amount-received amount.receive)
@@ -141,12 +142,10 @@
         ==
     ::  calculate liquidity token mint amount
     =/  liq-to-mint
-      %-  div  :_  dec-18:lib
-      %+  add
-        %+  mul  liq-shares.pool
-        (div (mul amount.token-a dec-18:lib) liq.token-a.pool)
-      %+  mul  liq-shares.pool
-      (div (mul amount.token-b dec-18:lib) liq.token-b.pool)
+      ::  minimum of (amount * existing liq shares) / existing liquidity
+      %+  min
+        (div (mul amount.token-a liq-shares.pool) liq.token-a.pool)
+      (div (mul amount.token-b liq-shares.pool) liq.token-b.pool)
     ::  add token-a and token-b to pool,
     ::  and mint liquidity tokens to caller
     =:  liq.token-a.pool
@@ -194,13 +193,11 @@
       (husk token-account:lib - `our-fungible-contract:lib `id.caller.context)
     ?>  =(metadata.noun.liq-shares-item liq-token-meta.pool)
     ::  calculate reward in each token
-    ::  (total * (liquidityBurned * 10^18) / (totalLiquidity)) / 10^18
+    ::  (amount of token * liquidity burned) / total liquidity
     =/  token-a-withdraw
-      %-  div  :_  dec-18:lib
-      (mul liq.token-a.pool (div (mul amount.act dec-18:lib) liq-shares.pool))
+      (div (mul liq.token-a.pool amount.act) liq-shares.pool)
     =/  token-b-withdraw
-      %-  div  :_  dec-18:lib
-      (mul liq.token-b.pool (div (mul amount.act dec-18:lib) liq-shares.pool))
+      (div (mul liq.token-b.pool amount.act) liq-shares.pool)
     ::  modify pool with new amounts
     =:  liq.token-a.pool
       (sub liq.token-a.pool token-a-withdraw)
