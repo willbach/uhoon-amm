@@ -63,8 +63,8 @@
           pool-id=id
           liq-shares-account=id
           amount=@ud
-          token-a=token-args
-          token-b=token-args
+          token-a=[meta=id from-account=id]
+          token-b=[meta=id from-account=id]
       ==
   ::
       $:  %on-push    ::  we only support %swap and %remove-liq

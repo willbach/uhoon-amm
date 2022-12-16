@@ -22,12 +22,12 @@
       %+  murn  -
       |=  item-update-value:indexer
       ?.  ?=(%& -.item)  ~
-      ?~  p=(fill-pool ;;(pool noun.p.item))  ~
+      ?~  p=(fill-pool ;;(pool:amm-lib noun.p.item))  ~
       `[id.p.item u.p]
     ::  parse single pool
     ?:  ?=(%newest-item -.update)
       ?>  ?=(%& -.item.update)
-      ?~  p=(fill-pool ;;(pool noun.p.item.update))  ~
+      ?~  p=(fill-pool ;;(pool:amm-lib noun.p.item.update))  ~
       [id.p.item.update^u.p ~ ~]
     ~  ::  got an unexpected update type
   ::
@@ -50,36 +50,36 @@
     ?~  g=(item-data id)  ~
     ((soft ,[@ux ,token-metadata:wallet]) u.g)
   ::
-  ++  token-account
-    |=  =id:smart
-    ^-  (unit [source=id:smart token-account:wallet])
+  ++  get-token-account
+    |=  [holder=address:smart meta-id=id:smart]
+    ^-  (unit [id:smart token-account:wallet])
+    ?~  found=(token-meta meta-id)  ~
+    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
-    ((soft ,[@ux token-account:wallet]) u.g)
+    ((soft ,[@ux token-account:wallet]) [id +.u.g])
   ::
   ++  get-token-account-id
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit id:smart)
     ?~  found=(token-meta meta-id)  ~
-    =+  (hash-data:smart source.u.found holder town salt.u.found)
-    ?~  (token-account -)  ~  `-
+    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    ?~  g=(item-data id)  ~
+    `id
   ::
   ::  +fill-pool: take a pool's on-chain data and expand to give
   ::  everything we need to interact with it
   ::
   ++  fill-pool
-    |=  raw=pool
+    |=  raw=pool:amm-lib
     ^-  (unit pool-data)
     ~&  >  "filling pool"
     ~&  raw
     ::  gather metadata for each token in pool
     ?~  a=(token-meta meta.token-a.raw)  ~
-    ~&  >  "a"
     =*  metadata-a  +.u.a
     ?~  b=(token-meta meta.token-b.raw)  ~
-    ~&  >  "b"
     =*  metadata-b  +.u.b
     ?~  liq=(token-meta liq-token-meta.raw)  ~
-    ~&  >  "c"
     :-  ~
     :*  %-  crip  %-  zing
         :~  (trip symbol.metadata-a)  "-"
@@ -88,31 +88,26 @@
         liq-shares.raw
         liq-token-meta.raw
       ::  our account for this liquidity token, if we have one
-      =-  ?~((item-data -) ~ `-)
-      (hash-data:smart -.u.liq address town salt.+.u.liq)
+      (get-token-account address liq-token-meta.raw)
       :*  name.metadata-a
           symbol.metadata-a
           meta.token-a.raw
-          ::  our account item, if we have one
-          =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.a amm-id town salt.metadata-a)
           ::  pool account item
-          =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.a address town salt.metadata-a)
+          (get-token-account amm-id meta.token-a.raw)
+          ::  our account item, if we have one
+          (get-token-account address meta.token-a.raw)
           liq.token-a.raw
-          (div liq.token-a.raw liq.token-b.raw)
+          (div (mul liq.token-a.raw dec-18:amm-lib) liq.token-b.raw)
       ==
       :*  name.metadata-b
           symbol.metadata-b
           meta.token-b.raw
-          ::  our account item, if we have one
-          =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.b amm-id town salt.metadata-b)          
           ::  pool account item
-          =-  ?~((item-data -) ~ `-)
-          (hash-data:smart -.u.b address town salt.metadata-b)
+          (get-token-account amm-id meta.token-b.raw)
+          ::  our account item, if we have one
+          (get-token-account address meta.token-b.raw)
           liq.token-b.raw
-          (div liq.token-b.raw liq.token-a.raw)
+          (div (mul liq.token-b.raw dec-18:amm-lib) liq.token-a.raw)
       ==
     ==
   --

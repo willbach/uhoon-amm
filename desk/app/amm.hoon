@@ -17,6 +17,7 @@
 ::
 ++  on-init
   :-  ~
+  ::  the AMM contract id
   =+  0x6f5a.2618.4e0c.00ac.0141.04c7.24fb.a3a0.5016.5270.b179.30c9.3d66.1d1c.860a.7a56
   %=  this
     our-town                    0x0
@@ -54,33 +55,14 @@
       :_  state
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
     ::
-        %make-pool
-      :: =+  %-  %~  put  by
-      ::     *(map id:smart pool-data)
-      ::     [0x17 ;;(pool-data +.act)]
-      :: ~&  >  state
-      `state
-    ::
-        %get-pool
-      :: ~&  >  pools.state
-      :_  state
-      ~[[%give %fact ~[/pools] %amm-update !>([%got-pool state])]]
-    ::
-    ::
         %set-our-address
-      :-  ~
-      %=    state
-        our-address  `address.act
-          pools
-        %~  chain-state  fetch
-        [[our now]:bowl address.act amm-id our-town]
-      ==
+      `state(our-address `address.act)
     ::
         %connect
-      ?~  our-address  !!
+      ?~  our-address
+        ~|("must set address first!" !!)
       :-  =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
           /indexer/amm/batch-order/(scot %ux our-town)
-      ::  TODO do we always double scry here or is this good?
       %=    state
           pools
         %~  chain-state  fetch
@@ -88,26 +70,19 @@
       ==
     ::
         %start-pool
-      ?~  our-address  !!
+      ?~  our-address
+        ~|("must set address first!" !!)
       ::  given token-a and token-b, fetch our accounts and pool accounts,
       ::  then generate transaction to AMM contract
-      =/  our-token-a-account
+      =/  our-token-a-account=id:smart
+        %-  need
         %.  [u.our-address meta.token-a.act]
         %~  get-token-account-id  fetch
         [[our now]:bowl u.our-address amm-id our-town]
       ::
-      =/  our-token-b-account
+      =/  our-token-b-account=id:smart
+        %-  need
         %.  [u.our-address meta.token-b.act]
-        %~  get-token-account-id  fetch
-        [[our now]:bowl u.our-address amm-id our-town]
-      ::
-      =/  pool-token-a-account
-        %.  [amm-id meta.token-a.act]
-        %~  get-token-account-id  fetch
-        [[our now]:bowl u.our-address amm-id our-town]
-      ::
-      =/  pool-token-b-account
-        %.  [amm-id meta.token-b.act]
         %~  get-token-account-id  fetch
         [[our now]:bowl u.our-address amm-id our-town]
       ::
@@ -119,22 +94,17 @@
           contract=amm-id
           town=our-town
           :-  %noun
-          ^-  contract-action
+          ^-  action:amm-lib
           :+  %start-pool
-            :^    meta.token-a.act  
-                amount.token-a.act
-              pool-token-a-account
-            our-token-a-account
-
-          :^    meta.token-b.act
-              amount.token-b.act
-            pool-token-b-account
-          our-token-b-account
+            [meta.token-a.act amount.token-a.act our-token-a-account]
+          [meta.token-b.act amount.token-b.act our-token-b-account]
       ==
     ::
         %swap
-      ?~  our-address  !!
-      ?~  pool=(~(get by pools) pool-id.act)  !!
+      ?~  our-address
+        ~|("must set address first!" !!)
+      ?~  pool=(~(get by pools) pool-id.act)
+        ~|("pool for that swap not found!" !!)
       =/  [payment=token-data receive=token-data]
         ?:  =(metadata.token-a.u.pool meta.payment.act)
           [token-a token-b]:u.pool
@@ -148,23 +118,18 @@
           contract=amm-id
           town=our-town
           :-  %noun
-          ^-  contract-action
-          :*  %swap
+          ^-  action:amm-lib
+          :^    %swap
               pool-id.act
-              :^    metadata.payment
-                  amount.payment.act
-                pool-account.payment
-              our-account.payment
-              :^     metadata.receive
-                  amount.receive.act
-                pool-account.receive
-              our-account.receive
-          ==
+            [metadata.payment amount.payment.act -:(need our-account.payment)]
+          [metadata.receive amount.receive.act -:(need pool-account.receive)]
       ==
     ::
         %add-liq
-      ?~  our-address  !!
-      ?~  pool=(~(get by pools) pool-id.act)  !!
+      ?~  our-address
+        ~|("must set address first!" !!)
+      ?~  pool=(~(get by pools) pool-id.act)
+        ~|("pool for this action not found!" !!)
       =/  [token-a=token-data token-b=token-data]
         [token-a token-b]:u.pool
       ::
@@ -176,24 +141,18 @@
           contract=amm-id
           town=our-town
           :-  %noun
-          ^-  contract-action
-          :*  %add-liq
+          ^-  action:amm-lib
+          :^    %add-liq
               pool-id.act
-              our-liq-token-account.u.pool
-              :^    metadata.token-a
-                  amount.token-a.act
-                pool-account.token-a
-              our-account.token-a
-              :^    metadata.token-b
-                  amount.token-b.act
-                pool-account.token-b
-              our-account.token-b
-          ==
+            [metadata.token-a amount.token-a.act -:(need our-account.token-a)]
+          [metadata.token-b amount.token-b.act -:(need our-account.token-b)]
       ==
     ::
         %remove-liq
-      ?~  our-address  !!
-      ?~  pool=(~(get by pools) pool-id.act)  !!
+      ?~  our-address
+        ~|("must set address first!" !!)
+      ?~  pool=(~(get by pools) pool-id.act)
+        ~|("pool for this action not found!" !!)
       =/  [token-a=token-data token-b=token-data]
         [token-a token-b]:u.pool
       ::
@@ -205,19 +164,13 @@
           contract=amm-id
           town=our-town
           :-  %noun
-          ^-  contract-action
+          ^-  action:amm-lib
           :*  %remove-liq
               pool-id.act
-              +.our-liq-token-account.u.pool
+              -:(need our-liq-token-account.u.pool)
               amount.act
-              :^    metadata.token-a
-                  0
-                pool-account.token-a
-              our-account.token-a
-              :^    metadata.token-b
-                  0
-                pool-account.token-b
-              our-account.token-b
+              [metadata.token-a -:(need pool-account.token-a)]
+              [metadata.token-b -:(need pool-account.token-b)]
           ==
       ==
     ==
@@ -244,7 +197,7 @@
       /indexer/amm/batch-order/(scot %ux our-town.state)
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     ::  new batch, fetch latest state from AMM contract
-    ?~  our-address  !!
+    ?~  our-address  `this
     :-  ~
     %=    this
         pools
