@@ -1,9 +1,25 @@
-/-  eng=zig-engine
+/-  eng=zig-engine, uqbar=zig-uqbar
 /+  smart=zig-sys-smart
 |%
++$  token-metadata  token-metadata:eng
++$  token-account  token-account:eng
++$  nft-metadata    nft-metadata:eng
++$  nft             nft:eng
+::
 +$  signature   [p=@ux q=ship r=life]
+::
 ::  for app-generated transactions to be notified of their txn results
+::
 +$  origin  (unit (pair term wire))
+::
+::  for choosing which address to share if asked, if any
+::
++$  share-prefs
+  $~  [%any ~]  ::  default
+  $%  [%one =address:smart]  ::  specify which address we want to share
+      [%any ~]               ::  just grab any one address in our wallet
+      [%none ~]              ::  don't share uqbar addresses with anyone
+  ==
 ::
 ::  book: the primary map of assets that we track
 ::  supports fungibles and NFTs
@@ -27,13 +43,21 @@
   (map @ux [=typed-message:smart =sig:smart])
 ::
 +$  unfinished-transaction-store
-  (map @ux [=origin =transaction:smart action=supported-actions])
+  (map @ux unfinished-transaction)
+::
++$  unfinished-transaction
+  [=origin =transaction:smart action=supported-actions output=(unit output:eng)]
 ::
 ::  inner maps keyed by transaction hash
-::
+::  transaction-store holds all finished transactions,
+::  both ones sent by the address, and ones containing
+::  outputs which correspond to assets belong to that address.
 +$  transaction-store
   %+  map  address:smart
-  (map @ux [=origin =transaction:smart action=supported-actions =output:eng])
+  (map @ux finished-transaction)
+::
++$  finished-transaction
+  [=origin batch=@ux =transaction:smart action=supported-actions =output:eng]
 ::
 +$  pending-store
   %+  map  address:smart
@@ -46,17 +70,27 @@
       %103  ::  103: failure: transaction rejected by sequencer
       ::
       ::  200-class refers to codes that come from a completed transaction
-      ::  informed by egg status codes in smart.hoon
-      %200  ::  200: successfully performed
-      %201  ::  201: bad signature
-      %202  ::  202: incorrect nonce
-      %203  ::  203: lack zigs to fulfill budget
-      %204  ::  204: couldn't find contract
-      %205  ::  205: data was under contract ID
-      %206  ::  206: crash in contract execution
-      %207  ::  207: validation of diff failed
-      %208  ::  208: ran out of gas while executing
-      %209  ::  209: dedicated burn transaction failed
+      ::  that sequencer has given us a receipt for,
+      ::  informed by status codes in smart.hoon
+      ::
+      ::  300-class are equivalent, but the transaction has been officially
+      ::  included in a batch.
+      ::
+      %200  %300 ::  successfully performed
+      %201  %301 ::  bad signature
+      %202  %302 ::  incorrect nonce
+      %203  %303 ::  lack zigs to fulfill budget
+      %204  %304 ::  couldn't find contract
+      %205  %305 ::  data was under contract ID
+      %206  %306 ::  crash in contract execution
+      %207  %307 ::  validation of diff failed
+      %208  %308 ::  ran out of gas while executing
+      %209  %309 ::  dedicated burn transaction failed
+      ::
+      ::  error code %BYZANTINE occurs when the result of a transaction
+      ::  indicates to us that the sequencer is byzantine.
+      ::
+      %'BYZANTINE'
   ==
 ::
 ::  noun type that comes from wallet scries, used thru uqbar.hoon
@@ -73,12 +107,10 @@
           =transaction:smart
           action=supported-actions
       ==
-      $:  %finished-transaction
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
-      ==
+      ::  poked back to origin after sequencer optimistically processes
+      [%sequencer-receipt =origin sequencer-receipt:uqbar]
+      ::  poked back to origin when transaction is included in batch
+      [%finished-transaction finished-transaction]
   ==
 ::
 ::  sent to web interface
@@ -89,10 +121,7 @@
       [%tx-status hash=@ux =transaction:smart action=supported-actions]
       $:  %finished-tx
           hash=@ux
-          =origin
-          =transaction:smart
-          action=supported-actions
-          =output:eng
+          finished-transaction
       ==
   ==
 ::
@@ -106,6 +135,7 @@
       [%edit-nickname address=@ux nick=@t]
       [%sign-typed-message from=address:smart domain=id:smart type=json msg=*]
       [%add-tracked-address address=@ux nick=@t]
+      [%set-share-prefs =share-prefs]
       ::  testing and internal
       [%set-nonce address=@ux town=@ux new=@ud]
       [%approve-origin (pair term wire) gas=[rate=@ud bud=@ud]]
@@ -147,49 +177,5 @@
       [%give-nft to=address:smart item=id:smart]
       [%text @t]
       [%noun *]
-  ==
-::
-::  hardcoded molds comporting to account-token standard
-::
-+$  token-metadata
-  $:  name=@t
-      symbol=@t
-      decimals=@ud
-      supply=@ud
-      cap=(unit @ud)
-      mintable=?
-      minters=(pset:smart address:smart)
-      deployer=id:smart
-      salt=@
-  ==
-::
-+$  token-account
-  $:  balance=@ud
-      allowances=(pmap:smart sender=address:smart @ud)
-      metadata=id:smart
-      nonces=(pmap:smart taker=address:smart @ud)
-  ==
-::
-::  hardcoded molds comporting to account-NFT standard
-::
-+$  nft-metadata
-  $:  name=@t
-      symbol=@t
-      properties=(pset:smart @tas)
-      supply=@ud
-      cap=(unit @ud)  ::  (~ if mintable is false)
-      mintable=?      ::  automatically set to %.n if supply == cap
-      minters=(pset:smart address:smart)
-      deployer=id:smart
-      salt=@
-  ==
-::
-+$  nft  ::  a non-fungible token
-  $:  id=@ud
-      uri=@t
-      metadata=id:smart
-      allowances=(pset:smart address:smart)
-      properties=(pmap:smart @tas @t)
-      transferrable=?
   ==
 --
