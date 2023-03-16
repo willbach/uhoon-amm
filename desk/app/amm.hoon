@@ -6,6 +6,17 @@
 ::
 +$  card  card:agent:gall
 ::
+::
+    :: transactions, pendingtxs
+    :: (mypools)
+    :: 
+    ::  NO SUBS
+    :: 
+    ::  create tx => scry out current pool data => [1 eth 50 usdc] => (10 usd) => 0.2 eth) => form tx -> send via amm gall app to wallet -> 
+          :: including tracker => comes back in on-poke => sign tx => loading?display result and explorer link
+    :: 
+    ::  create/add liq to pool/pull liq from pool => 
+    :: 
 --
 =|  state-0
 =*  state  -
@@ -18,7 +29,7 @@
 ++  on-init
   :-  ~
   ::  the AMM contract id
-  =+  0x6f5a.2618.4e0c.00ac.0141.04c7.24fb.a3a0.5016.5270.b179.30c9.3d66.1d1c.860a.7a56
+  =+  0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b
   %=  this
     our-town                    0x0
     our-address                 ~
@@ -205,7 +216,6 @@
       [[our now]:bowl [u.our-address amm-id our-town]:state]
     ==
   ==
-::
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-arvo   on-arvo:def
