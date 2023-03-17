@@ -1,5 +1,6 @@
+import Decimal from 'decimal.js'
 import React, { useEffect, useMemo, useState } from 'react'
-import { removeDots, splitString, TEN_18 } from '../constants'
+import { addDecimalDots, removeDots, splitString, TEN_18 } from '../constants'
 import useAmmStore from '../store/ammStore'
 
 const Swap = () => {
@@ -30,8 +31,8 @@ const Swap = () => {
   }
 
   const handleSwap = () => {
-    const payment = (BigInt(amount1) * TEN_18).toLocaleString("de-DE")
-    const receive = (BigInt(amount2) * TEN_18).toLocaleString("de-DE")
+    const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toString())
+    const receive = addDecimalDots((new Decimal(amount2).mul(TEN_18)).toString())
   
 
     // pools work both ways
@@ -43,8 +44,8 @@ const Swap = () => {
     }
     
     
-    //console.log('t1, t2: ', token1, token2)
-    //console.log('p, r, pid: ', payment, receive, poolid)
+    console.log('t1, t2: ', token1, token2)
+    console.log('p, r, pid: ', payment, receive, poolid)
 
     const json = {
       swap: {
@@ -54,7 +55,7 @@ const Swap = () => {
       }
     }
 
-    swap(json)
+    //swap(json)
   } 
 
 
@@ -63,7 +64,7 @@ const Swap = () => {
       <div className='flex'>
         <select value={token1} onChange={(e) => setToken1(e.target.value)}>
           <option value={'token1'}></option>
-          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(BigInt(removeDots(t['our-account'].balance)) / TEN_18).toString()}</option>)}
+          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
           
         </select>
 
@@ -74,7 +75,7 @@ const Swap = () => {
       <div className='flex'>
         <select value={token2} onChange={(e) => setToken2(e.target.value)}>
           <option value={'token2'}></option>
-          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(BigInt(removeDots(t['our-account'].balance)) / TEN_18).toString()}</option>)}
+          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
         </select>
 
         <input type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />

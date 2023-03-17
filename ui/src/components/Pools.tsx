@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import React, { useEffect } from 'react'
 import { removeDots, splitString, TEN_18 } from '../constants'
 import useAmmStore from '../store/ammStore'
@@ -5,7 +6,6 @@ import useAmmStore from '../store/ammStore'
 const Pools = () => {
   const { pools } = useAmmStore()
 
-  // maybe add a /token path to display balances etc. 
   return (
     <>
       <table>
@@ -19,9 +19,9 @@ const Pools = () => {
           return (
           <tr>
             <td><a target='_blank' href={`/apps/ziggurat/indexer/item/${pool.address}`}>{pool.name}</a></td>
-            <td>{(BigInt(removeDots(pool['token-a']['pool-account'].balance)) / TEN_18).toString()} {pool['token-a'].name}</td>
-            <td>{(BigInt(removeDots(pool['token-b']['pool-account'].balance)) / TEN_18).toString()} {pool['token-b'].name}</td>
-            <td>your shares: {(BigInt(removeDots(pool['our-liq-token-account'].balance)) / TEN_18).toString()}</td>
+            <td>{(new Decimal(removeDots(pool['token-a']['pool-account'].balance)).div(TEN_18)).toFixed(2)} {pool['token-a'].name}</td>
+            <td>{(new Decimal(removeDots(pool['token-b']['pool-account'].balance)).div(TEN_18)).toFixed(2)} {pool['token-b'].name}</td>
+            <td>your shares: {(new Decimal(removeDots(pool['our-liq-token-account'].balance)).div(TEN_18)).toFixed(2)}</td>
           </tr>
            )
         })}

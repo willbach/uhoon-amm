@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 
 export const formataddy = (addy: string) => {
   const firstfivea = addy.substring(0, 6)
@@ -15,4 +16,17 @@ export const splitString = (s: string) => {
   return [res[0], res[1]]
 }
 
-export const TEN_18 = BigInt('1000000000000000000')
+export const TEN_18 = new Decimal('1000000000000000000')
+
+export const addDecimalDots = (decimal: string | number) => {
+  const num = typeof decimal === 'number' ? decimal.toString() : decimal
+  const number = []
+  const len = num.length;
+  for (let i = 0; i < len; i++) {
+    if (i !== 0 && i % 3 === 0) {
+      number.push('.')
+    }
+    number.push(num[len - 1 - i])
+  }
+  return number.reverse().join('')
+}
