@@ -57,12 +57,7 @@
     |=  act=action
     ^-  (quip card _state)
     ?-    -.act
-        %fe-test
-      ~&  >>  "init FE poke {<state>}"
-      `state
-    ::
         %token-in
-      :: ~&  >  act
       :_  state
       ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
     ::

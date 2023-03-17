@@ -1,42 +1,10 @@
 /-  *amm
+/+  ammjson
 |_  act=action
 ++  grab
   |%
   ++  noun  action
-  ++  json
-    =,  dejs:format
-    |=  jon=json
-    %-  action
-    =<  (fe-action jon)
-    |%
-    ++  fe-action
-      %-  of
-      :~  
-          [%fe-test ni]
-          [%token-in (ot ~[[%token so] [%amount ni]])]
-          [%make-pool parse-pool]
-          [%get-pool ul]
-      ==
-    ++  parse-pool
-      %-  ot
-      :~  [%name so]
-          [%liq-shares ni]
-          [%liq-token-meta (se %ux)]
-          [%our-liq-token-account (mu (se %ux))]
-          [%token-a parse-token]
-          [%token-b parse-token]
-      ==
-    ++  parse-token
-      %-  ot
-      :~  [%name so]
-          [%symbol so]
-          [%metadata (se %ux)]
-          [%our-account (mu (se %ux))]
-          [%pool-account (mu (se %ux))]
-          [%liquidity ni]
-          [%current-price ni]
-      ==
-    --
+  ++  json  action:dejs:ammjson
   --
 ++  grow
   |%

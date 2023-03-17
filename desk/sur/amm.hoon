@@ -15,8 +15,7 @@
   ==
 ::
 +$  action
-  $%  [%fe-test num=@ud]
-      [%token-in token=@t amount=@ud]
+  $%  [%token-in token=@t amount=@ud]
       ::
       [%set-our-address =address:smart]
       [%connect ~]  ::  start watching AMM contract through indexer

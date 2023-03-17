@@ -1,18 +1,33 @@
 import { GetState, SetState } from "zustand";
-import ammStore, { Store }  from "./ammStore";
+import { SubscriptionRequestInterface } from "@urbit/http-api"
+import ammStore, { Store } from "./ammStore";
 
-export const handleTemplateUpdate = (get: GetState<Store>, set: SetState<Store>) => (newValue: any) => {
-  const { templateValues } = get();
-  console.log(newValue);
-  set({ templateValues: templateValues.concat([newValue]) });
+
+export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) => async (update: any) => {
+  
+  console.log('AMM UPDATE: ', update)
+  let mark = Object.keys(update)[0]
+  switch (mark) {
+    case "pools": {
+      const pools = update["pools"]
+
+      set({ pools })
+      const { setTokens } = get()
+      setTokens()
+    }
+  }
 }
 
-export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) => (newValue: any) => {
-  const{ rawPools } = get();
-  // console.log("Got a pool: ");
-  // console.log(newValue);
-
-  console.log('AMM UPDATE: ', newValue)
-
-  set({ rawPools: rawPools.concat([newValue]) });
+export function createSubscription(app: string, path: string, e: (data: any) => void): SubscriptionRequestInterface {
+  const request = {
+    app,
+    path,
+    event: e,
+    err: () => console.warn('SUBSCRIPTION ERROR'),
+    quit: () => {
+      throw new Error('subscription clogged')
+    }
+  }
+  // TODO: err, quit handling (resubscribe?)
+  return request
 }
