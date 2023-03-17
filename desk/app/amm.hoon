@@ -190,11 +190,11 @@
   |=  =path
   ^-  (quip card _this)
   ?+    path  !!
-      [%testpath ~]
-    ~&  >  "got test subscription from {<src.bowl>}"  `this
-    ::
-      [%pools ~]
-    ~&  >  "frontend sub on /pools"  `this
+      [%updates ~]
+    :_  this
+    :~
+      [%give %fact ~ %amm-update !>(`update`[%pools pools])]
+    ==
   ==
 ::
 ++  on-agent

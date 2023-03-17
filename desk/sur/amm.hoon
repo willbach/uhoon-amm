@@ -42,7 +42,7 @@
 ::
 +$  update
   $%  [%confirmation token=@t amount=@ud]
-      [%got-pool pools=(map id:smart pool-data)]
+      [%pools pools=(map id:smart pool-data)]
   ==
 ::
 +$  pool-data
