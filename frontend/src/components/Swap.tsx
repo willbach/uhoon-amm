@@ -6,7 +6,7 @@ import useAmmStore, { Pool } from '../store/ammStore'
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
-  const { setInsetView, setMostRecentTransaction } = useWalletStore()
+  const { setInsetView } = useWalletStore()
 
 
   const [token1, setToken1] = useState<string>('token2')
@@ -15,21 +15,58 @@ const Swap = () => {
   const [amount1, setAmount1] = useState<string>('')
   const [amount2, setAmount2] = useState<string>('')
 
-  const [slippage, setSlippage] = useState<string>('5')
+  const [minimumReceived, setMinimumReceived] = useState<string>('')
+  const [priceImpact, setPriceImpact] = useState<string>('')
+  const [currentPrice, setCurrentPrice] = useState<string>('')
 
-  // let us examine what is needed to calculate a swap. ++ slippage, amount2->amount1 too? 
-  const handleAmountChange1 = (e: any) => {
+  const [slippage, setSlippage] = useState<string>('1.5')
+
+
+  const handleAmountChange1 = (e: any | undefined) => {
     const pool = getPool()
 
-    const price2 = new Decimal(removeDots(pool['token-b']['current-price']))
+
+    const amountA = new Decimal(!e ? amount1 : e.target.value)
+    
+    // need to know which one is token-a and token-b, todo -> foolproof
+    const t1 = token1 === pool['token-a'].metadata ? pool['token-a'] : pool['token-b']
+    const t2 = token2 === pool['token-b'].metadata ? pool['token-b'] : pool['token-a']
+
+    const price2 = new Decimal(removeDots(t2['current-price']))
 
     const slippageMultiplier = new Decimal(100).minus(slippage).div(100)
 
-    const tokenamount2 = price2.mul(new Decimal(e.target.value)).mul(slippageMultiplier).div(TEN_18).toFixed(3)
+    const noslippageamount2 = price2.mul(amountA).div(TEN_18)
+    const tokenamount2 = price2.mul(amountA).mul(slippageMultiplier).div(TEN_18).toFixed(3)
 
-    setAmount1(e.target.value)
-    setAmount2(tokenamount2)
+    //  K = 10000 = (X + 10) * (Y + delta_b)  
+    
+    // include 18 decimals in calc? they'll be there in the Decimals I hope
+    const liqA = new Decimal(removeDots(t1.liquidity)).div(TEN_18)
+    const liqB = new Decimal(removeDots(t2.liquidity)).div(TEN_18)
 
+    const k = liqA.mul(liqB)
+    
+    const amountB = (k.div(liqA.plus(amountA))).minus(liqB)
+
+
+
+    const priceIm = (noslippageamount2.div(amountB)).abs().minus(1).abs().mul(100)
+    const minreceived = amountB.mul(slippageMultiplier).abs()
+    
+    // todo, store t1 and t2 in state and operate on those instead
+    setCurrentPrice(`1 ${t1.name} => ${price2.div(TEN_18).toFixed(2)} ${t2.name}`)
+
+    setMinimumReceived(minreceived.toFixed(2))
+    setPriceImpact(priceIm.toFixed(2))
+    setAmount1(amountA.toString())
+    setAmount2(amountB.abs().toFixed(3))
+
+  }
+
+  const handleSetSlippage = (e: any) => {
+    setSlippage(e.target.value)
+    handleAmountChange1(undefined)
   }
 
   const getPool = () => {
@@ -53,11 +90,13 @@ const Swap = () => {
 
     setAmount1(amount2)
     setAmount2(tem1)
+
+    handleAmountChange1(undefined)
   }
 
   const handleSwap = async () => {
     const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toString())
-    const receive = addDecimalDots((new Decimal(amount2).mul(TEN_18)).toString())
+    const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toString())
 
 
     const pool = getPool()
@@ -83,6 +122,7 @@ const Swap = () => {
 
   return (
     <div className=''>
+        <span>current price: {currentPrice}</span>
 
       <div className='flex'>
         <select value={token1} onChange={(e) => setToken1(e.target.value)}>
@@ -105,9 +145,17 @@ const Swap = () => {
 
       </div>
 
+      <div>
+        <span>price-impact: {priceImpact}%</span>
+      </div>
+
+      <div>
+        <span>minimum received: {minimumReceived}</span>
+      </div>
+
       <div className='flex'>
-        <span>%slippage</span>
-        <input type='number' value={slippage} onChange={(e) => setSlippage(e.target.value)} />
+        <span>slippage%</span>
+        <input type='number' value={slippage} onChange={(e) => handleSetSlippage(e)} />
       </div>
 
 
