@@ -192,7 +192,7 @@
     ==
   ==
 ::
-++  on-agent
+++  on-agent :: todo, indexer updates flow immediately to frontend?
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
@@ -204,11 +204,12 @@
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     ::  new batch, fetch latest state from AMM contract
     ?~  our-address  `this
-    :-  ~
-    %=    this
-        pools
+    =/  newpools  
       %~  chain-state  fetch
       [[our now]:bowl [u.our-address amm-id our-town]:state]
+    ::
+    :_  this(pools newpools)
+    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
     ==
   ==
 ++  on-leave  on-leave:def
