@@ -17,7 +17,7 @@ const Pools = () => {
         </tr>
         {pools && Object.entries(pools).map(([poolstring, pool], i) => {
           return (
-          <tr>
+          <tr key={'pool-'+ i}>
             <td><a target='_blank' href={`/apps/ziggurat/indexer/item/${pool.address}`}>{pool.name}</a></td>
             <td>{(new Decimal(removeDots(pool['token-a']['pool-account'].balance)).div(TEN_18)).toFixed(2)} {pool['token-a'].name}</td>
             <td>{(new Decimal(removeDots(pool['token-b']['pool-account'].balance)).div(TEN_18)).toFixed(2)} {pool['token-b'].name}</td>

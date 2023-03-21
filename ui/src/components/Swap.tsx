@@ -1,3 +1,4 @@
+import { useWalletStore, AccountSelector } from '@uqbar/wallet-ui'
 import Decimal from 'decimal.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { addDecimalDots, removeDots, splitString, TEN_18 } from '../constants'
@@ -5,6 +6,8 @@ import useAmmStore, { Pool } from '../store/ammStore'
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
+  const { setInsetView, setMostRecentTransaction } = useWalletStore()
+
 
   const [token1, setToken1] = useState<string>('token2')
   const [token2, setToken2] = useState<string>('token2')
@@ -77,13 +80,20 @@ const Swap = () => {
     swap(json)
   }
 
+  const handleTest = () => {
+    setInsetView('confirm-most-recent')
+  }
+
 
   return (
     <div className=''>
+      <div className=''>
+        <AccountSelector />
+      </div>
       <div className='flex'>
         <select value={token1} onChange={(e) => setToken1(e.target.value)}>
-          <option value={'token1'}></option>
-          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
+          <option value={'token1'} key='first-option1'></option>
+          {tokens && tokens.map((t, i) => <option value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)} </option>)}
 
         </select>
 
@@ -94,7 +104,7 @@ const Swap = () => {
       <div className='flex'>
         <select value={token2} onChange={(e) => setToken2(e.target.value)}>
           <option value={'token2'}></option>
-          {tokens && tokens.map((t, i) => <option value={t.metadata}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
+          {tokens && tokens.map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
         </select>
 
         <input type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />
@@ -105,8 +115,10 @@ const Swap = () => {
         <p>%slippage</p>
         <input type='number' value={slippage} onChange={(e) => setSlippage(e.target.value)} />
       </div>
-      <button onClick={handleSwap}>swap</button>
 
+
+      <button onClick={handleSwap}>swap</button>
+      <button onClick={handleTest}>test</button>
     </div>
   )
 }

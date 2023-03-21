@@ -63,12 +63,15 @@ const useAmmStore = create<Store>((set, get) => ({
   setTokens: async () => {
     // figure out how to set "tokens" in straight subscriptions instead
     const { pools } = get()
+    console.log('new pools', pools)
     let ts: TokenData[] = [];
     
     for (let pool of Object.values(pools)) {
       ts.push(pool["token-a"])
       ts.push(pool["token-b"])
     }
+
+    console.log('new tokens', ts)
 
     set({ tokens: ts })
   },
