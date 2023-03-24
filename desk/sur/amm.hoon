@@ -12,6 +12,8 @@
       our-address=(unit @ux)
       amm-id=@ux
       pools=(map id:smart pool-data)
+      txs=(list tx)
+      pending-tx=(unit tx)
   ==
 ::
 +$  action
@@ -52,6 +54,27 @@
       token-a=token-data
       token-b=token-data
   ==
+::
++$  token-amounts
+  $:
+    token-a=[meta=id:smart amount=@ud]
+    token-b=[meta=id:smart amount=@ud]
+  ==
+::
++$  tx  :: fetch name in ui somehow
+  $:
+    input=token-amounts
+    hash=(unit id:smart)
+    output=(unit token-amounts)
+  ==
+::
+:: noun mold from con/lib/zigs or fungible
+  +$  account
+    $:  balance=@ud
+        allowances=(pmap:smart address:smart @ud)
+        metadata=id:smart
+        nonces=(pmap:smart address:smart @ud)
+    ==
 ::
 +$  token-data
   $:  name=@t
