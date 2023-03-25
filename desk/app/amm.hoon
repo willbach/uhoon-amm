@@ -57,6 +57,7 @@
     :_  this
     :~
       [%give %fact ~ %amm-update !>(`update`[%pools pools])]
+      [%give %fact ~ %amm-update !>(`update`[%txs txs])]
     ==
   ==
 ::

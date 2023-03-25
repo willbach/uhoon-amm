@@ -44,6 +44,7 @@
 +$  update
   $%  [%confirmation token=@t amount=@ud]
       [%pools pools=(map id:smart pool-data)]
+      [%txs txs=(list tx)]
   ==
 ::
 +$  pool-data

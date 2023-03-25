@@ -3,6 +3,7 @@ import Decimal from 'decimal.js'
 import React, { useEffect, useMemo, useState } from 'react'
 import { addDecimalDots, removeDots, splitString, TEN_18 } from '../constants'
 import useAmmStore, { Pool } from '../store/ammStore'
+import Txs from './Txs'
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
@@ -156,6 +157,8 @@ const Swap = () => {
 
 
       <button onClick={handleSwap}>swap</button>
+
+      <Txs />
     </div>
   )
 }

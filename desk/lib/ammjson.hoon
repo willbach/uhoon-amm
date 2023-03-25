@@ -22,8 +22,32 @@
       |=  [=address:smart =pool-data]
       :-  `@tas`(rap 3 (scot %ux metadata.token-a.pool-data) '/' (scot %ux metadata.token-b.pool-data) ~)
       (enjs-pool pool-data address)    
+        %txs
+      a+(turn txs.up enjs-tx)
     ==
   ::
+  ++  enjs-tx
+    |=  =tx
+    ^-  json
+    %-  pairs
+    :~  [%input (enjs-input input.tx)]
+        [%hash %s ?~(hash.tx '' (scot %ux u.hash.tx))]
+        [%output (enjs-output output.tx)]
+    ==
+  ++  enjs-input
+    |=  [meta=id:smart amount=@ud]
+    ^-  json
+    %-  pairs
+    :~  [%meta %s (scot %ux meta)]
+        [%amount %s (scot %ud amount)]
+    ==
+  ++  enjs-output
+    |=  [meta=id:smart amount=(unit @ud)]
+    ^-  json
+    %-  pairs
+    :~  [%meta %s (scot %ux meta)]
+        [%amount %s ?~(amount '' (scot %ud u.amount))]
+    ==
   ++  enjs-pool
     |=  [pool=pool-data pooltoken=id:smart]
     ^-  json

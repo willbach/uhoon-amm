@@ -8,12 +8,18 @@ export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) =>
   console.log('AMM UPDATE: ', update)
   let mark = Object.keys(update)[0]
   switch (mark) {
+    // @ts-ignore
     case "pools": {
       const pools = update["pools"]
 
       set({ pools })
       const { setTokens } = get()
       setTokens()
+    }
+
+    case "txs": {
+      const txs = update["txs"]
+      set({ txs })
     }
   }
 }

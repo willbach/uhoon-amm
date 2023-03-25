@@ -5,6 +5,7 @@ import { handlePoolsUpdate, createSubscription } from "./subscriptions"
 export interface Store {
   pools: PoolMap
   tokens: TokenData[]
+  txs: Tx[]
   init: () => Promise<void>;
   setTokens: () => Promise<void>;
   getPoolPoke: () => Promise<void>;
@@ -47,10 +48,21 @@ export interface BalanceMap {
   [key: string]: string
 }
 
+export interface TokenAmount {
+  meta: string
+  amount: string
+}
+export interface Tx {
+  input: TokenAmount
+  hash: string
+  output: TokenAmount
+}
+
 
 
 const useAmmStore = create<Store>((set, get) => ({
   pools: {},
+  txs: [],
   init: async () => {
     // Update the subscriptions and scries to match your app's routes
     await api.subscribe(createSubscription('amm', '/updates', handlePoolsUpdate(get, set)));
