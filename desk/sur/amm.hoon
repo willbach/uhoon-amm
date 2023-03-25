@@ -55,17 +55,11 @@
       token-b=token-data
   ==
 ::
-+$  token-amounts
++$  tx
   $:
-    token-a=[meta=id:smart amount=@ud]
-    token-b=[meta=id:smart amount=@ud]
-  ==
-::
-+$  tx  :: fetch name in ui somehow
-  $:
-    input=token-amounts
+    input=[meta=id:smart amount=@ud]
     hash=(unit id:smart)
-    output=(unit token-amounts)
+    output=[meta=id:smart amount=(unit @ud)]
   ==
 ::
 :: noun mold from con/lib/zigs or fungible

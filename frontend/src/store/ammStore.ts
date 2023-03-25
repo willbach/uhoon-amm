@@ -70,6 +70,8 @@ const useAmmStore = create<Store>((set, get) => ({
       ts.push(pool["token-b"])
     }
 
+    console.log('tokens: ', ts)
+
 
     set({ tokens: ts })
   },

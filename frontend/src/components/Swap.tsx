@@ -55,6 +55,7 @@ const Swap = () => {
     const minreceived = amountB.mul(slippageMultiplier).abs()
     
     // todo, store t1 and t2 in state and operate on those instead
+    // currently won't update as state updates... nested state mayb the problem? 
     setCurrentPrice(`1 ${t1.name} => ${price2.div(TEN_18).toFixed(2)} ${t2.name}`)
 
     setMinimumReceived(minreceived.toFixed(2))
@@ -98,18 +99,13 @@ const Swap = () => {
     const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toString())
     const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toString())
 
-
+    
     const pool = getPool()
-
-    // we might need zigs specific logic.., zigs contract => our id, but fungible contract => fungible id => our id. 
-    // todo fix 
-    const checkedtoken1 = token1 === "0x61.7461.6461.7465.6d2d.7367.697a" ? "0x61.7461.6461.7465.6d2d.7367.697a" : pool['token-a']['our-account'].id
-    const checkedtoken2 = token2 === "0x61.7461.6461.7465.6d2d.7367.697a" ? "0x61.7461.6461.7465.6d2d.7367.697a" : pool['token-b']['our-account'].id
 
     const json = {
       swap: {
-        payment: { meta: checkedtoken1, amount: payment },
-        receive: { meta: checkedtoken2, amount: receive },
+        payment: { meta: token1, amount: payment },
+        receive: { meta: token2, amount: receive },
         "pool-id": pool.address,
       }
     }

@@ -57,6 +57,11 @@ set allowance for `SQUID`:
 :sequencer|batch
 ```
 
+0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a
+0x74.6361.7274.6e6f.632d.6874.6575
+
+:uqbar &wallet-poke [%transaction ~ from=0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a contract=0x74.6361.7274.6e6f.632d.6874.6575 town=0x0 action=[%noun [%deploy 'ass token' 'ASS' 10.000 ~ [0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a 0 0] ~[[0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a 9.000.000.000.000.000.000.000]]]]]
+
 set allowance for `ZIG`:
 ```
 :uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%set-allowance 0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b 300.000.000.000.000.000.000 0x7810.2b9f.109c.e44e.7de3.cd7b.ea4f.45dd.aed8.054c.0b52.b2c8.2788.93c6.5bb4.bb85]]]

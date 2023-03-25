@@ -150,10 +150,9 @@
         [token-a token-b]:u.pool
       [token-b token-a]:u.pool
     ::
-    =/  pending  :*  :-  [meta.payment.act amount.payment.act] :: input
-                         [meta.receive.act amount.receive.act]
-                     ~                                         :: hash
-                     ~                                         :: unit output
+    =/  pending  :*  [meta.payment.act amount.payment.act] :: input
+                     ~                                     :: hash
+                     [meta.receive.act ~]                  :: unit output
                  ==                
     :_  state(pending-tx `pending)  :_  ~
     %+  transaction-poke  our.bowl
@@ -230,33 +229,36 @@
     ::
     ?+    q.u.origin.update  ~|("got receipt from weird origin" !!)
         [%new-swap ~]
-      ::  this method basically works, but there's some sneaky logic tbd with regard to the difference in zigs & fungibles
       =/  modified=(list item:smart)  (turn ~(val by modified.output.update) tail)
-      ~&  >>>  "{<modified>}"
-      ::
       ?~  pending-tx   ~|  "no corresponding pending tx"  !!  
       ::
-      =|  outp=token-amounts   
-      =/  dummy  %+  turn  modified
-      |=  i=item:smart
-      ?.  ?=(%& -.i)  ~                       :: todo not item? /failed tx?
-      ~&  "holder?: {<holder.p.i>}"
-      ~&  "label: {<label.p.i>}"
-      ~&  "noun: {<noun.p.i>}"
-      ?:  ?&  =(holder.p.i u.our-address)
-              =(label.p.i %account)
-          ==
-          =/  acc  ;;(account noun.p.i)           :: dangerous? how else to mold incoming
-          ~&  "id: {<id.p.i>}"
-          ~&  "balance: {<balance.acc>}"
-          ?:  =(source.p.i meta.token-a.input.u.pending-tx)  outp(token-a [source.p.i balance.acc])
-          ?:  =(source.p.i meta.token-b.input.u.pending-tx)  outp(token-b [source.p.i balance.acc])
+      =|  outp=(unit [meta=id:smart (unit amount=@ud)])
+      =.  outp
+        |-  ^+  outp
+        ?~  modified  ~
+        =/  i=item:smart  i.modified
+        ?.  ?&  ?=(%& -.i)
+                =(holder.p.i u.our-address)
+                =(label.p.i %account)
+            ==
+          $(modified t.modified)
+        =/  acc  ;;(account noun.p.i)             
         ::
-        ~
-      ~
-      ~&  "formatted: {<outp>}"
-      `state
-      :: 
+        ?.  =(metadata.acc meta.output.u.pending-tx)  
+          $(modified t.modified)
+        `[metadata.acc [~ balance.acc]]
+      ::
+      ?~    outp
+        `state  :: logic for failed tx
+      ::
+      =:  hash.u.pending-tx     `hash.update
+          output.u.pending-tx   u.outp
+      ==  
+      :-  ~  
+      %=      state
+        txs         (snoc txs u.pending-tx)
+        pending-tx  ~
+      ==
     ==
   ==
 --
