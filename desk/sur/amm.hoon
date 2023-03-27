@@ -60,7 +60,8 @@
   $:
     input=[meta=id:smart amount=@ud]
     hash=(unit id:smart)
-    output=[meta=id:smart amount=(unit @ud)]
+    status=?(%pending %confirmed %failed)
+    output=[meta=id:smart amount=@ud]
   ==
 ::
 :: noun mold from con/lib/zigs or fungible

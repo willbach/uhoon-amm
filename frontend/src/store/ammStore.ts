@@ -4,7 +4,7 @@ import { handlePoolsUpdate, createSubscription } from "./subscriptions"
 
 export interface Store {
   pools: PoolMap
-  tokens: TokenData[]
+  tokens: TokenMap
   txs: Tx[]
   init: () => Promise<void>;
   setTokens: () => Promise<void>;
@@ -36,6 +36,10 @@ export interface TokenData {
   "our-account": TokenAccount
   "pool-account": TokenAccount
 }
+
+export interface TokenMap {
+  [key: string]: TokenData    // meta => TokenData
+}
 export interface TokenAccount {
   id: string // our token-account id
   allowances: BalanceMap
@@ -55,6 +59,7 @@ export interface TokenAmount {
 export interface Tx {
   input: TokenAmount
   hash: string
+  status: string
   output: TokenAmount
 }
 
@@ -71,21 +76,24 @@ const useAmmStore = create<Store>((set, get) => ({
   getPoolPoke: async () => {
     await api.poke({app: 'amm', mark: 'amm-action', json: { 'get-pool': null }})
   },
-  tokens: [],
+  tokens: {},
   setTokens: async () => {
     // figure out how to set "tokens" in straight subscriptions instead
     const { pools } = get()
-    let ts: TokenData[] = [];
+    let tm: TokenMap = {};
     
     for (let pool of Object.values(pools)) {
-      ts.push(pool["token-a"])
-      ts.push(pool["token-b"])
+      const meta1 = pool["token-a"]["metadata"]
+      const meta2 = pool["token-b"]["metadata"]
+
+      tm[meta1] = pool["token-a"]
+      tm[meta2] = pool["token-b"] // do double updates matter in this case?
     }
 
-    console.log('tokens: ', ts)
+    console.log('tokens: ', tm)
 
 
-    set({ tokens: ts })
+    set({ tokens: tm })
   },
   swap: async (jon: any) => {
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })

@@ -1,26 +1,28 @@
 import { GetState, SetState } from "zustand";
 import { SubscriptionRequestInterface } from "@urbit/http-api"
-import ammStore, { Store } from "./ammStore";
+import ammStore, { PoolMap, Tx, Store } from "./ammStore";
 
+export interface AmmUpdate {
+  pools?: PoolMap
+  txs?: Tx[]
+}
 
 export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) => async (update: any) => {
   
   console.log('AMM UPDATE: ', update)
   let mark = Object.keys(update)[0]
-  switch (mark) {
-    // @ts-ignore
-    case "pools": {
-      const pools = update["pools"]
 
-      set({ pools })
-      const { setTokens } = get()
-      setTokens()
-    }
+  if ('txs' in update) {
+    const txs = update["txs"]
+    set({ txs })
+  }
 
-    case "txs": {
-      const txs = update["txs"]
-      set({ txs })
-    }
+  if ('pools' in update) {
+    const pools = update["pools"]
+
+    set({ pools })
+    const { setTokens } = get()
+    setTokens()
   }
 }
 

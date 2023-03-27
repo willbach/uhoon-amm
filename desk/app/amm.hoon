@@ -151,9 +151,10 @@
         [token-a token-b]:u.pool
       [token-b token-a]:u.pool
     ::
-    =/  pending  :*  [meta.payment.act amount.payment.act] :: input
-                     ~                                     :: hash
-                     [meta.receive.act ~]                  :: unit output
+    =/  pending  :*  [meta.payment.act amount.payment.act]                    :: input
+                     ~                                                        :: hash
+                     %pending                                                 :: status
+                     [meta.receive.act amount.receive.act]:: unit output, try with newly deployed token, see what happens. 
                  ==                
     :_  state(pending-tx `pending)  :_  ~
     %+  transaction-poke  our.bowl
@@ -231,35 +232,68 @@
     ?+    q.u.origin.update  ~|("got receipt from weird origin" !!)
         [%new-swap ~]
       =/  modified=(list item:smart)  (turn ~(val by modified.output.update) tail)
-      ?~  pending-tx   ~|  "no corresponding pending tx"  !!  
-      ::
-      =|  outp=(unit [meta=id:smart (unit amount=@ud)])
-      =.  outp
-        |-  ^+  outp
-        ?~  modified  ~
-        =/  i=item:smart  i.modified
-        ?.  ?&  ?=(%& -.i)
-                =(holder.p.i u.our-address)
-                =(label.p.i %account)
-            ==
-          $(modified t.modified)
-        =/  acc  ;;(account noun.p.i)             
-        ::
-        ?.  =(metadata.acc meta.output.u.pending-tx)  
-          $(modified t.modified)
-        `[metadata.acc [~ balance.acc]]
-      ::
-      ?~    outp
-        `state  :: logic for failed tx
-      ::
+      ?~  pending-tx   ~|  "no corresponding pending tx"  !!
+      ::  Quick note, pending txs that haven't yet gotten sequencer receipt are good to display, but currently everything is so fast
+      ?.   =(%0 errorcode.output.update)
+        =:  hash.u.pending-tx    `hash.update
+            status.u.pending-tx  %failed
+        ==
+        :_  state(txs (snoc txs u.pending-tx), pending-tx ~)
+        :_  ~
+        :*  %give
+            %fact
+            ~[/updates]
+            %amm-update
+            !>([%txs (snoc txs u.pending-tx)])
+        ==
+      ::  wallet handles other errorcode cases
+      ::  add hash to wallet because it passed
       =:  hash.u.pending-tx     `hash.update
-          output.u.pending-tx   u.outp
-      ==  
-      :-  ~  
-      %=      state
-        txs         (snoc txs u.pending-tx)
-        pending-tx  ~
+          status.u.pending-tx   %confirmed
       ==
+      :_  state(txs (snoc txs u.pending-tx), pending-tx ~)
+      :_  ~
+      :*
+        %give
+        %fact
+        ~[/updates]
+        %amm-update
+        !>([%txs (snoc txs u.pending-tx)])
+      ==
+      ::
+      ::  below is code to calculate difference of balance of output tokens before swap and after.
+      ::  I might find problems with allowances, so for now txs are just inputs, minimum receives, and fail with errorcodes.
+      ::    
+      ::
+      ::  =|  outp=(unit [meta=id:smart balance=@ud (unit amount=@ud)])
+      ::  =.  outp
+      ::    |-  ^+  outp
+      ::    ?~  modified  ~
+      ::    =/  i=item:smart  i.modified
+      ::    ~&  "item: {<i>}"
+      ::    ?.  ?&  ?=(%& -.i)
+      ::            =(holder.p.i u.our-address)
+      ::            =(label.p.i %account)
+      ::        ==
+      ::      $(modified t.modified)
+      ::    =/  acc  ;;(account noun.p.i)             
+      ::    ::
+      ::    ?.  =(metadata.acc meta.output.u.pending-tx)  
+      ::      $(modified t.modified)
+      ::    `[metadata.acc balance.output.u.pending-tx [~ (sub balance.acc balance.output.u.pending-tx)]]
+      ::  ::
+      ::  ?~    outp
+      ::    `state  :: logic for failed tx
+      ::  ::
+      ::  =:  hash.u.pending-tx     `hash.update
+      ::      output.u.pending-tx    u.outp
+      ::  ==  
+      ::
+      ::  :-  ~[[%give %fact ~[/updates] %amm-update !>([%txs (snoc txs u.pending-tx)])]]  
+      ::  %=      state
+      ::    txs         (snoc txs u.pending-tx)
+      ::    pending-tx  ~
+      ::  ==
     ==
   ==
 --

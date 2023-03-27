@@ -10,6 +10,14 @@ export const removeDots = (s: string) => {
   return s.replace(/\./g, '')
 }
 
+export const udToDecimal = (s: string): Decimal => {
+  if (s === '') return new Decimal(0)
+
+  return new Decimal(removeDots(s)).div(TEN_18)
+}
+
+export const displayPubKey = (pubKey: string) => pubKey.slice(0, 6) + '...' + pubKey.slice(-4)
+
 // split string with slash between 0x0/0x0
 export const splitString = (s: string) => {
   const res = s.split('/')

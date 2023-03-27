@@ -24,29 +24,24 @@
       (enjs-pool pool-data address)    
         %txs
       a+(turn txs.up enjs-tx)
+      ::
     ==
   ::
   ++  enjs-tx
     |=  =tx
     ^-  json
     %-  pairs
-    :~  [%input (enjs-input input.tx)]
+    :~  [%input (enjs-amounts input.tx)]
         [%hash %s ?~(hash.tx '' (scot %ux u.hash.tx))]
-        [%output (enjs-output output.tx)]
+        [%status %s status.tx]
+        [%output (enjs-amounts output.tx)]
     ==
-  ++  enjs-input
+  ++  enjs-amounts
     |=  [meta=id:smart amount=@ud]
     ^-  json
     %-  pairs
     :~  [%meta %s (scot %ux meta)]
         [%amount %s (scot %ud amount)]
-    ==
-  ++  enjs-output
-    |=  [meta=id:smart amount=(unit @ud)]
-    ^-  json
-    %-  pairs
-    :~  [%meta %s (scot %ux meta)]
-        [%amount %s ?~(amount '' (scot %ud u.amount))]
     ==
   ++  enjs-pool
     |=  [pool=pool-data pooltoken=id:smart]
