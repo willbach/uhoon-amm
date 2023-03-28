@@ -7,8 +7,12 @@ export const formataddy = (addy: string) => {
 }
 
 export const removeDots = (s: string) => {
-  return s.replace(/\./g, '')
+  return s?.replace(/\./g, '')
 }
+
+export const AMM_ADDRESS = "0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b"
+
+export const FUNGIBLE_ADDRESS = "0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a"
 
 export const udToDecimal = (s: string): Decimal => {
   if (s === '') return new Decimal(0)

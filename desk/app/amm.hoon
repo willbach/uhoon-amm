@@ -219,6 +219,31 @@
             [metadata.token-b -:(need pool-account.token-b)]
         ==
     ==
+  ::
+      %set-allowance
+    ?~  our-address
+      ~|("must set address first!" !!)
+    =/  token-account
+      %-  need
+      %.  [u.our-address meta.token.act]
+      %~  get-contract-account  fetch
+      [[our now]:bowl u.our-address amm-id our-town]
+    ~&  "token-account: {<token-account>}"
+    :_  state  :_  ~
+    %+  transaction-poke  our.bowl
+    :*  %transaction
+        origin=~
+        from=u.our-address
+        contract=source.token-account
+        town=our-town
+        :-  %noun
+        ::^-  action:amm-lib
+        :*  %set-allowance
+            amm-id
+            amount.token.act
+            id.token-account
+        ==
+    ==
   ==
 ::
 ++  handle-wallet-update

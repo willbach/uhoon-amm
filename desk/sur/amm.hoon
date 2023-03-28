@@ -39,6 +39,9 @@
           pool-id=id:smart
           amount=@ud
       ==
+      $:  %set-allowance
+          token=[meta=id:smart amount=@ud]
+      ==
   ==
 ::
 +$  update

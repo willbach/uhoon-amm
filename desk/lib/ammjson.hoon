@@ -104,11 +104,16 @@
           [%swap dejs-swap]
           [%add-liq dejs-addliq]
           [%remove-liq dejs-removeliq]
+          [%set-allowance dejs-setallow]
       ==
     ++  dejs-startpool
       %-  ot
       :~  [%token-a dejs-token]
           [%token-b dejs-token]
+      ==
+    ++  dejs-setallow
+      %-  ot
+      :~  [%token dejs-token]
       ==
     ++  dejs-tokenin
       %-  ot

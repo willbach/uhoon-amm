@@ -1,7 +1,7 @@
 import { useWalletStore, AccountSelector } from '@uqbar/wallet-ui'
 import Decimal from 'decimal.js'
 import React, { useEffect, useMemo, useState } from 'react'
-import { addDecimalDots, removeDots, splitString, TEN_18 } from '../constants'
+import { addDecimalDots, removeDots, splitString, TEN_18, AMM_ADDRESS } from '../constants'
 import useAmmStore, { Pool } from '../store/ammStore'
 import Txs from './Txs'
 

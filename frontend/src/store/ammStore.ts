@@ -10,6 +10,7 @@ export interface Store {
   setTokens: () => Promise<void>;
   getPoolPoke: () => Promise<void>;
   swap: (jon: any) => Promise<void>;
+  allow: (jon: any) => Promise<void>;
 }
 
 // all types in urbit type strings to begin, e.g "100.100.203" or "0x.dead.beef", more for reference than making everything typesafe
@@ -98,6 +99,9 @@ const useAmmStore = create<Store>((set, get) => ({
   swap: async (jon: any) => {
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
     console.log('swap response: ', res)
+  },
+  allow: async (jon: any) => {
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
   }
 }))
 
