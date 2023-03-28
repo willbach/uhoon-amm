@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { displayPubKey, removeDots, udToDecimal } from '../constants'
 import useAmmStore from '../store/ammStore'
-import { IoCheckmarkSharp, IoClose } from 'react-icons/io5'
+import { IoCheckmarkSharp, IoClose, IoArrowForward } from 'react-icons/io5'
 
 const Txs = () => {
   const txs  = useAmmStore(state => state.txs)
@@ -20,7 +20,7 @@ const Txs = () => {
           <div key={i}>
             
             <span>{(tx.status === 'confirmed') ? <a target='_blank' href={`/apps/ziggurat/indexer/${tx.hash}`}><IoCheckmarkSharp color='green'/> {displayPubKey(tx.hash)}</a> :<a target='_blank' href={`/apps/ziggurat/indexer/${tx.hash}`}><IoClose color='red'/>{displayPubKey(tx.hash)}</a>}</span>
-            <span>{udToDecimal(tx.input.amount).toFixed(2)} {getTokenName(tx.input.meta)} {'==>'} </span>
+            <span>{udToDecimal(tx.input.amount).toFixed(2)} {getTokenName(tx.input.meta)} <IoArrowForward /> </span>
             <span>{udToDecimal(tx.output.amount).toFixed(2)} {getTokenName(tx.output.meta)}</span>
           </div>
         ))}

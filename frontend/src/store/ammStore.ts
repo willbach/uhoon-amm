@@ -11,6 +11,9 @@ export interface Store {
   getPoolPoke: () => Promise<void>;
   swap: (jon: any) => Promise<void>;
   allow: (jon: any) => Promise<void>;
+  
+  addLiq: (pool: string, token1: TokenAmount, token2: TokenAmount) => Promise<void>;
+  removeLiq: (pool: string, amount: string) => Promise<void>;
 }
 
 // all types in urbit type strings to begin, e.g "100.100.203" or "0x.dead.beef", more for reference than making everything typesafe
@@ -102,7 +105,34 @@ const useAmmStore = create<Store>((set, get) => ({
   },
   allow: async (jon: any) => {
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+  },
+
+  addLiq: async (pool: string, token1: TokenAmount, token2: TokenAmount) => {
+    // new format bby, better probably to structure json in here?
+    const jon = {
+      "add-liq": {
+        "pool-id": pool,
+        "token-a": token1,
+        "token-b": token2,
+      }
+    }
+    console.log('addLiq poke json: ', jon)
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('add-liq poke: ', res)
+  },
+
+  removeLiq: async (pool: string, amount: string) => {
+    const jon = {
+      "remove-liq": {
+        "pool-id": pool,
+        "amount": amount,
+      }
+    }
+    console.log('remove liq json: ', jon)
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('remove-liq poke: ', res)
   }
-}))
+
+  }))
 
 export default useAmmStore

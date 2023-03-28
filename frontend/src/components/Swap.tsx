@@ -1,9 +1,12 @@
 import { useWalletStore, AccountSelector } from '@uqbar/wallet-ui'
 import Decimal from 'decimal.js'
 import React, { useEffect, useMemo, useState } from 'react'
+import { IoSwapVertical } from 'react-icons/io5'
 import { addDecimalDots, removeDots, splitString, TEN_18, AMM_ADDRESS } from '../constants'
 import useAmmStore, { Pool } from '../store/ammStore'
 import Txs from './Txs'
+import './styles/Swap.scss';
+
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
@@ -20,7 +23,7 @@ const Swap = () => {
   const [currentPrice, setCurrentPrice] = useState<string>('')
 
   const [slippage, setSlippage] = useState<string>('3')
-  
+
   const handleAmountChange1 = (e: any | undefined) => {
     if (!e && !amount1) return
     const amountA = new Decimal(!e ? amount1 : e.target.value)
@@ -41,19 +44,19 @@ const Swap = () => {
     const tokenamount2 = price2.mul(amountA).mul(slippageMultiplier).div(TEN_18).toFixed(3)
 
     //  K = 10000 = (X + 10) * (Y + delta_b)  
-    
+
     // include 18 decimals in calc? they'll be there in the Decimals I hope
     const liqA = new Decimal(removeDots(t1.liquidity)).div(TEN_18)
     const liqB = new Decimal(removeDots(t2.liquidity)).div(TEN_18)
 
     const k = liqA.mul(liqB)
-    
+
     const amountB = (k.div(liqA.plus(amountA))).minus(liqB)
 
 
     const priceIm = (noslippageamount2.div(amountB)).abs().minus(1).abs().mul(100)
     const minreceived = amountB.mul(slippageMultiplier).abs()
-    
+
     // todo, store t1 and t2 in state and operate on those instead
     // currently won't update as state updates... nested state mayb the problem? 
     setCurrentPrice(price2.div(TEN_18).toFixed(3))
@@ -101,7 +104,7 @@ const Swap = () => {
     const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toString())
     const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toString())
 
-    
+
     const pool = getPool()
 
     const json = {
@@ -123,47 +126,53 @@ const Swap = () => {
   }, [pools, tokens])
 
   return (
-    <div className=''>
-        <span>current price: 1 {tokens[token1]?.name} = {currentPrice} {tokens[token2]?.name}</span>
+    <div className="swap-container">
+      <div className="swap-card">
+        <span className="text-white">
+          current price: 1 {tokens[token1]?.name} = {currentPrice} {tokens[token2]?.name}</span>
 
-      <div className='flex'>
-        <select value={token1} onChange={(e) => setToken1(e.target.value)}>
-          <option value={'token1'} key='first-option1'></option>
-          {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)} </option>)}
+        <div className='input-group'>
+          <div className='select-container'>
+          <select className='custom-select' value={token1} onChange={(e) => setToken1(e.target.value)}>
+            <option value={'token1'} key='first-option1'></option>
+            {tokens && Object.values(tokens).map((t, i) => <option className='option' value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)} </option>)}
 
-        </select>
+          </select>
+          </div>
 
-        <input type='number' placeholder='amount' value={amount1} onChange={handleAmountChange1} />
+          <input className='input-field' type='number' placeholder='amount' value={amount1} onChange={handleAmountChange1} />
+        </div>
+        
+        <button onClick={handleSwitchDir}>
+        <IoSwapVertical /> 
+        </button>
+        
+        <div className='input-group'>
+          <select className='custom-select' value={token2} onChange={(e) => setToken2(e.target.value)}>
+            <option value={'token2'}></option>
+            {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
+          </select>
 
+          <input className='input-field' type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />
+        </div>
+
+      <div className='metrics-container'>
+        <div className='metric'>
+          <span>price-impact: {priceImpact}%</span>
+        </div>
+
+        <div className='metric'>
+          <span>minimum received: {minimumReceived}</span>
+        </div>
+
+        <div className='metric'>
+          <span>slippage%</span>
+          <input type='number' value={slippage} onChange={(e) => handleSetSlippage(e)} />
+        </div>
       </div>
 
-  
-      <button onClick={handleSwitchDir}>{'<-->'}</button>
-      <div className='flex'>
-        <select value={token2} onChange={(e) => setToken2(e.target.value)}>
-          <option value={'token2'}></option>
-          {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
-        </select>
-
-        <input type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />
+        <button className='swap-button' onClick={handleSwap}>swap</button>
       </div>
-
-      <div>
-        <span>price-impact: {priceImpact}%</span>
-      </div>
-
-      <div>
-        <span>minimum received: {minimumReceived}</span>
-      </div>
-
-      <div className='flex'>
-        <span>slippage%</span>
-        <input type='number' value={slippage} onChange={(e) => handleSetSlippage(e)} />
-      </div>
-      
-
-      <button onClick={handleSwap}>swap</button>
-
       <Txs />
     </div>
   )
