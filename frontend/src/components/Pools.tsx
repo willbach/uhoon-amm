@@ -48,7 +48,7 @@ const Pools = () => {
     const amount = addDecimalDots(new Decimal(removeAmount).mul(TEN_18).toString()) 
 
     removeLiq(pool.address, amount)
-    setInsetView('confirm-most-recent')
+        setInsetView('confirm-most-recent')
   }
 
 
@@ -67,10 +67,10 @@ const Pools = () => {
           {pools &&
             Object.entries(pools).map(([poolstring, pool], i) => {
               const tokenA = new Decimal(
-                removeDots(pool['token-a']['pool-account'].balance)
+                removeDots(pool['token-a']['pool-account'].balance || '0')
               ).div(TEN_18);
               const tokenB = new Decimal(
-                removeDots(pool['token-b']['pool-account'].balance)
+                removeDots(pool['token-b']['pool-account'].balance || '0')
               ).div(TEN_18);
 
               return (
@@ -93,7 +93,7 @@ const Pools = () => {
                     <td>
                       Your shares:{' '}
                       {new Decimal(
-                        removeDots(pool['our-liq-token-account'].balance)
+                        removeDots(pool['our-liq-token-account'].balance || '0')
                       )
                         .div(TEN_18)
                         .toFixed(2)}

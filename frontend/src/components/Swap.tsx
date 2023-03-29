@@ -10,7 +10,7 @@ import './styles/Swap.scss';
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
-  const { setInsetView } = useWalletStore()
+  const { setInsetView, accounts,selectedAccount } = useWalletStore()
 
   const [token1, setToken1] = useState<string>('token2')
   const [token2, setToken2] = useState<string>('token2')
@@ -70,6 +70,13 @@ const Swap = () => {
   const handleSetSlippage = (e: any) => {
     setSlippage(e.target.value)
     handleAmountChange1(undefined)
+  }
+
+  const handleAccounts = () => {
+    console.log('accounts; ', accounts)
+    console.log('selected acc: ', selectedAccount)
+    setInsetView('accounts')
+    console.log('selected acc: ', selectedAccount)
   }
 
   const getPool = () => {
@@ -135,14 +142,14 @@ const Swap = () => {
           <div className='select-container'>
           <select className='custom-select' value={token1} onChange={(e) => setToken1(e.target.value)}>
             <option value={'token1'} key='first-option1'></option>
-            {tokens && Object.values(tokens).map((t, i) => <option className='option' value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)} </option>)}
+            {tokens && Object.values(tokens).map((t, i) => <option className='option' value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)} </option>)}
 
           </select>
           </div>
 
           <input className='input-field' type='number' placeholder='amount' value={amount1} onChange={handleAmountChange1} />
         </div>
-        
+
         <button onClick={handleSwitchDir}>
         <IoSwapVertical /> 
         </button>
@@ -150,7 +157,7 @@ const Swap = () => {
         <div className='input-group'>
           <select className='custom-select' value={token2} onChange={(e) => setToken2(e.target.value)}>
             <option value={'token2'}></option>
-            {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)}</option>)}
+            {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)}</option>)}
           </select>
 
           <input className='input-field' type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />
@@ -172,6 +179,8 @@ const Swap = () => {
       </div>
 
         <button className='swap-button' onClick={handleSwap}>swap</button>
+
+        <button onClick={handleAccounts}>choose account</button>
       </div>
       <Txs />
     </div>

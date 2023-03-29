@@ -22,9 +22,12 @@
       |=  [=address:smart =pool-data]
       :-  `@tas`(rap 3 (scot %ux metadata.token-a.pool-data) '/' (scot %ux metadata.token-b.pool-data) ~)
       (enjs-pool pool-data address)    
+      ::
         %txs
       a+(turn txs.up enjs-tx)
       ::
+        %account
+      s+?~(account.up '' (scot %ux u.account.up))
     ==
   ::
   ++  enjs-tx
@@ -98,13 +101,17 @@
     ++  decode
       %-  of
       :~  [%token-in dejs-tokenin]    :: remove
-          [%set-our-address (se %ux)]
-          :: [%connect ~]  mull-bonk-a mull-grow with this?
+          [%set-our-address dejs-address]
+          [%connect ul]  :: mull-bonk-a mull-grow with this?
           [%start-pool dejs-startpool]
           [%swap dejs-swap]
           [%add-liq dejs-addliq]
           [%remove-liq dejs-removeliq]
           [%set-allowance dejs-setallow]
+      ==
+    ++  dejs-address
+      %-  ot
+      :~  [%address (se %ux)]
       ==
     ++  dejs-startpool
       %-  ot

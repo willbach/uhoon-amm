@@ -24,6 +24,11 @@ export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) =>
     const { setTokens } = get()
     setTokens()
   }
+
+  if ('account' in update) {
+    const account = update["account"]
+    set({ account })
+  }
 }
 
 export function createSubscription(app: string, path: string, e: (data: any) => void): SubscriptionRequestInterface {

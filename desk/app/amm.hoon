@@ -58,6 +58,7 @@
     :~
       [%give %fact ~ %amm-update !>(`update`[%pools pools])]
       [%give %fact ~ %amm-update !>(`update`[%txs txs])]
+      [%give %fact ~ %amm-update !>(`update`[%account our-address])]
     ==
   ==
 ::
@@ -154,7 +155,7 @@
     =/  pending  :*  [meta.payment.act amount.payment.act]                    :: input
                      ~                                                        :: hash
                      %pending                                                 :: status
-                     [meta.receive.act amount.receive.act]:: unit output, try with newly deployed token, see what happens. 
+                     [meta.receive.act amount.receive.act]                    :: unit output, try with newly deployed token, see what happens. 
                  ==                
     :_  state(pending-tx `pending)  :_  ~
     %+  transaction-poke  our.bowl
@@ -165,7 +166,10 @@
         town=our-town
         :-  %noun
         ^-  action:amm-lib
-        :^    %swap
+        :^    %on-push                    
+            -:(need our-account.payment)
+          amount.payment.act
+        :^    %swap     :: calldata for on-push hook. 
             pool-id.act
           [metadata.payment amount.payment.act -:(need our-account.payment)]
         [metadata.receive amount.receive.act -:(need pool-account.receive)]
@@ -202,6 +206,7 @@
     =/  [token-a=token-data token-b=token-data]
       [token-a token-b]:u.pool
     ::
+    ~&  "our: {<-:(need our-liq-token-account.u.pool)>}"
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
@@ -211,6 +216,9 @@
         town=our-town
         :-  %noun
         ^-  action:amm-lib
+        :^    %on-push  :: doesn't work for some reason? check /con
+           -:(need our-liq-token-account.u.pool)
+          amount.act
         :*  %remove-liq
             pool-id.act
             -:(need our-liq-token-account.u.pool)

@@ -6,6 +6,7 @@ export interface Store {
   pools: PoolMap
   tokens: TokenMap
   txs: Tx[]
+  account: string | null;
   init: () => Promise<void>;
   setTokens: () => Promise<void>;
   getPoolPoke: () => Promise<void>;
@@ -14,6 +15,11 @@ export interface Store {
   
   addLiq: (pool: string, token1: TokenAmount, token2: TokenAmount) => Promise<void>;
   removeLiq: (pool: string, amount: string) => Promise<void>;
+
+  checkCurrentAccount: (address: string) => Promise<void>;
+  setCurrentAccount: (account: string) => Promise<void>;
+  connect: () => Promise<void>;
+
 }
 
 // all types in urbit type strings to begin, e.g "100.100.203" or "0x.dead.beef", more for reference than making everything typesafe
@@ -67,11 +73,10 @@ export interface Tx {
   output: TokenAmount
 }
 
-
-
 const useAmmStore = create<Store>((set, get) => ({
   pools: {},
   txs: [],
+  account: null,
   init: async () => {
     // Update the subscriptions and scries to match your app's routes
     await api.subscribe(createSubscription('amm', '/updates', handlePoolsUpdate(get, set)));
@@ -131,6 +136,37 @@ const useAmmStore = create<Store>((set, get) => ({
     console.log('remove liq json: ', jon)
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
     console.log('remove-liq poke: ', res)
+  },
+
+  checkCurrentAccount: async (address: string) => {
+    // checks if our-account in gall state is the same as selected account in wallet :)
+    
+    const { account, setCurrentAccount } = get()
+    if (account !== address) {
+      setCurrentAccount(address)
+    }
+  },
+
+  setCurrentAccount: async (account: string) => {
+    // account in hex format
+    const jon = {
+      "set-our-address": {
+        address: account
+      }
+    }
+
+    console.log('setaccount: ', account)
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('set account poke: ', res)
+  },
+
+  connect: async () => {
+    const jon = {
+      connect: null
+    }
+
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('connect poke: ', res)
   }
 
   }))

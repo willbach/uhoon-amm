@@ -4,30 +4,23 @@ import { AccountSelector, useWalletStore } from '@uqbar/wallet-ui';
 import { Swap, Pools, Tokens } from './components'
 import './App.scss'
 import useAmmStore from './store/ammStore';
+import Navbar from './components/Navbar';
 
 function App() {
-  const { initWallet } = useWalletStore()
-  const { init } = useAmmStore()
+  const initWallet = useWalletStore(state => state.initWallet)
+  const init  = useAmmStore(state => state.init)
+  
+
   useEffect(() => {
     (async () => {
-
       init()
       initWallet({ prompt: true })
-
     })()
   }, [])
-
-
+  
   return (
     <BrowserRouter basename={'/apps/amm'}>
-      {/* <Navbar /> */}
-      <div>
-        <Link to='/'>/swap</Link>
-        <Link to='/pools'>/pools</Link>
-        <Link to='/tokens'>/tokens</Link>
-      </div>
-      <AccountSelector />
-
+      <Navbar />
       <Routes>
         <Route path="/" element={<Swap />} />
         <Route path="/pools" element={<Pools />} />

@@ -44,7 +44,7 @@ const Tokens = () => {
       <div className=''>
         <select value={token1} onChange={(e) => setToken1(e.target.value)}>
           <option value={'token1'} key='first-option1'></option>
-          {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance)).div(TEN_18)).toFixed(2)} </option>)}
+          {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)} </option>)}
 
         </select>
 
@@ -53,7 +53,7 @@ const Tokens = () => {
 
       </div>
       <div>
-        <span>current allowance: {new Decimal(removeDots(tokens?.[token1]?.['our-account'].allowances?.[AMM_ADDRESS]) || '0')?.div(TEN_18)?.toFixed(2)}</span>
+        <span>current allowance: {new Decimal(removeDots(tokens?.[token1]?.['our-account'].allowances?.[AMM_ADDRESS] || '0'))?.div(TEN_18)?.toFixed(2)}</span>
       </div>
       <button onClick={handleAllow}>SET</button>
 

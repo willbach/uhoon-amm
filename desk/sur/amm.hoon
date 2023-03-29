@@ -48,6 +48,7 @@
   $%  [%confirmation token=@t amount=@ud]
       [%pools pools=(map id:smart pool-data)]
       [%txs txs=(list tx)]
+      [%account account=(unit id:smart)]
   ==
 ::
 +$  pool-data
@@ -59,7 +60,7 @@
       token-b=token-data
   ==
 ::
-+$  tx
++$  tx  :: add allowance+liq-removal/adding tx in here too? 
   $:
     input=[meta=id:smart amount=@ud]
     hash=(unit id:smart)
