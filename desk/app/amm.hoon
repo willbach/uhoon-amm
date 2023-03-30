@@ -23,7 +23,7 @@
   =+  0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b
   %=  this
     our-town                    0x0
-    our-address                 ~
+    our-address                 ~       ::  our-addresses.... hmm... index for all? just scry wallet :DD
     amm-id                      -
     pools                       ~
     txs                         ~
@@ -152,6 +152,12 @@
         [token-a token-b]:u.pool
       [token-b token-a]:u.pool
     ::
+    =/  contract-id
+      %-  need
+      %.  metadata.payment
+      %~  get-contract  fetch
+      [[our now]:bowl u.our-address amm-id our-town]
+    ::
     =/  pending  :*  [meta.payment.act amount.payment.act]                    :: input
                      ~                                                        :: hash
                      %pending                                                 :: status
@@ -162,17 +168,21 @@
     :*  %transaction
         origin=`[%amm /new-swap]
         from=u.our-address
-        contract=amm-id
+        contract=contract-id
         town=our-town
         :-  %noun
-        ^-  action:amm-lib
-        :^    %on-push                    
-            -:(need our-account.payment)
-          amount.payment.act
-        :^    %swap     :: calldata for on-push hook. 
-            pool-id.act
-          [metadata.payment amount.payment.act -:(need our-account.payment)]
-        [metadata.receive amount.receive.act -:(need pool-account.receive)]
+        :*        
+              %push        :: note the ordering of the inputs
+              to=amm-id
+              amount=amount.payment.act
+              from-account=id:(need our-account.payment)
+            ::
+              ^-  action:amm-lib
+              :^    %swap     
+                  pool-id.act
+                [metadata.payment amount.payment.act -:(need our-account.payment)]
+              [metadata.receive amount.receive.act -:(need pool-account.receive)]
+        ==
     ==
   ::
       %add-liq
@@ -206,25 +216,33 @@
     =/  [token-a=token-data token-b=token-data]
       [token-a token-b]:u.pool
     ::
-    ~&  "our: {<-:(need our-liq-token-account.u.pool)>}"
+    =/  contract-id
+      %-  need
+      %.  liq-token-meta.u.pool
+      %~  get-contract  fetch
+      [[our now]:bowl u.our-address amm-id our-town]
+    :: TODO: don't necessarily need an extra scry, this is just the fungible contract 
+    ::
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
         origin=~
         from=u.our-address
-        contract=amm-id
+        contract=contract-id
         town=our-town
         :-  %noun
-        ^-  action:amm-lib
-        :^    %on-push  :: doesn't work for some reason? check /con
-           -:(need our-liq-token-account.u.pool)
-          amount.act
-        :*  %remove-liq
-            pool-id.act
-            -:(need our-liq-token-account.u.pool)
-            amount.act
-            [metadata.token-a -:(need pool-account.token-a)]
-            [metadata.token-b -:(need pool-account.token-b)]
+        :*  %push
+            to=amm-id
+            amount=amount.act
+            from-account=id:(need our-liq-token-account.u.pool)
+            ^-  action:amm-lib
+            :*  %remove-liq
+                pool-id.act
+                id:(need our-liq-token-account.u.pool)
+                amount.act
+                [metadata.token-a -:(need pool-account.token-a)]
+                [metadata.token-b -:(need pool-account.token-b)]
+            ==
         ==
     ==
   ::

@@ -58,13 +58,6 @@
     ?~  g=(item-data id)  ~
     ((soft ,[@ux token-account:wallet]) [id +.u.g])
   ::
-  ++  get-token-account-id
-    |=  [holder=address:smart meta-id=id:smart]
-    ^-  (unit id:smart)
-    ?~  found=(token-meta meta-id)  ~
-    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
-    ?~  g=(item-data id)  ~
-    `id
   ++  get-contract-account
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit [id=id:smart source=id:smart])
@@ -72,6 +65,19 @@
     =+  id=(hash-data:smart source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     `[id source.u.found]
+  ::
+  ++  get-token-account-id
+    |=  [holder=address:smart meta-id=id:smart]
+    ^-  (unit id:smart)
+    ?~  found=(token-meta meta-id)  ~
+    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    ?~  g=(item-data id)  ~
+    `id
+  ++  get-contract
+    |=  meta-id=id:smart
+    ^-  (unit contract=id:smart)
+    ?~  found=(token-meta meta-id)  ~
+    `source.u.found
   ::
   ::  +fill-pool: take a pool's on-chain data and expand to give
   ::  everything we need to interact with it
