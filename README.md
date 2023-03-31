@@ -1,28 +1,32 @@
 # uhoon-amm
 AMM contract for Uqbar in the style of Uniswap V2
 
-quick bug/improvement depository:
-- fungible token allowance under total balance crashes
-- strip empty spaces before&after search bar hash
-- 
+:quick note: the change to poolmap changes a few things, it's good(?) to store specific id:s for pools for several addresses, 
+but scrying state for each address at each batch is too much. Maybe update the pools for only the current address for batch?
+not great either tbh. 
+
+solution would maybe be to separate our-accounts state, and have a general "pools" that could be shared. 
+performance-wise let's test this out, if it's completely horrible, let's revert.
 
 These commands assume:
 
 - ZIGS contract `0x74.6361.7274.6e6f.632d.7367.697a`
 
-- fungible contract ID `0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a`
+- ZIGS metadata `0x61.7461.6461.7465.6d2d.7367.697a`
 
-- AMM contract ID `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`
+- Our zigs item `0x7810.2b9f.109c.e44e.7de3.cd7b.ea4f.45dd.aed8.054c.0b52.b2c8.2788.93c6.5bb4.bb85`
+
+- fungible contract ID `0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a`
 
 - SQUID token `0xe3e.17c6.36d1.f0a7.d037.9553.9d60.f44c.8a8b.d57a.f800.bab2.334e.60a2.3cda.4d17`
 
 - SQUID metadata item `0xd19.a57e.01f2.473b.026f.506b.16a5.ce9b.2580.96fd.07a2.7e59.461a.7386.f3d4.2b56`
 
+- AMM contract ID `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`
+
 note the hardcoded our-fungible-contract in con/lib/amm
 
-
 We'll first use the wallet dojo CLI to deploy a new token and set some allowances such that the AMM contract can pull from our accounts:
-
 
 ```
 Deploy a token, `SQUID`:
@@ -35,7 +39,7 @@ Deploy a token, `SQUID`:
 :: todo, interface (/types)
 Deploy the AMM: 
 ```
-these 2 steps are necessary if you modify the contract before deploying, otherwise jam file will exist in /con/compiled already
+these 3 steps are necessary if you modify the contract before deploying, otherwise jam file will exist in /con/compiled already
   .amm/jam +zig!compile /=amm=/con/amm/hoon
   copy the amm.jam file from .urb/put to /con/compiled
   |commit %amm
@@ -57,17 +61,15 @@ set allowance for `SQUID`:
 :sequencer|batch
 ```
 
-0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a
-0x74.6361.7274.6e6f.632d.6874.6575
-
-:uqbar &wallet-poke [%transaction ~ from=0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a contract=0x74.6361.7274.6e6f.632d.6874.6575 town=0x0 action=[%noun [%deploy 'ass token' 'ASS' 10.000 ~ [0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a 0 0] ~[[0x77a8.dc81.40c1.f245.96ee.05a1.2727.03b9.fdb6.e82a 9.000.000.000.000.000.000.000]]]]]
-
 set allowance for `ZIG`:
 ```
 :uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x74.6361.7274.6e6f.632d.7367.697a town=0x0 action=[%noun [%set-allowance 0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b 300.000.000.000.000.000.000 0x7810.2b9f.109c.e44e.7de3.cd7b.ea4f.45dd.aed8.054c.0b52.b2c8.2788.93c6.5bb4.bb85]]]
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x7f48.5427.e0d8.60ee.39b2.bbcb.23c5.9973 gas=[rate=1 bud=1.000.000]]
 :sequencer|batch
 ```
+
+:uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a town=0x0 action=[%noun [%set-allowance 0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b 300.000.000.000.000.000.000 0xb958.3754.cc67.1c4e.0eab.b39e.1c0d.2ff1.f3a4.5617.ebc9.7caa.91e7.069d.9171.2d89]]]
+
 
 Initialize the AMM gall app with our wallet address:
 ```

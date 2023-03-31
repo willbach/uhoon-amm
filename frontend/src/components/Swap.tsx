@@ -129,7 +129,6 @@ const Swap = () => {
 
   useEffect(() => {
     handleAmountChange1(undefined)
-    console.log('ass')
   }, [pools, tokens])
 
   return (
