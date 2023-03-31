@@ -134,4 +134,6 @@
       %poke  %wallet-poke
       !>(call)
   ==
+::
+++  fungible-address  0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a
 --

@@ -102,12 +102,29 @@
       %-  of
       :~  [%token-in dejs-tokenin]    :: remove
           [%set-our-address dejs-address]
-          [%connect ul]  :: mull-bonk-a mull-grow with this?
+          [%connect ul]
+          [%leave ul]
           [%start-pool dejs-startpool]
           [%swap dejs-swap]
           [%add-liq dejs-addliq]
           [%remove-liq dejs-removeliq]
           [%set-allowance dejs-setallow]
+          [%deploy-token dejs-deploy]
+      ==
+    ++  dejs-deploy
+      %-  ot
+      :~  [%name so]
+          [%symbol so]
+          ::  [%salt ] defined in /app
+          [%cap (mu (se %ud))]
+          [%minters (as (se %ux))]
+          [%initial-distribution (ar dejs-dist)]
+      ==
+    ++  dejs-dist
+      ^-  $-(json [to=@ux amount=@ud])
+      %-  ot
+      :~  [%to (se %ux)]
+          [%amount (se %ud)]
       ==
     ++  dejs-address
       %-  ot

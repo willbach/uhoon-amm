@@ -68,12 +68,17 @@
   ?+    wire  (on-agent:def wire sign)
       [%new-batch ~]
     ?:  ?=(%kick -.sign)
-      :_  this  ::  attempt to re-sub
+      :_  this  ::  attempt to re-sub, subscribe wire not unique, how to prevent this?
       =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
       /indexer/amm/batch-order/(scot %ux our-town.state)
+                                                                  ::  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]~
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     ::  new batch, fetch latest state from AMM contract
     ?~  our-address  `this
+    ::  fetch our addresses from wallet. <- could replace the "empty wallet failing everywhere"
+    ::
+    =/  book  .^(wallet-update:wallet %gx /(scot %ta our.bowl)/wallet/(scot %ta now.bowl)/addresses/wallet-update)
+    ~&  "my addresses: {<+.book>}"
     =/  newpools  
       %~  chain-state  fetch
       [[our now]:bowl [u.our-address amm-id our-town]:state]
@@ -82,6 +87,15 @@
     :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
     ==
   ==
+  ::  on-agent
+  ::    ^⁻  [address:smart pool-data]
+  ::    =/  all-pools  
+  ::    %+  turn  ~(tap by +.book)
+  ::    |=  account=@ud
+  ::    =-  [account -]
+  ::    %~  chain-state  fetch
+  ::    [[our now]:bowl account amm-id our-town]
+  ::
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-arvo   on-arvo:def
@@ -109,6 +123,11 @@
         pools
       %~  chain-state  fetch
       [[our now]:bowl u.our-address amm-id our-town]
+    ==
+  ::
+      %leave
+    :_  state
+    :~  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]
     ==
   ::
       %start-pool
@@ -141,7 +160,7 @@
           [meta.token-a.act amount.token-a.act our-token-a-account]
         [meta.token-b.act amount.token-b.act our-token-b-account]
     ==
-  ::
+  ::  
       %swap
     ?~  our-address
       ~|("must set address first!" !!)
@@ -182,6 +201,26 @@
                   pool-id.act
                 [metadata.payment amount.payment.act -:(need our-account.payment)]
               [metadata.receive amount.receive.act -:(need pool-account.receive)]
+        ==
+    ==
+      %deploy-token
+    ?~  our-address
+      ~|("must set address first!" !!)
+    :_  state  :_  ~
+    %+  transaction-poke  our.bowl
+    :*  %transaction
+        origin=~
+        from=u.our-address
+        contract=fungible-address
+        town=our-town
+        :-  %noun
+        :*  %deploy-token
+            name.act
+            symbol.act
+            (cat 3 name.act symbol.act)
+            cap.act
+            `(pset:smart address:smart)`minters.act
+            initial-distribution.act
         ==
     ==
   ::

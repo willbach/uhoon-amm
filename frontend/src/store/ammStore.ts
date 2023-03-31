@@ -20,6 +20,8 @@ export interface Store {
   setCurrentAccount: (account: string) => Promise<void>;
   connect: () => Promise<void>;
 
+  deploy: (jon: any) => Promise<void>;
+  startPool: (jon: any) => Promise<void>;
 }
 
 // all types in urbit type strings to begin, e.g "100.100.203" or "0x.dead.beef", more for reference than making everything typesafe
@@ -167,7 +169,19 @@ const useAmmStore = create<Store>((set, get) => ({
 
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
     console.log('connect poke: ', res)
-  }
+  },
+
+  deploy: async (jon: any) => {
+    // json currently in components/Swap.tsx, need to standardize this better. 
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('deploy response: ', res)
+  },
+
+  startPool: async (jon: any) => {
+    // json currently in components/Swap.tsx, need to standardize this better. 
+    const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
+    console.log('startPool response: ', res)
+  },
 
   }))
 

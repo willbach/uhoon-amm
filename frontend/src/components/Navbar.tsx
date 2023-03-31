@@ -10,14 +10,31 @@ const Navbar = () => {
 
 
   //  this useEffect is to keep the amm gall app synced with the wallet-ui selected address
-  //  using multiple addresses is important, and the txs state should perhaps map by address
+  //  using multiple addresses is important, and the txs state should perhaps map by address (& pools)
   //  another (perhaps better) option would be to pass "our-address" along with every poke to %amm
-  //  actually... hmmm. Each sequence, updates the pool to "our-address" specifically. Interesting. 
+  //  actually... hmmm. Each sequence, updates the pool to "our-address" specifically. Interesting.... 
   //  how often will things batch in reality? 
 
 
+  // test: run this once to check on-mount
   useEffect(() => {
-    console.log('selection changed, selected and gall-account: ' , selectedAccount?.rawAddress, account)
+    if (!selectedAccount) {
+      console.log('no selected account???')
+    } else {
+      checkCurrentAccount(selectedAccount?.rawAddress)
+    }
+  }, [])
+
+  // test: check for unlimited loop
+  useEffect(() => {
+    console.log('selection changed, selectedAccount and gall-account: ' , selectedAccount?.rawAddress, account)
+    if (!selectedAccount) {
+      console.log('no selected account???')
+    } else if (selectedAccount?.rawAddress === account) {
+      console.log('accounts set correctly.')
+    } else {
+      checkCurrentAccount(selectedAccount?.rawAddress)
+    }
   }, [selectedAccount, account])
 
 
@@ -33,7 +50,7 @@ const Navbar = () => {
         <Link className="nav-link" to="/tokens">
           /tokens
         </Link>
-        <button onClick={() => connect()}>connect</button>
+        <button onClick={() => connect()}>conenct</button>
       </div>
       <div className="account-selector-container">
         <AccountSelector

@@ -179,8 +179,6 @@ const Swap = () => {
       </div>
 
         <button className='swap-button' onClick={handleSwap}>swap</button>
-
-        <button onClick={handleAccounts}>choose account</button>
       </div>
       <Txs />
     </div>

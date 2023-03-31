@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { AccountSelector, useWalletStore } from '@uqbar/wallet-ui';
-import { Swap, Pools, Tokens } from './components'
+import { Swap, Pools, Tokens, Navbar } from './components'
 import './App.scss'
 import useAmmStore from './store/ammStore';
-import Navbar from './components/Navbar';
 
 function App() {
   const initWallet = useWalletStore(state => state.initWallet)

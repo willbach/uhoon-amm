@@ -12,6 +12,9 @@
       our-address=(unit @ux)
       amm-id=@ux
       pools=(map id:smart pool-data)
+      :: all-pools=(map id:smart pool-data)
+      ::pools=(map address:smart all-pools)  :: worth saving? pools for all our wallet addresses. 
+      ::  addresses=(set @ux) <- probably should save it too, but I don't want another sub to %wallet, can just scry in on-agent
       txs=(list tx)
       pending-tx=(unit tx)
   ==
@@ -21,6 +24,7 @@
       ::
       [%set-our-address =address:smart]
       [%connect ~]  ::  start watching AMM contract through indexer
+      [%leave ~]    ::  leave indexer sub, hopefully you won't have to use this.
       $:  %start-pool
           token-a=[meta=id:smart amount=@ud]
           token-b=[meta=id:smart amount=@ud]
@@ -41,6 +45,15 @@
       ==
       $:  %set-allowance
           token=[meta=id:smart amount=@ud]
+      ==
+      ::  might need origin receipts to display success/failure eventually
+      $:  %deploy-token
+           name=@t
+           symbol=@t
+           ::  salt=@ :: generated in app
+           cap=(unit @ud)          ::  if ~, no cap (fr fr)
+           minters=(set address:smart)  :: change to pset in /app 
+           initial-distribution=(list [to=address:smart amount=@ud])
       ==
   ==
 ::
