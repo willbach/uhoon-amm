@@ -12,14 +12,19 @@
       our-address=(unit @ux)
       amm-id=@ux
       pools=(map id:smart pool-data)
+      :: all-pools=(map id:smart pool-data)
+      ::pools=(map address:smart all-pools)  :: worth saving? pools for all our wallet addresses. 
+      ::  addresses=(set @ux) <- probably should save it too, but I don't want another sub to %wallet, can just scry in on-agent
+      txs=(list tx)
+      pending-tx=(unit tx)
   ==
 ::
 +$  action
-  $%  [%fe-test num=@ud]
-      [%token-in token=@t amount=@ud]
+  $%  [%token-in token=@t amount=@ud]
       ::
       [%set-our-address =address:smart]
       [%connect ~]  ::  start watching AMM contract through indexer
+      [%leave ~]    ::  leave indexer sub, hopefully you won't have to use this.
       $:  %start-pool
           token-a=[meta=id:smart amount=@ud]
           token-b=[meta=id:smart amount=@ud]
@@ -38,11 +43,25 @@
           pool-id=id:smart
           amount=@ud
       ==
+      $:  %set-allowance
+          token=[meta=id:smart amount=@ud]
+      ==
+      ::  might need origin receipts to display success/failure eventually
+      $:  %deploy-token
+           name=@t
+           symbol=@t
+           ::  salt=@ :: generated in app
+           cap=(unit @ud)          ::  if ~, no cap (fr fr)
+           minters=(set address:smart)  :: change to pset in /app 
+           initial-distribution=(list [to=address:smart amount=@ud])
+      ==
   ==
 ::
 +$  update
   $%  [%confirmation token=@t amount=@ud]
-      [%got-pool pools=(map id:smart pool-data)]
+      [%pools pools=(map id:smart pool-data)]
+      [%txs txs=(list tx)]
+      [%account account=(unit id:smart)]
   ==
 ::
 +$  pool-data
@@ -53,6 +72,22 @@
       token-a=token-data
       token-b=token-data
   ==
+::
++$  tx  :: add allowance+liq-removal/adding tx in here too? 
+  $:
+    input=[meta=id:smart amount=@ud]
+    hash=(unit id:smart)
+    status=?(%pending %confirmed %failed)
+    output=[meta=id:smart amount=@ud]
+  ==
+::
+:: noun mold from con/lib/zigs or fungible
+  +$  account
+    $:  balance=@ud
+        allowances=(pmap:smart address:smart @ud)
+        metadata=id:smart
+        nonces=(pmap:smart address:smart @ud)
+    ==
 ::
 +$  token-data
   $:  name=@t

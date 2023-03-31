@@ -1,97 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import api from "./templates/api";
-import useStore from './templates/store/store';
-import Pools from './templates/components/Pools';
-import { forEachChild } from 'typescript';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { AccountSelector, useWalletStore } from '@uqbar/wallet-ui';
+import { Swap, Pools, Tokens, Navbar } from './components'
+import './App.scss'
+import useAmmStore from './store/ammStore';
 
 function App() {
-  const { init, getPoolPoke, rawPools } = useStore();
+  const initWallet = useWalletStore(state => state.initWallet)
+  const init  = useAmmStore(state => state.init)
+  
 
   useEffect(() => {
-    init()
-    getPoolPoke()
-
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // const poolData = {
-  //   'name': 'testpool',
-  //   'liq-shares': 1000,
-  //   'liq-token-meta': '0x1',
-  //   'our-liq-token-account': '0x2',
-  //   'token-a': {
-  //     'name': 'token-a',
-  //     'symbol': 'TKA',
-  //     'metadata': '0x3',
-  //     'our-account': '0x4',
-  //     'pool-account': '0x5',
-  //     'liquidity': 1000,
-  //     'current-price': 50
-  //   },
-  //   'token-b': {
-  //     'name': 'token-b',
-  //     'symbol': 'TKB',
-  //     'metadata': '0x6',
-  //     'our-account': '0x7',
-  //     'pool-account': '0x8',
-  //     'liquidity': 2000,
-  //     'current-price': 80    
-  //   },
-  // }
-
-  // function addPoolPoke() {
-  //   api.poke({app: 'amm', mark: 'amm-action', json: {'make-pool': poolData}})
-  // }
-
-  function tokenPoke(token: string, amount: number) {
-    api.poke({ app: 'amm', mark: 'amm-action', json: { 'token-in': { token, amount } } })
-  }
-
+    (async () => {
+      init()
+      initWallet({ prompt: true })
+    })()
+  }, [])
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Get Some Tokens:
-        </p>
-        <form
-        onSubmit={(e: React.SyntheticEvent) => {
-          e.preventDefault();
-          const target = e.target as typeof e.target & {
-            token: { value: string };
-            amount: { value: number };
-          };
-          const token = target.token.value;
-          const amount = target.amount.value;
-          tokenPoke(token, Number(amount));
-        }}
-      >
-        <input
-          type="token"
-          name="token"
-          placeholder="Token Name"
+    <BrowserRouter basename={'/apps/amm'}>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Swap />} />
+        <Route path="/pools" element={<Pools />} />
+        <Route path="/tokens" element={<Tokens />} />
+        <Route
+          path="*"
+          element={
+            <main style={{ padding: "1rem" }}>
+              <p>There's nothing here!</p>
+            </main>
+          }
         />
-        <br/>
-        <input
-          type="amount"
-          name="amount"
-          placeholder="Amount"
-        />
-        <br/>
-        <input type="submit" value="Send It" />
-      </form>
-      <br/>
-      {/* <form
-      onSubmit={(e: React.SyntheticEvent) => {
-        e.preventDefault();
-        getPoolPoke();
-      }}
-      >
-        <input type="submit" value="Log Test Pool"/>
-      </form> */}
-      <Pools pools={rawPools}/>
-      </header>
-    </div>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

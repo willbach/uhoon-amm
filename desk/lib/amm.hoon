@@ -58,6 +58,14 @@
     ?~  g=(item-data id)  ~
     ((soft ,[@ux token-account:wallet]) [id +.u.g])
   ::
+  ++  get-contract-account
+    |=  [holder=address:smart meta-id=id:smart]
+    ^-  (unit [id=id:smart source=id:smart])
+    ?~  found=(token-meta meta-id)  ~
+    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    ?~  g=(item-data id)  ~
+    `[id source.u.found]
+  ::
   ++  get-token-account-id
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit id:smart)
@@ -65,6 +73,11 @@
     =+  id=(hash-data:smart source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     `id
+  ++  get-contract
+    |=  meta-id=id:smart
+    ^-  (unit contract=id:smart)
+    ?~  found=(token-meta meta-id)  ~
+    `source.u.found
   ::
   ::  +fill-pool: take a pool's on-chain data and expand to give
   ::  everything we need to interact with it
@@ -121,4 +134,6 @@
       %poke  %wallet-poke
       !>(call)
   ==
+::
+++  fungible-address  0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a
 --

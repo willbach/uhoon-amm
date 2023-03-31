@@ -6,7 +6,7 @@
 ::  0.3% fee charged on swaps
 ++  trading-fee  30
 ++  our-fungible-contract
-  0x68d8.2cfb.987e.5bd1.23a7.ee97.a2d6.9581.fff6.8f31.bf9f.f307.c046.9298.706c.71d8
+  0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a
 ::  before this contract is deployed, mint and distribute the treasury token.
 ::  this is a standard fungible token which grants the holder ownership of a
 ::  portion of the protocol's fee revenue. the holder can use the %offload
