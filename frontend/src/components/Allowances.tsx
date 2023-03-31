@@ -7,15 +7,9 @@ import './styles/Tokens.scss';
 
 
 const Allowances = () => {
-  const tokens = useAmmStore(state => state.tokens)
-  const account = useAmmStore(state => state.account)
-  const allow = useAmmStore(state => state.allow)
+  const { tokens, account, allow } = useAmmStore()
 
-  const setInsetView = useWalletStore(state => state.setInsetView)
-  const metadata = useWalletStore(state => state.metadata)
-
-
-  const assets = useWalletStore(state => state.assets)
+  const { setInsetView, metadata, assets} = useWalletStore()
 
   const [token1, setToken1] = React.useState('choose token')
   const [allow1, setAllow1] = React.useState('')

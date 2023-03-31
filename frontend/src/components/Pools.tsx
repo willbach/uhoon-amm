@@ -9,6 +9,8 @@ import './styles/Pools.scss';
 const Pools = () => {
   const { pools, addLiq, removeLiq } = useAmmStore();
   const setInsetView = useWalletStore(state => state.setInsetView)
+
+  
   const [selectedPool, setSelectedPool] = useState<string | null>(null);
   
   const [addAmount1, setAddAmount1] = useState<string>('');

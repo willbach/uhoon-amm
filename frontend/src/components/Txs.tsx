@@ -5,9 +5,9 @@ import { IoCheckmarkSharp, IoClose, IoArrowForward } from 'react-icons/io5'
 import './styles/Txs.scss'
 
 const Txs = () => {
-  const txs  = useAmmStore(state => state.txs)
-  const tokens = useAmmStore(state => state.tokens)
+  const { txs, tokens }  = useAmmStore()
   // don't reload in case of tokens changeing? 
+  // const txs = useAmmStore(state => state.txs)
 
   const getTokenSymbol = (s: string) => {
     return tokens[s]?.symbol

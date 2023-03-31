@@ -9,12 +9,9 @@ const CreatePool = () => {
   const [token1, setToken1] = useState({ address: '', amount: '' });
   const [token2, setToken2] = useState({ address: '', amount: '' });
 
-  const assets = useWalletStore(state => state.assets)
-  const metadata = useWalletStore(state => state.metadata)
-  const setInsetView = useWalletStore(state => state.setInsetView)
+  const { assets, metadata, setInsetView } = useWalletStore()
 
-  const account = useAmmStore(state => state.account)
-  const startPool = useAmmStore(state => state.startPool)
+  const { account, startPool } = useAmmStore()
 
 
   const tokensList = useMemo(() => {
