@@ -1,4 +1,4 @@
-/+  *amm, wallet=zig-wallet, default-agent, dbug
+/+  *amm, wallet=zig-wallet, default-agent, dbug, ammjson
 |%
 +$  versioned-state
   $%  state-0

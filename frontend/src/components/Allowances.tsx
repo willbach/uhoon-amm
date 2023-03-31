@@ -18,7 +18,7 @@ const Allowances = () => {
   const tokensList = useMemo(() => {
     if (!account) return [];
 
-    const listTokens = Object.entries(assets[account])
+    const listTokens = Object.entries(assets[account] || {})
       .filter(([, value]) => value.token_type === 'token')
       .map(([key, value]) => {
         return { meta: value.data?.metadata, balance: value.data?.balance };

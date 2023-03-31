@@ -50,7 +50,7 @@ const Navbar = () => {
         <Link className="nav-link" to="/tokens">
           /tokens
         </Link>
-        <button onClick={() => connect()}>conenct</button>
+        <div onClick={() => connect()}>*connnec</div>
       </div>
       <div className="account-selector-container">
         <AccountSelector
