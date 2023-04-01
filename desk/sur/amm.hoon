@@ -12,19 +12,16 @@
       our-address=(unit @ux)
       amm-id=@ux
       pools=(map id:smart pool-data)
-      :: all-pools=(map id:smart pool-data)
-      ::pools=(map address:smart all-pools)  :: worth saving? pools for all our wallet addresses. 
-      ::  addresses=(set @ux) <- probably should save it too, but I don't want another sub to %wallet, can just scry in on-agent
       txs=(list tx)
       pending-tx=(unit tx)
   ==
 ::
 +$  action
-  $%  [%token-in token=@t amount=@ud]
-      ::
+  $%  
       [%set-our-address =address:smart]
-      [%connect ~]  ::  start watching AMM contract through indexer
-      [%leave ~]    ::  leave indexer sub, hopefully you won't have to use this.
+      [%connect ~]                                                      ::   should only be called once due to sub duplicate. use %fetch to sync instead
+      [%fetch ~]                                                    
+      [%leave ~]                                                        ::  leave indexer sub, hopefully you won't have to use this.
       $:  %start-pool
           token-a=[meta=id:smart amount=@ud]
           token-b=[meta=id:smart amount=@ud]
@@ -73,7 +70,7 @@
       token-b=token-data
   ==
 ::
-+$  tx  :: add allowance+liq-removal/adding tx in here too? 
++$  tx  :: %allowances & %liq-txs?
   $:
     input=[meta=id:smart amount=@ud]
     hash=(unit id:smart)

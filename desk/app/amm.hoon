@@ -75,10 +75,9 @@
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     ::  new batch, fetch latest state from AMM contract
     ?~  our-address  `this
-    ::  fetch our addresses from wallet. <- could replace the "empty wallet failing everywhere"
+    ::  
     ::
-    =/  book  .^(wallet-update:wallet %gx /(scot %ta our.bowl)/wallet/(scot %ta now.bowl)/addresses/wallet-update)
-    ~&  "my addresses: {<+.book>}"
+    ::
     =/  newpools  
       %~  chain-state  fetch
       [[our now]:bowl [u.our-address amm-id our-town]:state]
@@ -87,14 +86,6 @@
     :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
     ==
   ==
-  ::  on-agent
-  ::    ^⁻  [address:smart pool-data]
-  ::    =/  all-pools  
-  ::    %+  turn  ~(tap by +.book)
-  ::    |=  account=@ud
-  ::    =-  [account -]
-  ::    %~  chain-state  fetch
-  ::    [[our now]:bowl account amm-id our-town]
   ::
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
@@ -107,16 +98,12 @@
   |=  act=action
   ^-  (quip card _state)
   ?-    -.act
-      %token-in
-    :_  state
-    ~[[%give %fact ~[/testpath] %amm-update !>([%confirmation token.act amount.act])]]
-  ::
       %set-our-address
     `state(our-address `address.act)
   ::
       %connect
     ?~  our-address
-      ~|("must set address first!" !!)
+        ~|("must set address first!" !!)
     :-  =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
         /indexer/amm/batch-order/(scot %ux our-town)
     %=    state
@@ -125,6 +112,17 @@
       [[our now]:bowl u.our-address amm-id our-town]
     ==
   ::
+      %fetch
+    ?~  our-address
+        ~|("must set address first!" !!)
+    
+    =/  newpools  
+      %~  chain-state  fetch
+      [[our now]:bowl [u.our-address amm-id our-town]:state]
+    ::
+    :_  state(pools newpools)
+    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
+    ==
       %leave
     :_  state
     :~  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]
@@ -132,7 +130,7 @@
   ::
       %start-pool
     ?~  our-address
-      ~|("must set address first!" !!)
+        ~|("must set address first!" !!)
     ::  given token-a and token-b, fetch our accounts and pool accounts,
     ::  then generate transaction to AMM contract
     =/  our-token-a-account=id:smart
@@ -163,13 +161,13 @@
   ::  
       %swap
     ?~  our-address
-      ~|("must set address first!" !!)
-    ?~  pool=(~(get by pools) pool-id.act)
-      ~|("pool for that swap not found!" !!)
+        ~|("must set address first!" !!)
+    =+  pool=(~(got by pools) pool-id.act)
+    ::
     =/  [payment=token-data receive=token-data]
-      ?:  =(metadata.token-a.u.pool meta.payment.act)
-        [token-a token-b]:u.pool
-      [token-b token-a]:u.pool
+      ?:  =(metadata.token-a.pool meta.payment.act)
+        [token-a token-b]:pool
+      [token-b token-a]:pool
     ::
     =/  contract-id
       %-  need
@@ -205,7 +203,7 @@
     ==
       %deploy-token
     ?~  our-address
-      ~|("must set address first!" !!)
+        ~|("must set address first!" !!)
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
@@ -226,11 +224,11 @@
   ::
       %add-liq
     ?~  our-address
-      ~|("must set address first!" !!)
-    ?~  pool=(~(get by pools) pool-id.act)
-      ~|("pool for this action not found!" !!)
+        ~|("must set address first!" !!)
+    =+  pool=(~(got by pools) pool-id.act)
+    ::
     =/  [token-a=token-data token-b=token-data]
-      [token-a token-b]:u.pool
+      [token-a token-b]:pool
     ::
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
@@ -249,15 +247,14 @@
   ::
       %remove-liq
     ?~  our-address
-      ~|("must set address first!" !!)
-    ?~  pool=(~(get by pools) pool-id.act)
-      ~|("pool for this action not found!" !!)
+        ~|("must set address first!" !!)
+    =+  pool=(~(got by pools) pool-id.act)
     =/  [token-a=token-data token-b=token-data]
-      [token-a token-b]:u.pool
+      [token-a token-b]:pool
     ::
     =/  contract-id
       %-  need
-      %.  liq-token-meta.u.pool
+      %.  liq-token-meta.pool
       %~  get-contract  fetch
       [[our now]:bowl u.our-address amm-id our-town]
     :: TODO: don't necessarily need an extra scry, this is just the fungible contract 
@@ -273,11 +270,11 @@
         :*  %push
             to=amm-id
             amount=amount.act
-            from-account=id:(need our-liq-token-account.u.pool)
+            from-account=id:(need our-liq-token-account.pool)
             ^-  action:amm-lib
             :*  %remove-liq
                 pool-id.act
-                id:(need our-liq-token-account.u.pool)
+                id:(need our-liq-token-account.pool)
                 amount.act
                 [metadata.token-a -:(need pool-account.token-a)]
                 [metadata.token-b -:(need pool-account.token-b)]
@@ -287,13 +284,13 @@
   ::
       %set-allowance
     ?~  our-address
-      ~|("must set address first!" !!)
+        ~|("must set address first!" !!)
     =/  token-account
       %-  need
       %.  [u.our-address meta.token.act]
       %~  get-contract-account  fetch
       [[our now]:bowl u.our-address amm-id our-town]
-    ~&  "token-account: {<token-account>}"
+    ::
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
@@ -317,13 +314,14 @@
   ?+    -.update  `state
       %sequencer-receipt
     ?>  ?=(^ origin.update)
-    ?~  our-address  ~|  "need to set our-address before swapping?"  !!
+    ?~  our-address  ~|  "need to set our-address before swap"  !!
     ::
     ?+    q.u.origin.update  ~|("got receipt from weird origin" !!)
         [%new-swap ~]
       =/  modified=(list item:smart)  (turn ~(val by modified.output.update) tail)
       ?~  pending-tx   ~|  "no corresponding pending tx"  !!
-      ::  Quick note, pending txs that haven't yet gotten sequencer receipt are good to display, but currently everything is so fast
+      ::   note, pending txs that haven't yet gotten sequencer receipt would be good
+      ::
       ?.   =(%0 errorcode.output.update)
         =:  hash.u.pending-tx    `hash.update
             status.u.pending-tx  %failed
@@ -336,8 +334,8 @@
             %amm-update
             !>([%txs (snoc txs u.pending-tx)])
         ==
-      ::  wallet handles other errorcode cases
-      ::  add hash to wallet because it passed
+      :: 
+      ::  
       =:  hash.u.pending-tx     `hash.update
           status.u.pending-tx   %confirmed
       ==
@@ -350,40 +348,6 @@
         %amm-update
         !>([%txs (snoc txs u.pending-tx)])
       ==
-      ::
-      ::  below is code to calculate difference of balance of output tokens before swap and after.
-      ::  I might find problems with allowances, so for now txs are just inputs, minimum receives, and fail with errorcodes.
-      ::    
-      ::
-      ::  =|  outp=(unit [meta=id:smart balance=@ud (unit amount=@ud)])
-      ::  =.  outp
-      ::    |-  ^+  outp
-      ::    ?~  modified  ~
-      ::    =/  i=item:smart  i.modified
-      ::    ~&  "item: {<i>}"
-      ::    ?.  ?&  ?=(%& -.i)
-      ::            =(holder.p.i u.our-address)
-      ::            =(label.p.i %account)
-      ::        ==
-      ::      $(modified t.modified)
-      ::    =/  acc  ;;(account noun.p.i)             
-      ::    ::
-      ::    ?.  =(metadata.acc meta.output.u.pending-tx)  
-      ::      $(modified t.modified)
-      ::    `[metadata.acc balance.output.u.pending-tx [~ (sub balance.acc balance.output.u.pending-tx)]]
-      ::  ::
-      ::  ?~    outp
-      ::    `state  :: logic for failed tx
-      ::  ::
-      ::  =:  hash.u.pending-tx     `hash.update
-      ::      output.u.pending-tx    u.outp
-      ::  ==  
-      ::
-      ::  :-  ~[[%give %fact ~[/updates] %amm-update !>([%txs (snoc txs u.pending-tx)])]]  
-      ::  %=      state
-      ::    txs         (snoc txs u.pending-tx)
-      ::    pending-tx  ~
-      ::  ==
     ==
   ==
 --
