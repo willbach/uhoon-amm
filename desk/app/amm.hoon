@@ -104,25 +104,22 @@
       %connect
     ?~  our-address
         ~|("must set address first!" !!)
-    :-  =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
-        /indexer/amm/batch-order/(scot %ux our-town)
-    %=    state
-        pools
-      %~  chain-state  fetch
-      [[our now]:bowl u.our-address amm-id our-town]
-    ==
-  ::
-      %fetch
-    ?~  our-address
-        ~|("must set address first!" !!)
-    
     =/  newpools  
       %~  chain-state  fetch
       [[our now]:bowl [u.our-address amm-id our-town]:state]
     ::
+    =/  indexer-sub  (~(get by wex.bowl) [/new-batch our.bowl %uqbar])
+    ?~  indexer-sub
+      :-  =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
+        /indexer/amm/batch-order/(scot %ux our-town)
+      state(pools newpools)
+    :: indexer sub might already exist, just scry in this case
+    :: ?:  =((need indexer-sub) [%.y /indexer/amm/batch-order/our-town]), doens't matter, just scry
     :_  state(pools newpools)
-    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
+    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]
     ==
+      
+  ::
       %leave
     :_  state
     :~  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]

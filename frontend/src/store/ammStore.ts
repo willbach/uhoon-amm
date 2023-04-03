@@ -18,8 +18,12 @@ export interface Store {
 
   checkCurrentAccount: (address: string) => Promise<void>;
   setCurrentAccount: (account: string) => Promise<void>;
-  connect: () => Promise<void>;
 
+  //  revise
+  connect: () => Promise<void>;
+  syncing: boolean;
+
+  setSyncing: (bool: boolean) => Promise<void>;
   deploy: (jon: any) => Promise<void>;
   startPool: (jon: any) => Promise<void>;
 }
@@ -87,6 +91,7 @@ const useAmmStore = create<Store>((set, get) => ({
   getPoolPoke: async () => {
     await api.poke({app: 'amm', mark: 'amm-action', json: { 'get-pool': null }})
   },
+  syncing: true,
   tokens: {},
   setTokens: async () => {
     // figure out how to set "tokens" in straight subscriptions instead
@@ -143,9 +148,12 @@ const useAmmStore = create<Store>((set, get) => ({
   checkCurrentAccount: async (address: string) => {
     // checks if our-account in gall state is the same as selected account in wallet :)
     
-    const { account, setCurrentAccount } = get()
+    const { account, setCurrentAccount, connect } = get()
     if (account !== address) {
       setCurrentAccount(address)
+      
+      connect()
+      set({ syncing: true })
     }
   },
 
@@ -182,6 +190,8 @@ const useAmmStore = create<Store>((set, get) => ({
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
     console.log('startPool response: ', res)
   },
+
+  setSyncing: async (bool: boolean) => set({ syncing: bool }),
 
   }))
 

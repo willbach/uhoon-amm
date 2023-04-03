@@ -104,7 +104,6 @@
           [%set-our-address dejs-address]
           [%connect ul]
           [%leave ul]
-          [%fetch ul]
           [%start-pool dejs-startpool]
           [%swap dejs-swap]
           [%add-liq dejs-addliq]

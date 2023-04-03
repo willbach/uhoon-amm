@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { AccountSelector, useWalletStore } from '@uqbar/wallet-ui';
 import './styles/Navbar.scss'
 import useAmmStore from '../store/ammStore';
-
+import StatusBlink from './StatusBlink';
 const Navbar = () => {
   const { selectedAccount, setSelectedAccount } = useWalletStore()
-  const { account, checkCurrentAccount, connect }  = useAmmStore()
+  const { account, checkCurrentAccount, connect, syncing } = useAmmStore()
 
 
   //  this useEffect is to keep the amm gall app synced with the wallet-ui selected address
@@ -25,9 +25,9 @@ const Navbar = () => {
     }
   }, [])
 
-  // test: check for unlimited loop
+  // %scrying after every account change might be slöw, let's make it better
   useEffect(() => {
-    console.log('selection changed, selectedAccount and gall-account: ' , selectedAccount?.rawAddress, account)
+    console.log('selection changed, %wallet-selectedAcc and amm-our-account: ', selectedAccount?.rawAddress, account)
     if (!selectedAccount) {
       console.log('no selected account???')
     } else if (selectedAccount?.rawAddress === account) {
@@ -53,10 +53,13 @@ const Navbar = () => {
         <div onClick={() => connect()}>*connnec</div>
       </div>
       <div className="account-selector-container">
+        <StatusBlink />
         <AccountSelector
           onSelectAccount={(account) => checkCurrentAccount(account.rawAddress)}
         />
       </div>
+
+
     </div>
 
   )

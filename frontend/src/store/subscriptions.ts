@@ -5,12 +5,13 @@ import ammStore, { PoolMap, Tx, Store } from "./ammStore";
 export interface AmmUpdate {
   pools?: PoolMap
   txs?: Tx[]
+  account?: string
 }
 
 export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) => async (update: any) => {
   
   console.log('AMM UPDATE: ', update)
-  let mark = Object.keys(update)[0]
+
 
   if ('txs' in update) {
     const txs = update["txs"]
@@ -23,6 +24,7 @@ export const handlePoolsUpdate = (get: GetState<Store>, set: SetState<Store>) =>
     set({ pools })
     const { setTokens } = get()
     setTokens()
+    set({ syncing: false })
   }
 
   if ('account' in update) {
