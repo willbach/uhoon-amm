@@ -19,8 +19,7 @@
 +$  action
   $%  
       [%set-our-address =address:smart]
-      [%connect ~]                                                      ::   should only be called once due to sub duplicate. use %fetch to sync instead
-      [%fetch ~]                                                    
+      [%connect ~]
       [%leave ~]                                                        ::  leave indexer sub, hopefully you won't have to use this.
       $:  %start-pool
           token-a=[meta=id:smart amount=@ud]

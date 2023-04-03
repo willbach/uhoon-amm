@@ -6,5 +6,6 @@
 **/._.DS_store
 
 frontend/node_modules
+frontend/build
 
 .vscode/settings.json
