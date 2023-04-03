@@ -1,18 +1,20 @@
 .greendot {
   display: inline-block;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   background-color: #00ff00;
+  margin-right: 8px;
 }
 
 .syncing-indicator {
   display: inline-block;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   background-color: #ff0000;
   animation: syncing-animation 2s infinite;
+  margin-right: 8px;
 }
 
 @keyframes syncing-animation {

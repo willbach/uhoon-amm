@@ -5,31 +5,18 @@ import './styles/Navbar.scss'
 import useAmmStore from '../store/ammStore';
 import StatusBlink from './StatusBlink';
 const Navbar = () => {
-  const { selectedAccount, setSelectedAccount } = useWalletStore()
+  const { selectedAccount, setSelectedAccount, loadingText } = useWalletStore()
   const { account, checkCurrentAccount, connect, syncing } = useAmmStore()
 
 
   //  this useEffect is to keep the amm gall app synced with the wallet-ui selected address
-  //  using multiple addresses is important, and the txs state should perhaps map by address (& pools)
-  //  another (perhaps better) option would be to pass "our-address" along with every poke to %amm
-  //  actually... hmmm. Each sequence, updates the pool to "our-address" specifically. Interesting.... 
-  //  how often will things batch in reality? 
-
-
-  // test: run this once to check on-mount
-  useEffect(() => {
-    if (!selectedAccount) {
-      console.log('no selected account???')
-    } else {
-      checkCurrentAccount(selectedAccount?.rawAddress)
-    }
-  }, [])
-
   // %scrying after every account change might be slöw, let's make it better
   useEffect(() => {
     console.log('selection changed, %wallet-selectedAcc and amm-our-account: ', selectedAccount?.rawAddress, account)
     if (!selectedAccount) {
       console.log('no selected account???')
+      // only issue I've found here if for some reason useWalletStore() gets stuck on loading
+      // also if one nukes the %amm, subs get cleared, but not on %indexer side, so first %connect after nuke will yield duplicate sub
     } else if (selectedAccount?.rawAddress === account) {
       console.log('accounts set correctly.')
     } else {
@@ -50,7 +37,6 @@ const Navbar = () => {
         <Link className="nav-link" to="/tokens">
           /tokens
         </Link>
-        <div onClick={() => connect()}>*connnec</div>
       </div>
       <div className="account-selector-container">
         <StatusBlink />
@@ -58,8 +44,6 @@ const Navbar = () => {
           onSelectAccount={(account) => checkCurrentAccount(account.rawAddress)}
         />
       </div>
-
-
     </div>
 
   )

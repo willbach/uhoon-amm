@@ -23,7 +23,7 @@
     "@types/react": "^17.0.20",
     "@types/react-dom": "^17.0.9"
   },
-  "proxy": "http://localhost:8082",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "sed -i.bak -e 's/compress: true/compress: false/' ./node_modules/react-scripts/config/webpackDevServer.config.js && react-app-rewired start",
     "just-start": "react-app-rewired start",

@@ -33,8 +33,8 @@ const Swap = () => {
 
 
     // need to know which one is token-a and token-b, todo -> foolproof
-    const t1 = token1 === pool['token-a'].metadata ? pool['token-a'] : pool['token-b']
-    const t2 = token2 === pool['token-b'].metadata ? pool['token-b'] : pool['token-a']
+    const t1 = token1 === pool['token-a']?.metadata ? pool['token-a'] : pool['token-b']
+    const t2 = token2 === pool['token-b']?.metadata ? pool['token-b'] : pool['token-a']
 
     const price2 = new Decimal(removeDots(t2['current-price']))
 

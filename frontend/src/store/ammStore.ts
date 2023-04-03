@@ -147,9 +147,11 @@ const useAmmStore = create<Store>((set, get) => ({
 
   checkCurrentAccount: async (address: string) => {
     // checks if our-account in gall state is the same as selected account in wallet :)
-    
     const { account, setCurrentAccount, connect } = get()
-    if (account !== address) {
+
+    console.log('checking current account with: ', address, 'state account is: ', account)
+
+    if (account !== address && address !== '' && account !== null) {
       setCurrentAccount(address)
       
       connect()
@@ -164,6 +166,8 @@ const useAmmStore = create<Store>((set, get) => ({
         address: account
       }
     }
+     // doublecheck, no effect from the poke.? trust that it will change?
+    set({ account: account })
 
     console.log('setaccount: ', account)
     const res = await api.poke({ app: 'amm', mark: 'amm-action', json: jon })
