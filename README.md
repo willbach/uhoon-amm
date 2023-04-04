@@ -1,12 +1,12 @@
 # uhoon-amm
 AMM contract for Uqbar in the style of Uniswap V2
 
-:quick note: the change to poolmap changes a few things, it's good(?) to store specific id:s for pools for several addresses, 
-but scrying state for each address at each batch is too much. Maybe update the pools for only the current address for batch?
-not great either tbh. 
 
-solution would maybe be to separate our-accounts state, and have a general "pools" that could be shared. 
-performance-wise let's test this out, if it's completely horrible, let's revert.
+##### todos:
+- sequencer receipts change pool balances/allowances?
+- routing contract? 
+
+#### build
 
 These commands assume:
 
@@ -23,6 +23,10 @@ These commands assume:
 - SQUID metadata item `0xd19.a57e.01f2.473b.026f.506b.16a5.ce9b.2580.96fd.07a2.7e59.461a.7386.f3d4.2b56`
 
 - AMM contract ID `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`
+
+- (AMM on ~bacdun town 0x0) `0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe`
+
+- NFT contract `0xc7ac.2b08.6748.221b.8628.3813.5875.3579.01d9.2bbe.e6e8.d385.f8c3.b801.84fc.00ae`
 
 note the hardcoded our-fungible-contract in con/lib/amm
 
@@ -49,7 +53,7 @@ these 3 steps are necessary if you modify the contract before deploying, otherwi
 =contract-jam .^(@ %cx contract-path)
 =contract [- +]:(cue contract-jam)
 
-:uqbar &wallet-poke [%transaction ~ from=[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.n cont=contract interface=~]]]
+:uqbar &wallet-poke [%transaction ~ from=[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70] contract=0x1111.1111 town=0x0 action=[%noun [%deploy mutable=%.y cont=contract interface=~]]]
 :sequencer|batch
 ```
 

@@ -20,11 +20,11 @@
 ++  on-init
   :-  ~
   ::  the AMM contract id
-  =+  0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b
+  =+  0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe
   %=  this
     our-town                    0x0
-    our-address                 ~       ::  our-addresses.... hmm... index for all? just scry wallet :DD
-    amm-id                      -
+    our-address                 ~      
+    amm-id                      -   :: on bacdun
     pools                       ~
     txs                         ~
     pending-tx                          ~
@@ -62,13 +62,13 @@
     ==
   ==
 ::
-++  on-agent :: todo, indexer updates flow immediately to frontend?
+++  on-agent
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?+    wire  (on-agent:def wire sign)
       [%new-batch ~]
     ?:  ?=(%kick -.sign)
-      :_  this  ::  attempt to re-sub, subscribe wire not unique, how to prevent this?
+      :_  this  ::  attempt to re-sub
       =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
       /indexer/amm/batch-order/(scot %ux our-town.state)
                                                                   ::  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]~
