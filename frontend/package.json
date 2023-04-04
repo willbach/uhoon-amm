@@ -5,7 +5,7 @@
   "homepage": "/apps/amm",
   "dependencies": {
     "@tlon/sigil-js": "^1.4.5",
-    "@uqbar/wallet-ui": "./wallet-ui",
+    "@uqbar/wallet-ui": "^0.2.4",
     "@urbit/http-api": "^2.1.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -18,10 +18,10 @@
     "zustand": "^3.7.1"
   },
   "devDependencies": {
-    "react-app-rewired": "^2.2.1",
     "@types/node": "^18.11.9",
     "@types/react": "^17.0.20",
-    "@types/react-dom": "^17.0.9"
+    "@types/react-dom": "^17.0.9",
+    "react-app-rewired": "^2.2.1"
   },
   "proxy": "http://localhost:8080",
   "scripts": {
