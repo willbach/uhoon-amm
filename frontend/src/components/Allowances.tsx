@@ -30,7 +30,7 @@ const Allowances = () => {
 
 
   const handleAllow = () => {
-    const allowance = addDecimalDots(new Decimal(allow1).mul(TEN_18).toString())
+    const allowance = addDecimalDots(new Decimal(allow1).mul(TEN_18).toFixed(0))
 
     const jon = {
       "set-allowance": {
@@ -55,7 +55,7 @@ const Allowances = () => {
           <option value={'token1'} key='first-option1'></option>
           {tokensList.map((t, i) => (
             <option value={t.meta} key={'option1-' + i}>
-               {metadata[t.meta]?.data?.name}
+               {metadata[t.meta]?.data?.name}: {new Decimal(removeDots(t.balance || '0')).div(TEN_18).toFixed(1)}
             </option>
           ))}
         </select>
@@ -64,7 +64,7 @@ const Allowances = () => {
         <input type='number' placeholder='set allowance to amm' value={allow1} onChange={(e) => setAllow1(e.target.value)} />
 
         <div className="current-allowance">
-          <span>current allowance: {new Decimal(removeDots(tokens?.[token1]?.['our-account'].allowances?.[AMM_ADDRESS] || '0')).toString()}</span>
+          <span>current allowance: {new Decimal(removeDots(tokens?.[token1]?.['our-account'].allowances?.[AMM_ADDRESS] || '0')).div(TEN_18).toFixed(0)}</span>
         </div>
 
         <button className='button' onClick={handleAllow}>SET</button>

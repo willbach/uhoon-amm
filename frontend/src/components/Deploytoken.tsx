@@ -43,11 +43,14 @@ const DeployToken = () => {
     const initDist = initialDistribution ? initialDistribution.map(dist => {
       return {
         to: dist.address,
-        amount: addDecimalDots(new Decimal(dist.amount || '0').mul(TEN_18).toString()),
+        amount: addDecimalDots(new Decimal(dist.amount || '0').mul(TEN_18).toFixed(0)),
       }
     }) : []
 
-    const nocap = cap ? addDecimalDots(new Decimal(cap || '0').mul(TEN_18).toString()) : null
+
+    const nocap = cap ? addDecimalDots((new Decimal(cap || '0').mul(TEN_18)).toFixed(0)) : null
+
+    console.log('cap & nocap: ', cap, nocap)
 
     const jon = {
       "deploy-token": {
