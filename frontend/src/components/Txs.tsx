@@ -37,7 +37,7 @@ const Txs = () => {
                       {tx.status === "confirmed" ? (
                         <a
                           target="_blank"
-                          href={`/apps/ziggurat/indexer/${tx.hash}`}
+                          href={`/apps/uqbar/indexer/${tx.hash}`}
                         >
                           <IoCheckmarkSharp color="green" />{" "}
                           {displayPubKey(tx.hash)}
@@ -45,7 +45,7 @@ const Txs = () => {
                       ) : (
                         <a
                           target="_blank"
-                          href={`/apps/ziggurat/indexer/${tx.hash}`}
+                          href={`/apps/uqbar/indexer/${tx.hash}`}
                         >
                           <IoClose color="red" />
                           {displayPubKey(tx.hash)}

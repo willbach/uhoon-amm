@@ -51,8 +51,8 @@ const CreatePool = () => {
   };
 
   const createPool = () => {
-    const a1 = addDecimalDots(new Decimal(token1?.amount || '0').mul(TEN_18).toString())
-    const a2 = addDecimalDots(new Decimal(token2?.amount || '0').mul(TEN_18).toString())
+    const a1 = addDecimalDots(new Decimal(token1?.amount || '0').mul(TEN_18).toFixed(0))
+    const a2 = addDecimalDots(new Decimal(token2?.amount || '0').mul(TEN_18).toFixed(0))
 
     const jon = { 
       "start-pool": {

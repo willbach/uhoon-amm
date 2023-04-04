@@ -30,12 +30,12 @@ const Pools = () => {
 
     const token1 = {
       meta: pool['token-a'].metadata,
-      amount: addDecimalDots(new Decimal(addAmount1).mul(TEN_18).toString()),
+      amount: addDecimalDots(new Decimal(addAmount1).mul(TEN_18).toFixed(0)),
     }
 
     const token2 = {
       meta: pool['token-b'].metadata,
-      amount: addDecimalDots(new Decimal(addAmount2).mul(TEN_18).toString()),
+      amount: addDecimalDots(new Decimal(addAmount2).mul(TEN_18).toFixed(0)),
     }
 
     addLiq(pool.address, token1, token2)
@@ -47,7 +47,7 @@ const Pools = () => {
     const pool = pools[selectedPool];
 
     // check decimals on LIQ TOKEN
-    const amount = addDecimalDots(new Decimal(removeAmount).mul(TEN_18).toString()) 
+    const amount = addDecimalDots(new Decimal(removeAmount).mul(TEN_18).toFixed(0)) 
 
     removeLiq(pool.address, amount)
         setInsetView('confirm-most-recent')
@@ -69,10 +69,10 @@ const Pools = () => {
           {pools &&
             Object.entries(pools).map(([poolstring, pool], i) => {
               const tokenA = new Decimal(
-                removeDots(pool['token-a']['pool-account'].balance || '0')
+                removeDots(pool['token-a'].liquidity || '0')
               ).div(TEN_18);
               const tokenB = new Decimal(
-                removeDots(pool['token-b']['pool-account'].balance || '0')
+                removeDots(pool['token-b'].liquidity || '0')
               ).div(TEN_18);
 
               return (
@@ -81,7 +81,7 @@ const Pools = () => {
                     <td>
                       <a
                         target="_blank"
-                        href={`/apps/ziggurat/indexer/item/${pool.address}`}
+                        href={`/apps/uqbar/indexer/item/${pool.address}`}
                       >
                         {pool.name}
                       </a>

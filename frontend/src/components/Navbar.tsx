@@ -4,6 +4,8 @@ import { AccountSelector, useWalletStore } from '@uqbar/wallet-ui';
 import './styles/Navbar.scss'
 import useAmmStore from '../store/ammStore';
 import StatusBlink from './StatusBlink';
+
+
 const Navbar = () => {
   const { selectedAccount, setSelectedAccount, loadingText } = useWalletStore()
   const { account, checkCurrentAccount, connect, syncing } = useAmmStore()

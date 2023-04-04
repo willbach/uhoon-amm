@@ -59,7 +59,10 @@ const Swap = () => {
 
     // todo, store t1 and t2 in state and operate on those instead
     // currently won't update as state updates... nested state mayb the problem? 
-    setCurrentPrice(price2.div(TEN_18).toFixed(3))
+
+    // note the many decimals necessary for low prices. todo, figure out a way to distinguish between needing these and not.
+    const currPrice = price2.div(TEN_18).abs().toFixed(9)
+    setCurrentPrice(currPrice)
 
     setMinimumReceived(minreceived.toFixed(3))
     setPriceImpact(priceIm.toFixed(2))
@@ -101,18 +104,22 @@ const Swap = () => {
     setAmount1(amount2)
     setAmount2(tem1)
 
-    handleAmountChange1(undefined)
+    // TODO: revise handleAmountChange
+    // handleAmountChange1(undefined)
   }
 
-  // write a handlePriceChange(token1, token2).
+  // write a handlePriceChange(token1, token2). <- default of <Token>...
   // handleTokensChange(token1, token2) also works 
 
   const handleSwap = async () => {
-    const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toString())
-    const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toString())
+    const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toFixed(0))
+    const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toFixed(0))
 
 
     const pool = getPool()
+
+    // TODO: router contract between pools. 
+    if (!pool) console.log('No pool between these 2 tokens found, check pools page and create one. No routing available (yet ;))')
 
     const json = {
       swap: {
