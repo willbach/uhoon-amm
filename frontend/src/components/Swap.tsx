@@ -1,16 +1,16 @@
 import { useWalletStore, AccountSelector } from '@uqbar/wallet-ui'
 import Decimal from 'decimal.js'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IoSwapVertical } from 'react-icons/io5'
 import { addDecimalDots, removeDots, splitString, TEN_18, AMM_ADDRESS } from '../constants'
-import useAmmStore, { Pool } from '../store/ammStore'
+import useAmmStore, { Pool, TokenData } from '../store/ammStore'
 import Txs from './Txs'
 import './styles/Swap.scss';
 
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
-  const { setInsetView, accounts,selectedAccount } = useWalletStore()
+  const { setInsetView } = useWalletStore()
 
   const [token1, setToken1] = useState<string>('token2')
   const [token2, setToken2] = useState<string>('token2')
@@ -24,63 +24,118 @@ const Swap = () => {
 
   const [slippage, setSlippage] = useState<string>('3')
 
-  const handleAmountChange1 = (e: any | undefined) => {
-    if (!e && !amount1) return
-    const amountA = new Decimal(!e ? amount1 : e.target.value)
-    setAmount1(amountA.toString())
 
-    const pool = getPool()
-
-
-    // need to know which one is token-a and token-b, todo -> foolproof
-    const t1 = token1 === pool['token-a']?.metadata ? pool['token-a'] : pool['token-b']
-    const t2 = token2 === pool['token-b']?.metadata ? pool['token-b'] : pool['token-a']
-
-    const price2 = new Decimal(removeDots(t2['current-price']))
-
-    const slippageMultiplier = new Decimal(100).minus(slippage).div(100)
-
-    const noslippageamount2 = price2.mul(amountA).div(TEN_18)
-    const tokenamount2 = price2.mul(amountA).mul(slippageMultiplier).div(TEN_18).toFixed(3)
-
-    //  K = 10000 = (X + 10) * (Y + delta_b)  
-
-    // include 18 decimals in calc? they'll be there in the Decimals I hope
-    const liqA = new Decimal(removeDots(t1.liquidity)).div(TEN_18)
-    const liqB = new Decimal(removeDots(t2.liquidity)).div(TEN_18)
-
-    const k = liqA.mul(liqB)
-
-    const amountB = (k.div(liqA.plus(amountA))).minus(liqB)
+  const updateCurrentPrice = useCallback(() => {
+    const pool = getPool();
+    if (!pool) {
+      setCurrentPrice('No pool exists for selected tokens');
+      return;
+    }
+    const t2 = token2 === pool['token-b']?.metadata ? pool['token-b'] : pool['token-a'];
+    const price2 = new Decimal(removeDots(t2['current-price']));
+    const currPrice = price2.div(TEN_18).abs().toFixed(9);
+    setCurrentPrice(currPrice);
+  }, [token1, token2, pools, tokens]);
 
 
-    const priceIm = (noslippageamount2.div(amountB)).abs().minus(1).abs().mul(100)
-    const minreceived = amountB.mul(slippageMultiplier).abs()
+  const handleAmountChange = useCallback(
+    (e, type) => {
+      // if (e === null) calculateAmounts(new Decimal(amount1 || '0'), token1, token2, slippage, false, amount1);
 
-    // todo, store t1 and t2 in state and operate on those instead
-    // currently won't update as state updates... nested state mayb the problem? 
+      let inputValue = e ? e.target.value : '';
+  
+      if (type === 'amount1') {
+        if (inputValue === '') {
+          setAmount1('');
+          setAmount2('');
+          return;
+        }
+  
+        const amountA = new Decimal(inputValue);
+        calculateAmounts(amountA, token1, token2, slippage, false, inputValue);
+      } else if (type === 'amount2') {
+        if (inputValue === '') {
+          setAmount1('');
+          setAmount2('');
+          return;
+        }
+  
+        const amountB = new Decimal(inputValue);
+        calculateAmounts(amountB, token2, token1, slippage, true, inputValue);
+      }
+    },
+    [token1, token2, slippage]
+  );
 
-    // note the many decimals necessary for low prices. todo, figure out a way to distinguish between needing these and not.
-    const currPrice = price2.div(TEN_18).abs().toFixed(9)
-    setCurrentPrice(currPrice)
+  const calculateAmounts = (
+    amount: Decimal,
+    tokenA: string,
+    tokenB: string,
+    slippage: string,
+    reverse = false,
+    rawInput: string
+  ) => {
+    const pool = getPool();
+    const t1 = tokenA === pool["token-a"]?.metadata ? pool["token-a"] : pool["token-b"];
+    const t2 = tokenB === pool["token-b"]?.metadata ? pool["token-b"] : pool["token-a"];
 
-    setMinimumReceived(minreceived.toFixed(3))
-    setPriceImpact(priceIm.toFixed(2))
-    setAmount2(amountB.abs().toFixed(3))
+    const price1 = new Decimal(removeDots(t2["current-price"]));
+    const price2 = new Decimal(removeDots(t2["current-price"]));
 
-  }
+    const slippageMultiplier = new Decimal(100).minus(slippage).div(100);
 
-  const handleSetSlippage = (e: any) => {
-    setSlippage(e.target.value)
-    handleAmountChange1(undefined)
-  }
+    const noslippageamount2 = reverse ? price1.mul(amount).div(TEN_18) : price2.mul(amount).div(TEN_18);
 
-  const handleAccounts = () => {
-    console.log('accounts; ', accounts)
-    console.log('selected acc: ', selectedAccount)
-    setInsetView('accounts')
-    console.log('selected acc: ', selectedAccount)
-  }
+
+    const liqA = new Decimal(removeDots(t1.liquidity)).div(TEN_18);
+    const liqB = new Decimal(removeDots(t2.liquidity)).div(TEN_18);
+
+    const k = liqA.mul(liqB);
+
+    let amountA, amountB;
+    if (reverse) {
+      amountB = amount;
+      amountA = k.div(liqB.plus(amount)).minus(liqA);
+      setAmount1(amountA.abs().toFixed(3));
+      setAmount2(rawInput);
+    } else {
+      amountA = amount;
+      amountB = k.div(liqA.plus(amount)).minus(liqB);
+      setAmount2(amountB.abs().toFixed(3));
+      setAmount1(rawInput);
+    }
+  
+    
+    const priceIm = reverse
+    ? amountA.div(amountB.mul(price1).div(TEN_18)).minus(1).abs().mul(100)
+    : amountB.div(amountA.mul(price2).div(TEN_18)).minus(1).abs().mul(100);
+
+    const minreceived = amountB.mul(slippageMultiplier).abs();
+
+    const currPrice = price2.div(TEN_18).abs().toFixed(9);
+    setCurrentPrice(currPrice);
+
+    setMinimumReceived(minreceived.toFixed(3));
+    setPriceImpact(priceIm.toFixed(2));
+  };
+
+  const handleSetSlippage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let inputValue = e.target.value;
+  
+    // Check if inputValue is empty or has a trailing dot or trailing zero
+    if (inputValue === '' || inputValue.match(/^\d+\.$/) || inputValue.match(/^0\d+$/)) {
+      // Set the state without modifying inputValue
+      setSlippage(inputValue);
+      return;
+    }
+  
+    // Check if inputValue is a valid number
+    if (!isNaN(Number(inputValue))) {
+      setSlippage(inputValue);
+    }
+    //  todo: make changing slippage not null other fields... smh
+  };
+
 
   const getPool = () => {
     let pool: Pool;
@@ -104,14 +159,12 @@ const Swap = () => {
     setAmount1(amount2)
     setAmount2(tem1)
 
-    // TODO: revise handleAmountChange
-    // handleAmountChange1(undefined)
   }
 
-  // write a handlePriceChange(token1, token2). <- default of <Token>...
-  // handleTokensChange(token1, token2) also works 
 
   const handleSwap = async () => {
+    // console.log('am1, uam1, am2, uam2, minimumR', amount1, amount2, minimumReceived)
+
     const payment = addDecimalDots((new Decimal(amount1).mul(TEN_18)).toFixed(0))
     const receive = addDecimalDots((new Decimal(minimumReceived).mul(TEN_18)).toFixed(0))
 
@@ -119,7 +172,6 @@ const Swap = () => {
     const pool = getPool()
 
     // TODO: router contract between pools. 
-    if (!pool) console.log('No pool between these 2 tokens found, check pools page and create one. No routing available (yet ;))')
 
     const json = {
       swap: {
@@ -135,8 +187,13 @@ const Swap = () => {
   }
 
   useEffect(() => {
-    handleAmountChange1(undefined)
-  }, [pools, tokens])
+    handleAmountChange(undefined, 'amount1');
+  }, [handleAmountChange]);
+
+  // Update the current price when token1 or token2 changes
+  useEffect(() => {
+    updateCurrentPrice();
+  }, [token1, token2, updateCurrentPrice]);
 
   return (
     <div className="swap-container">
@@ -146,43 +203,43 @@ const Swap = () => {
 
         <div className='input-group'>
           <div className='select-container'>
-          <select className='custom-select' value={token1} onChange={(e) => setToken1(e.target.value)}>
-            <option value={'token1'} key='first-option1'></option>
-            {tokens && Object.values(tokens).map((t, i) => <option className='option' value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)} </option>)}
+            <select className='custom-select' value={token1} onChange={(e) => setToken1(e.target.value)}>
+              <option value={'token1'} key='first-option1'></option>
+              {tokens && Object.values(tokens).map((t, i) => <option className='option' value={t.metadata} key={'option1-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)} </option>)}
 
-          </select>
+            </select>
           </div>
 
-          <input className='input-field' type='number' placeholder='amount' value={amount1} onChange={handleAmountChange1} />
+          <input className='input-field' type='text' placeholder='amount' value={amount1} onChange={(e) => handleAmountChange(e, 'amount1')} />
         </div>
 
         <button onClick={handleSwitchDir}>
-        <IoSwapVertical /> 
+          <IoSwapVertical />
         </button>
-        
+
         <div className='input-group'>
           <select className='custom-select' value={token2} onChange={(e) => setToken2(e.target.value)}>
             <option value={'token2'}></option>
             {tokens && Object.values(tokens).map((t, i) => <option value={t.metadata} key={'option2-' + i}>{t.name} {(new Decimal(removeDots(t['our-account'].balance || '0')).div(TEN_18)).toFixed(2)}</option>)}
           </select>
 
-          <input className='input-field' type='number' placeholder='amount' value={amount2} onChange={(e) => setAmount2(e.target.value)} />
+          <input className='input-field' type='text' placeholder='amount' value={amount2} onChange={(e) => handleAmountChange(e, 'amount2')} />
         </div>
 
-      <div className='metrics-container'>
-        <div className='metric'>
-          <span>price-impact: {priceImpact}%</span>
-        </div>
+        <div className='metrics-container'>
+          <div className='metric'>
+            <span>price-impact: {priceImpact}%</span>
+          </div>
 
-        <div className='metric'>
-          <span>minimum received: {minimumReceived}</span>
-        </div>
+          <div className='metric'>
+            <span>minimum received: {minimumReceived}</span>
+          </div>
 
-        <div className='metric'>
-          <span>slippage%</span>
-          <input type='number' value={slippage} onChange={(e) => handleSetSlippage(e)} />
+          <div className='metric'>
+            <span>slippage%</span>
+            <input type='number' value={slippage} onChange={(e) => handleSetSlippage(e)} />
+          </div>
         </div>
-      </div>
 
         <button className='swap-button' onClick={handleSwap}>swap</button>
       </div>

@@ -2,7 +2,7 @@
     title+'AMM'
     info+'Automated Market Maker on Uqbar'
     color+0xf2.f3ef  
-    glob-http+['https://testmoon.redacted.pm/glob-0v6.smr6g.asu7t.rk10q.fhk1e.215po.glob' 0v6.smr6g.asu7t.rk10q.fhk1e.215po]
+    glob-http+['https://testmoon.redacted.pm/glob-0v4.plj92.6rmpv.g4hnv.bi0ju.i6nsp.glob' 0v4.plj92.6rmpv.g4hnv.bi0ju.i6nsp]
     base+'amm'
     image+'https://i.imgur.com/zL2BMq0.jpg'
     version+[0 0 9]
