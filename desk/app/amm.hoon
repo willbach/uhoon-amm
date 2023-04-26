@@ -201,6 +201,8 @@
       %deploy-token
     ?~  our-address
         ~|("must set address first!" !!)
+    ::  pset ordering is different from set
+    =/  minters  (make-pset:smart ~(tap in minters.act)) 
     :_  state  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
@@ -214,7 +216,7 @@
             symbol.act
             (cat 3 name.act symbol.act)
             cap.act
-            `(pset:smart address:smart)`minters.act
+            minters
             initial-distribution.act
         ==
     ==
