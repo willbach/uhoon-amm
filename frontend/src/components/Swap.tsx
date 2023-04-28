@@ -79,7 +79,7 @@ const Swap = () => {
     const t1 = tokenA === pool["token-a"]?.metadata ? pool["token-a"] : pool["token-b"];
     const t2 = tokenB === pool["token-b"]?.metadata ? pool["token-b"] : pool["token-a"];
 
-    const price1 = new Decimal(removeDots(t2["current-price"]));
+    const price1 = new Decimal(removeDots(t1["current-price"]));
     const price2 = new Decimal(removeDots(t2["current-price"]));
 
     const slippageMultiplier = new Decimal(100).minus(slippage).div(100);
@@ -106,15 +106,15 @@ const Swap = () => {
     }
   
     
-    const priceIm = reverse
-    ? amountA.div(amountB.mul(price1).div(TEN_18)).minus(1).abs().mul(100)
-    : amountB.div(amountA.mul(price2).div(TEN_18)).minus(1).abs().mul(100);
-
+    const initialPrice = liqA.div(liqB);
+    const finalPrice = reverse ? liqA.plus(amountA).div(liqB.minus(amountB)) : liqA.minus(amountA).div(liqB.plus(amountB));
+    const priceIm = finalPrice.div(initialPrice).minus(1).abs().mul(100);
+  
     const minreceived = amountB.mul(slippageMultiplier).abs();
-
-    const currPrice = price2.div(TEN_18).abs().toFixed(9);
+  
+    const currPrice = liqA.div(liqB).abs().toFixed(9);
     setCurrentPrice(currPrice);
-
+  
     setMinimumReceived(minreceived.toFixed(3));
     setPriceImpact(priceIm.toFixed(2));
   };
