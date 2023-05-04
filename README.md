@@ -10,6 +10,14 @@ AMM contract for Uqbar in the style of Uniswap V2
 
 These commands assume:
 
+- AMM contract ID `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`
+
+- AMM contract ID (mutable %.y) `0x2fe5.7172.1781.4963.f986.5427.0163.2ace.35e3.c887.95ea.73a5.6d65.ea79.afd9.d63c`
+
+- (AMM on ~bacdun town 0x0) `0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe`
+
+- NFT contract `0xc7ac.2b08.6748.221b.8628.3813.5875.3579.01d9.2bbe.e6e8.d385.f8c3.b801.84fc.00ae`
+
 - ZIGS contract `0x74.6361.7274.6e6f.632d.7367.697a`
 
 - ZIGS metadata `0x61.7461.6461.7465.6d2d.7367.697a`
@@ -22,19 +30,12 @@ These commands assume:
 
 - SQUID metadata item `0xd19.a57e.01f2.473b.026f.506b.16a5.ce9b.2580.96fd.07a2.7e59.461a.7386.f3d4.2b56`
 
-- AMM contract ID `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`
-
-- (AMM on ~bacdun town 0x0) `0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe`
-
-- NFT contract `0xc7ac.2b08.6748.221b.8628.3813.5875.3579.01d9.2bbe.e6e8.d385.f8c3.b801.84fc.00ae`
-
 note the hardcoded our-fungible-contract in con/lib/amm
 
 We'll first use the wallet dojo CLI to deploy a new token and set some allowances such that the AMM contract can pull from our accounts:
 
 ```
 Deploy a token, `SQUID`:
-```
 :uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a town=0x0 action=[%noun [%deploy 'squid token' 'SQUID' 999 ~ [0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 0 0] ~[[0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 300.000.000.000.000.000.000]]]]]
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x5c6f.32b8.c4d1.447e.0d30.5ce2.f46c.1625 gas=[rate=1 bud=1.000.000]]
 :sequencer|batch
@@ -71,8 +72,6 @@ set allowance for `ZIG`:
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0x7f48.5427.e0d8.60ee.39b2.bbcb.23c5.9973 gas=[rate=1 bud=1.000.000]]
 :sequencer|batch
 ```
-
-:uqbar &wallet-poke [%transaction ~ from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 contract=0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a town=0x0 action=[%noun [%set-allowance 0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b 300.000.000.000.000.000.000 0xb958.3754.cc67.1c4e.0eab.b39e.1c0d.2ff1.f3a4.5617.ebc9.7caa.91e7.069d.9171.2d89]]]
 
 
 Initialize the AMM gall app with our wallet address:
