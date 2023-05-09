@@ -133,10 +133,13 @@
   ==
 ++  action
   $%  [%set-catchup-indexer =dock]
-      [%set-sequencer =dock]
-      [%set-rollup =dock]
+      [%set-sequencer town-id=id:smart =dock]
       [%bootstrap =dock]
-      [%catchup =dock town-id=id:smart batch-id=id:smart]
+      [%catchup =dock town-id=id:smart batch-num=@ud]
       [%consume-batch args=consume-batch-args]
   ==
++$  catchup-request
+  [town-id=id:smart batch-num=@ud]
++$  catchup-response
+  [=batches =batch-order catchup-request]
 --

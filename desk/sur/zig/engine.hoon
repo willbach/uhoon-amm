@@ -5,12 +5,14 @@
 ::
 +$  state   (merk:merk id:smart item:smart)
 +$  nonces  (merk:merk address:smart @ud)
-+$  chain   (pair state nonces)
++$  chain   $+(chain (pair state nonces))
 ::
 +$  mempool  (map hash=@ux [from=@p tx=transaction:smart])
 ::  sorted mempool with optional pre-computed output
 +$  memlist  (list [hash=@ux tx=transaction:smart output=(unit output)])
 +$  processed-txs  (list [tx-hash=@ux tx=transaction:smart =output])
+::  map of payments made to other contracts for scries
++$  scry-fees  (map id:smart @ud)
 ::
 +$  state-diff  state  ::  state transitions for one batch
 ::
@@ -25,6 +27,7 @@
   ==
 ::
 +$  output
+  $+  output
   $:  gas=@ud
       =errorcode:smart
       modified=state
@@ -40,7 +43,12 @@
 ::  only handling uETH currently.
 ::
 +$  withdraw-mold
-  $%  [%token id=id:smart destination-address=address:smart amount=@ud]
+  $%  $:  %token
+          id=id:smart
+          eth-token-id=@ud
+          destination-address=address:smart
+          amount=@ud
+      ==
       ::  [%nft id=id:smart]
   ==
 ::

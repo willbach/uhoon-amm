@@ -10,7 +10,7 @@
   $:  town-id=@ux
       batch-num=@ud
       =sequencer
-      mode=availability-method
+      mode=availability-method  ::  *always* %full-publish for now
       latest-diff-hash=@ux
       roots=(list @ux)
       ::  deposits from the rollup contract are tracked, such that each
@@ -23,7 +23,13 @@
 ::  working state tracked here
 ::
 +$  proposed-batch
-  [num=@ud =processed-txs =chain diff-hash=@ux root=@ux]
+  $:  num=@ud
+      =processed-txs
+      =chain
+      diff-hash=@ux
+      root=@ux
+      deposits=(set @ux)
+  ==
 ::
 ::  capitol: tracks sequencer and state roots / diffs for all towns
 ::
@@ -34,7 +40,7 @@
 +$  batch
   $:  town-id=id:smart
       num=@ud
-      mode=availability-method
+      mode=availability-method  ::  *always* %full-publish for now
       state-diffs=(list state)
       diff-hash=@ux
       new-root=@ux
@@ -80,17 +86,57 @@
   ==
 ::
 +$  rollup-update
-  $%  capitol-update
-      town-update
+  $%  [%new-sequencer town=id:smart who=ship]
+      $:  %new-peer-root
+          =sequencer
+          town=id:smart
+          root=@ux
+          batch-num=@ud
+          timestamp=@da
+      ==
   ==
-+$  capitol-update  [%new-capitol =capitol]
-+$  town-update
-  $%  [%new-peer-root town=id:smart root=@ux timestamp=@da]
-      [%new-sequencer town=id:smart who=ship]
+::
++$  sidecar-action
+  $%  [%batch-posted town-root=@ux]
+      [%batch-rejected town-root=@ux]
   ==
 ::
 ::  indexer must verify root is posted to rollup before verifying new state
 ::  pair of [transactions town] is batch from sur/indexer.hoon
 +$  indexer-update
-  [%update root=@ux transactions=processed-txs town]
+  $%  [%notify town=id:smart root=@ux]
+      [%update root=@ux transactions=processed-txs town]
+  ==
+::
+::  historical states
+::
++$  old-proposed-batch
+  [num=@ud =processed-txs =chain diff-hash=@ux root=@ux]
++$  state-1
+  $:  %1
+      rollup=(unit ship)      ::  replace in future with ETH contract address
+      private-key=(unit @ux)  ::  our signing key
+      town=(unit town)        ::  chain-state
+      peer-roots=(map town=@ux root=@ux)  ::  track updates from rollup
+      pending=mempool         ::  unexecuted transactions
+      =memlist                ::  executed transactions in working state
+      proposed-batch=(unit old-proposed-batch)   ::  stores working state
+      status=?(%available %off)
+      block-height-api-key=(unit @t)
+  ==
+::
++$  state-2
+  $:  %2
+      last-batch-time=@da      ::  saved to compare against indexer acks
+      indexers=(map dock @da)  ::  indexers receiving batch updates
+      rollup=(unit ship)       ::  replace in future with ETH contract address
+      private-key=(unit @ux)   ::  our signing key
+      town=(unit town)         ::  chain-state
+      peer-roots=(map town=@ux root=@ux)  ::  track updates from rollup
+      pending=mempool          ::  unexecuted transactions
+      =memlist                 ::  executed transactions in working state
+      proposed-batch=(unit old-proposed-batch)   ::  stores working state
+      status=?(%available %off)
+      block-height-api-key=(unit @t)
+  ==
 --

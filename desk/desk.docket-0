@@ -5,7 +5,7 @@
     glob-http+['https://testmoon.redacted.pm/glob-0v4.6527d.jhuhu.a2sf5.s5br5.vdl8r.glob' 0v4.6527d.jhuhu.a2sf5.s5br5.vdl8r]
     base+'amm'
     image+'https://i.imgur.com/zL2BMq0.jpg'
-    version+[0 1 0]
+    version+[0 1 3]
     website+'https://uqbar.network'
     license+'MIT'
 ==
