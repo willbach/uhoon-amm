@@ -1,4 +1,5 @@
 import { useWalletStore } from '@uqbar/wallet-ui';
+import { getCurrentBlockHeight } from '../api'
 import Decimal from 'decimal.js';
 import React, { useMemo, useState } from 'react';
 import { addDecimalDots, TEN_18 } from '../constants';
@@ -50,9 +51,12 @@ const CreatePool = () => {
     }
   };
 
-  const createPool = () => {
+  const createPool = async () => {
     const a1 = addDecimalDots(new Decimal(token1?.amount || '0').mul(TEN_18).toFixed(0))
     const a2 = addDecimalDots(new Decimal(token2?.amount || '0').mul(TEN_18).toFixed(0))
+
+    // get blockheight here!
+    const block = await getCurrentBlockHeight()
 
     const jon = { 
       "start-pool": {
@@ -63,7 +67,8 @@ const CreatePool = () => {
         "token-b": {
           meta: token2.address,
           amount: a2,
-        }
+        },
+        "deadline": addDecimalDots(block + 6) // ~ 1 minute of time.
       }
     }
 

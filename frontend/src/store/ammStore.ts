@@ -1,6 +1,7 @@
 import create from "zustand"
-import api from '../api'
+import api, { getCurrentBlockHeight} from '../api'
 import { handlePoolsUpdate, createSubscription } from "./subscriptions"
+import { addDecimalDots } from "../constants"
 
 export interface Store {
   pools: PoolMap
@@ -121,11 +122,15 @@ const useAmmStore = create<Store>((set, get) => ({
 
   addLiq: async (pool: string, token1: TokenAmount, token2: TokenAmount) => {
     // new format bby, better probably to structure json in here?
+
+    const block = await getCurrentBlockHeight()
+
     const jon = {
       "add-liq": {
         "pool-id": pool,
         "token-a": token1,
         "token-b": token2,
+        "deadline": addDecimalDots(block + 6)  // ~1 minute
       }
     }
     console.log('addLiq poke json: ', jon)
