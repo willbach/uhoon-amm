@@ -27,10 +27,11 @@
     amm-id                      -   :: on bacdun
     pools                       ~
     txs                         ~
-    pending-tx                          ~
+    pending-tx                  ~
   ==
 ++  on-save  !>(state)
 ++  on-load
+  ::  TODO! state migration for txs
   |=  =old=vase
   ^-  (quip card _this)
   `this(state !<(state-0 old-vase))
@@ -40,14 +41,13 @@
   ^-  (quip card _this)
   |^
   =^  cards  state
-  ?+    mark  !!
-      %amm-action
-    (handle-frontend-poke:hc !<(action vase))
-      %wallet-update
-    (handle-wallet-update:hc !<(wallet-update:wallet vase))
-  ==
+    ?+    mark  !!
+        %amm-action
+      (handle-frontend-poke:hc !<(action vase))
+        %wallet-update
+      (handle-wallet-update:hc !<(wallet-update:wallet vase))
+    ==
   [cards this]
-  ::
   --
 ++  on-watch
   |=  =path
@@ -61,7 +61,6 @@
       [%give %fact ~ %amm-update !>(`update`[%account our-address])]
     ==
   ==
-::
 ++  on-agent
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
@@ -71,22 +70,17 @@
       :_  this  ::  attempt to re-sub
       =-  [%pass /new-batch %agent [our.bowl %uqbar] %watch -]~
       /indexer/amm/batch-order/(scot %ux our-town.state)
-                                                                  ::  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]~
+                                ::  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]~
     ?.  ?=(%fact -.sign)  (on-agent:def wire sign)
     ::  new batch, fetch latest state from AMM contract
     ?~  our-address  `this
-    ::  
-    ::
-    ::
     =/  newpools  
       %~  chain-state  fetch
       [[our now]:bowl [u.our-address amm-id our-town]:state]
     ::
-    :_  this(pools newpools)
-    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
-    ==
+    :_  this(pools newpools)  :_  ~
+    [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]  
   ==
-  ::
 ++  on-leave  on-leave:def
 ++  on-peek   on-peek:def
 ++  on-arvo   on-arvo:def
@@ -115,46 +109,54 @@
       state(pools newpools)
     :: indexer sub might already exist, just scry in this case
     :: ?:  =((need indexer-sub) [%.y /indexer/amm/batch-order/our-town]), doens't matter, just scry
-    :_  state(pools newpools)
-    :~  [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]
-    ==
-      
+    :_  state(pools newpools)  :_  ~
+    [%give %fact ~[/updates] %amm-update !>(`update`[%pools newpools])]
   ::
       %leave
-    :_  state
-    :~  [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]
-    ==
+    :_  state  :_  ~
+    [%pass /new-batch %agent [our.bowl %uqbar] %leave ~]
   ::
       %start-pool
     ?~  our-address
         ~|("must set address first!" !!)
-    ::  given token-a and token-b, fetch our accounts and pool accounts,
-    ::  then generate transaction to AMM contract
-    =/  our-token-a-account=id:smart
+    ::  pull our-token-accounts, nonces. sign approvals for tokens
+    =/  our-token-a-account
       %-  need
       %.  [u.our-address meta.token-a.act]
-      %~  get-token-account-id  fetch
+      %~  get-token-account-info  fetch
       [[our now]:bowl u.our-address amm-id our-town]
     ::
-    =/  our-token-b-account=id:smart
+    =/  our-token-b-account
       %-  need
       %.  [u.our-address meta.token-b.act]
-      %~  get-token-account-id  fetch
+      %~  get-token-account-info  fetch
       [[our now]:bowl u.our-address amm-id our-town]
+      ::
+    =/  nonce-a  (fall (~(get by nonces.our-token-a-account) u.our-address) 0)
+    =/  nonce-b  (fall (~(get by nonces.our-token-b-account) u.our-address) 0)
     ::
-    :_  state  :_  ~
-    %+  transaction-poke  our.bowl
-    :*  %transaction
-        origin=~
-        from=u.our-address
-        contract=amm-id
-        town=our-town
-        :-  %noun
-        ^-  action:amm-lib
-        :+  %start-pool
-          [meta.token-a.act amount.token-a.act our-token-a-account]
-        [meta.token-b.act amount.token-b.act our-token-b-account]
-    ==
+    =/  message  [u.our-address amm-id amount.token-a.act nonce-a deadline.act]
+    =/  pending
+      :*  input=[meta.token-a.act id.our-token-a-account amount.token-a.act]
+          ouput=[meta.token-b.act id.our-token-b-account amount.token-b.act]
+          hash=~
+          status=%pending
+          desc=%start-pool
+          sigs=[~ ~]
+          approvals=(some [deadline.act [nonce-a nonce-b]])
+      ==
+    :_  state(pending-tx `pending)  :_  ~
+    :*  %pass   /sign-approve
+        %agent  [our.bowl %uqbar]
+        %poke   %wallet-poke
+        !>  ^-  wallet-poke:wallet
+        :*  %sign-typed-message
+            origin=`[%amm /sig-1] 
+            from=u.our-address
+            domain=id.our-token-a-account
+            type=pull-jold-json
+            message=message
+    ==  ==
   ::  
       %swap
     ?~  our-address
@@ -172,11 +174,15 @@
       %~  get-contract  fetch
       [[our now]:bowl u.our-address amm-id our-town]
     ::
-    =/  pending  :*  [meta.payment.act amount.payment.act]                    :: input
-                     ~                                                        :: hash
-                     %pending                                                 :: status
-                     [meta.receive.act amount.receive.act]                    :: unit output, try with newly deployed token, see what happens. 
-                 ==                
+    =/  pending  
+      :*  [meta.payment.act id:(need our-account.payment) amount.payment.act] 
+          [meta.receive.act id:(need our-account.receive) amount.receive.act]
+          ~               :: hash
+          %pending        
+          %swap           
+          [~ ~]           :: sigs
+          ~               :: approvals      
+      ==                
     :_  state(pending-tx `pending)  :_  ~
     %+  transaction-poke  our.bowl
     :*  %transaction
@@ -196,8 +202,7 @@
                   pool-id.act
                 [metadata.payment amount.payment.act -:(need our-account.payment)]
               [metadata.receive amount.receive.act -:(need pool-account.receive)]
-        ==
-    ==
+    ==  ==
       %deploy-token
     ?~  our-address
         ~|("must set address first!" !!)
@@ -218,31 +223,43 @@
             cap.act
             minters
             initial-distribution.act
-        ==
-    ==
+    ==  ==
   ::
       %add-liq
     ?~  our-address
         ~|("must set address first!" !!)
+    ::  if we only track a subset, revise
     =+  pool=(~(got by pools) pool-id.act)
-    ::
     =/  [token-a=token-data token-b=token-data]
       [token-a token-b]:pool
     ::
-    :_  state  :_  ~
-    %+  transaction-poke  our.bowl
-    :*  %transaction
-        origin=~
-        from=u.our-address
-        contract=amm-id
-        town=our-town
-        :-  %noun
-        ^-  action:amm-lib
-        :^    %add-liq
-            pool-id.act
-          [metadata.token-a amount.token-a.act -:(need our-account.token-a)]
-        [metadata.token-b amount.token-b.act -:(need our-account.token-b)]
-    ==
+    =/  our-token-a  (need our-account.token-a)
+    =/  our-token-b  (need our-account.token-b)
+    =/  nonce-a  (fall (~(get by nonces.our-token-a) amm-id) 0)
+    =/  nonce-b  (fall (~(get by nonces.our-token-b) amm-id) 0)
+    ::
+    =/  message  [u.our-address amm-id amount.token-a.act nonce-a deadline.act]
+    =/  pending
+      :*  input=[meta.token-a.act id.our-token-a amount.token-a.act]
+          ouput=[meta.token-b.act id.our-token-b amount.token-b.act]
+          hash=~
+          status=%pending
+          desc=%add-liq
+          sigs=[~ ~]
+          approvals=(some [deadline.act [nonce-a nonce-b]])
+      ==
+    :_  state(pending-tx `pending)  :_  ~
+    :*  %pass   /sign-approve
+        %agent  [our.bowl %uqbar]
+        %poke   %wallet-poke
+        !>  ^-  wallet-poke:wallet
+        :*  %sign-typed-message
+            origin=`[%amm /sig-1] 
+            from=u.our-address
+            domain=id.our-token-a
+            type=pull-jold-json
+            message=message
+    ==  ==
   ::
       %remove-liq
     ?~  our-address
@@ -277,9 +294,7 @@
                 amount.act
                 [metadata.token-a -:(need pool-account.token-a)]
                 [metadata.token-b -:(need pool-account.token-b)]
-            ==
-        ==
-    ==
+    ==  ==  ==
   ::
       %set-allowance
     ?~  our-address
@@ -303,8 +318,7 @@
             amm-id
             amount.token.act
             id.token-account
-        ==
-    ==
+    ==  ==
   ==
 ::
 ++  handle-wallet-update
@@ -313,40 +327,99 @@
   ?+    -.update  `state
       %sequencer-receipt
     ?>  ?=(^ origin.update)
-    ?~  our-address  ~|  "need to set our-address before swap"  !!
-    ::
-    ?+    q.u.origin.update  ~|("got receipt from weird origin" !!)
-        [%new-swap ~]
-      =/  modified=(list item:smart)  (turn ~(val by modified.output.update) tail)
-      ?~  pending-tx   ~|  "no corresponding pending tx"  !!
-      ::   note, pending txs that haven't yet gotten sequencer receipt would be good
-      ::
-      ?.   =(%0 errorcode.output.update)
-        =:  hash.u.pending-tx    `hash.update
-            status.u.pending-tx  %failed
-        ==
-        :_  state(txs (snoc txs u.pending-tx), pending-tx ~)
-        :_  ~
-        :*  %give
-            %fact
-            ~[/updates]
-            %amm-update
-            !>([%txs (snoc txs u.pending-tx)])
-        ==
-      :: 
-      ::  
-      =:  hash.u.pending-tx     `hash.update
-          status.u.pending-tx   %confirmed
+    ?~  our-address  ~|("need to set our-address before tx" !!)
+    =/  modified=(list item:smart)  (turn ~(val by modified.output.update) tail)
+    ?~  pending-tx   ~|  "no corresponding pending tx"  !!
+    ::   note, pending txs that haven't yet gotten sequencer receipt would be good
+    ?.   =(%0 errorcode.output.update)
+      =:  hash.u.pending-tx    `hash.update
+          status.u.pending-tx  %failed
       ==
       :_  state(txs (snoc txs u.pending-tx), pending-tx ~)
       :_  ~
-      :*
-        %give
-        %fact
-        ~[/updates]
-        %amm-update
-        !>([%txs (snoc txs u.pending-tx)])
+      :*  %give
+          %fact
+          ~[/updates]
+          %amm-update
+          !>([%txs (snoc txs u.pending-tx)])
       ==
+    :: 
+    ::  
+    =:  hash.u.pending-tx     `hash.update
+        status.u.pending-tx   %confirmed
+    ==
+    :_  state(txs (snoc txs u.pending-tx), pending-tx ~)
+    :_  ~
+    :*
+      %give  %fact
+      ~[/updates]
+      %amm-update
+      !>([%txs (snoc txs u.pending-tx)])
+    ==
+  ::
+      %signed-message
+    ?>  ?=(^ origin.update)
+    ?~  our-address  ~|("need to set our-address before swap" !!)
+    ?~  pending-tx   !!
+    ?~  approvals.u.pending-tx  !!
+    ?+    q.u.origin.update  ~|("got receipt from weird origin" !!)
+        [%sig-1 ~]
+      ::  todo, working =, for these
+      =/  message
+        :*  u.our-address
+            amm-id
+            amount.output.u.pending-tx
+            p.nonces.u.approvals.u.pending-tx
+            deadline.u.approvals.u.pending-tx
+        ==
+      =/  new  u.pending-tx(p.sigs `sig.update)
+      :_  state(pending-tx `new)  :_  ~
+      :*  %pass   /sign-approve
+          %agent  [our.bowl %uqbar]
+          %poke   %wallet-poke
+          !>  ^-  wallet-poke:wallet
+          :*  %sign-typed-message
+              origin=`[%amm /sig-2] 
+              from=u.our-address
+              domain=our.output.u.pending-tx
+              type=pull-jold-json
+              message=message
+      ==  ==
+        [%sig-2 ~]
+      ?~  p.sigs.u.pending-tx  !!
+      =/  new  u.pending-tx(q.sigs `sig.update)
+      =,  u.approvals.u.pending-tx
+      =,  u.pending-tx
+      ::  calculate pool-id in case we want to %add-liq
+      =/  pool-id=id:smart  
+      (hash-data:smart amm-id amm-id 0x0 (get-pool-salt meta.input meta.output))
+      ::
+      :_  state(pending-tx `new)  
+      :_  ~
+      %+  transaction-poke  our.bowl
+      :*  %transaction
+          origin=`[%amm /start-pool]
+          from=u.our-address
+          contract=amm-id
+          town=our-town
+          :-  %noun
+          ^-  action:amm-lib
+          ?<  ?=(%swap desc.u.pending-tx)
+          ::  todo, revise conditional need
+          ?:  =(desc %add-liq)
+              :*  %add-liq
+                  pool-id
+                  [meta.input amount.input our.input]
+                  [meta.output amount.output our.output]
+                  [p.nonces deadline (need p.sigs)]
+                  [q.nonces deadline sig.update]
+              ==
+          :*  %start-pool                   
+              [meta.input amount.input our.input]
+              [meta.output amount.output our.output]
+              [p.nonces deadline (need p.sigs)]
+              [q.nonces deadline sig.update]
+      ==  ==
     ==
   ==
 --

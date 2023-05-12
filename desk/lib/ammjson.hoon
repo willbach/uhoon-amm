@@ -1,7 +1,5 @@
 /-  *amm, wallet=zig-wallet
 /+  smart=zig-sys-smart
-::
-:: thought, instead of mapping pool objects by tokenid, map them by token1/token2 instead... hmm..
 :: 
 |%
 ++  enjs
@@ -37,13 +35,15 @@
     :~  [%input (enjs-amounts input.tx)]
         [%hash %s ?~(hash.tx '' (scot %ux u.hash.tx))]
         [%status %s status.tx]
+        [%desc %s desc.tx]
         [%output (enjs-amounts output.tx)]
     ==
   ++  enjs-amounts
-    |=  [meta=id:smart amount=@ud]
+    |=  [meta=id:smart our=id:smart amount=@ud]
     ^-  json
     %-  pairs
     :~  [%meta %s (scot %ux meta)]
+        [%our %s (scot %ux our)]
         [%amount %s (scot %ud amount)]
     ==
   ++  enjs-pool
@@ -134,6 +134,7 @@
       %-  ot
       :~  [%token-a dejs-token]
           [%token-b dejs-token]
+          [%deadline (se %ud)]
       ==
     ++  dejs-setallow
       %-  ot
@@ -155,6 +156,7 @@
       :~  [%pool-id (se %ux)]
           [%token-a dejs-token]
           [%token-b dejs-token]
+          [%deadline (se %ud)]
       ==
     ++  dejs-token
       %-  ot
