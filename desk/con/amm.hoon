@@ -46,18 +46,26 @@
     :_  (result ~ [%& data]~ ~ ~)
     :~  :+  contract-a
           town.context
-        :*  %take
+        :*  %pull
+            id.caller.context
             this.context
             amount.token-a
             from-account.token-a
+            nonce.approve-a
+            deadline.approve-a
+            sig.approve-a
         ==
     ::
         :+  contract-b
           town.context
-        :*  %take
+        :*  %pull
+            id.caller.context
             this.context
             amount.token-b
             from-account.token-b
+            nonce.approve-b
+            deadline.approve-b
+            sig.approve-b
         ==
     ::
         :+  our-fungible-contract:lib
@@ -159,18 +167,26 @@
     :_  (result [%&^pool-data(noun pool) ~] ~ ~ ~)
     :~  :+  contract.token-a.pool
           town.context
-        :*  %take
+        :*  %pull
+            id.caller.context
             this.context
             amount.token-a
             from-account.token-a
+            nonce.approve-a
+            deadline.approve-a
+            sig.approve-a
         ==
     ::
         :+  contract.token-b.pool
           town.context
-        :*  %take
+        :*  %pull
+            id.caller.context
             this.context
             amount.token-b
             from-account.token-b
+            nonce.approve-b
+            deadline.approve-b
+            sig.approve-b
         ==
     ::
         :+  our-fungible-contract:lib

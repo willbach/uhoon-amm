@@ -6,7 +6,8 @@ import { addDecimalDots, removeDots, splitString, TEN_18, AMM_ADDRESS } from '..
 import useAmmStore, { Pool, TokenData } from '../store/ammStore'
 import Txs from './Txs'
 import './styles/Swap.scss';
-
+import TradingChart from './Bog/TradingChart'
+import { Bogdanoff } from './Bog'
 
 const Swap = () => {
   const { pools, tokens, swap } = useAmmStore()
@@ -24,6 +25,8 @@ const Swap = () => {
 
   const [slippage, setSlippage] = useState<string>('3')
 
+  const [bog, setBog] = useState<boolean>(false)
+  const [bogIsUp, setBogIsUp] = useState<boolean>(false)
 
   const updateCurrentPrice = useCallback(() => {
     const pool = getPool();
@@ -43,14 +46,14 @@ const Swap = () => {
       // if (e === null) calculateAmounts(new Decimal(amount1 || '0'), token1, token2, slippage, false, amount1);
 
       let inputValue = e ? e.target.value : '';
-  
+
       if (type === 'amount1') {
         if (inputValue === '') {
           setAmount1('');
           setAmount2('');
           return;
         }
-  
+
         const amountA = new Decimal(inputValue);
         calculateAmounts(amountA, token1, token2, slippage, false, inputValue);
       } else if (type === 'amount2') {
@@ -59,7 +62,7 @@ const Swap = () => {
           setAmount2('');
           return;
         }
-  
+
         const amountB = new Decimal(inputValue);
         calculateAmounts(amountB, token2, token1, slippage, true, inputValue);
       }
@@ -104,31 +107,31 @@ const Swap = () => {
       setAmount2(amountB.abs().toFixed(3));
       setAmount1(rawInput);
     }
-  
-    
+
+
     const initialPrice = liqA.div(liqB);
     const finalPrice = reverse ? liqA.plus(amountA).div(liqB.minus(amountB)) : liqA.minus(amountA).div(liqB.plus(amountB));
     const priceIm = finalPrice.div(initialPrice).minus(1).abs().mul(100);
-  
+
     const minreceived = amountB.mul(slippageMultiplier).abs();
-  
+
     const currPrice = liqA.div(liqB).abs().toFixed(9);
     setCurrentPrice(currPrice);
-  
+
     setMinimumReceived(minreceived.toFixed(3));
     setPriceImpact(priceIm.toFixed(2));
   };
 
   const handleSetSlippage = (e: React.ChangeEvent<HTMLInputElement>) => {
     let inputValue = e.target.value;
-  
+
     // Check if inputValue is empty or has a trailing dot or trailing zero
     if (inputValue === '' || inputValue.match(/^\d+\.$/) || inputValue.match(/^0\d+$/)) {
       // Set the state without modifying inputValue
       setSlippage(inputValue);
       return;
     }
-  
+
     // Check if inputValue is a valid number
     if (!isNaN(Number(inputValue))) {
       setSlippage(inputValue);
@@ -184,6 +187,14 @@ const Swap = () => {
     await swap(json)
 
     setInsetView('confirm-most-recent')
+    // 50% chance of getting bogged. 50% chance he dumps on you.
+    const rnd = Math.random(); 
+    setBog(rnd < 0.5)
+    setBogIsUp(Math.random() < 0.5)
+
+    setTimeout(() => {
+      setBog(false)
+    }, 3500)
   }
 
   useEffect(() => {
@@ -242,6 +253,9 @@ const Swap = () => {
         </div>
 
         <button className='swap-button' onClick={handleSwap}>swap</button>
+        <div className='bog-container'>
+          {bog && <Bogdanoff isUp={bogIsUp} /> } 
+        </div>
       </div>
       <Txs />
     </div>

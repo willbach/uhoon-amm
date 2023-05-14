@@ -58,6 +58,15 @@
     ?~  g=(item-data id)  ~
     ((soft ,[@ux token-account:wallet]) [id +.u.g])
   ::
+  ++  get-token-account-info
+    :: includes salt too, for signing approvals
+    |=  [holder=address:smart meta-id=id:smart]
+    ^-  (unit [id=id:smart token-account:wallet salt=@])
+    ?~  found=(token-meta meta-id)  ~
+    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    ?~  g=(item-data id)  ~
+    ((soft ,[@ux token-account:wallet @]) [id +.u.g salt.u.found])
+  ::
   ++  get-contract-account
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit [id=id:smart source=id:smart])

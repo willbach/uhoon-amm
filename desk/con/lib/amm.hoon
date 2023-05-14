@@ -38,13 +38,16 @@
       metadata=id
       nonces=(pmap address @ud)
   ==
-::
+::  %pull signed token approval
++$  approval  [nonce=@ud deadline=@ud =sig]
 ::  actions
 ::
 +$  action
   $%  $:  %start-pool
           token-a=token-args
           token-b=token-args
+          approve-a=approval
+          approve-b=approval
       ==
   ::
       $:  %swap
@@ -57,6 +60,8 @@
           pool-id=id
           token-a=token-args
           token-b=token-args
+          approve-a=approval
+          approve-b=approval
       ==
   ::
       $:  %remove-liq
@@ -87,6 +92,7 @@
   ::  ==
   ==
 ::
++$  sig  [v=@ r=@ s=@]
 ::  helpers
 ::
 ++  get-pool-salt
