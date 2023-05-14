@@ -77,6 +77,7 @@ export interface Tx {
   input: TokenAmount
   hash: string
   status: string
+  desc: string
   output: TokenAmount
 }
 
