@@ -2,12 +2,13 @@
 |%
 +$  versioned-state
   $%  state-0
+      state-1
   ==
 ::
 +$  card  card:agent:gall
 ::
 --
-=|  state-0
+=|  state-1
 =*  state  -
 =<
 %-  agent:dbug
@@ -31,10 +32,14 @@
   ==
 ++  on-save  !>(state)
 ++  on-load
-  ::  TODO! state migration for txs
-  |=  =old=vase
+  |=  =vase
   ^-  (quip card _this)
-  `this(state !<(state-0 old-vase))
+  ::  interesting, %-  mole  |.  !<(state-0 vase)
+  ?:  =(%1 -.q.vase)
+    `this(state !<(state-1 vase))
+  =/  old  !<(state-0 vase)
+  =/  new  old(txs ~, pending-tx ~)
+  `this(state [%1 new])
 ::
 ++  on-poke
   |=  [=mark =vase]
@@ -174,9 +179,9 @@
       %~  get-contract  fetch
       [[our now]:bowl u.our-address amm-id our-town]
     ::
-    =/  pending  
-      :*  [meta.payment.act id:(need our-account.payment) amount.payment.act] 
-          [meta.receive.act id:(need our-account.receive) amount.receive.act]
+    =/  pending      :: do not necessarily have our-account for token yet. hash?
+      :*  [meta.payment.act 0x0 amount.payment.act] 
+          [meta.receive.act 0x0 amount.receive.act]
           ~               :: hash
           %pending        
           %swap           

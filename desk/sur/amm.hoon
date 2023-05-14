@@ -7,8 +7,9 @@
 ::  The app tracks pools and their prices, providing to the user an
 ::  interface for building transactions for swaps and liquidity management.
 ::
-+$  state-0
-  $:  our-town=@ux
++$  state-1
+  $:  %1
+      our-town=@ux
       our-address=(unit @ux)
       amm-id=@ux
       pools=(map id:smart pool-data)
@@ -50,7 +51,7 @@
            symbol=@t
            ::  salt=@ :: generated in app
            cap=(unit @ud)          ::  if ~, no cap (fr fr)
-           minters=(set address:smart)  :: change to pset in /app 
+           minters=(set address:smart)  
            initial-distribution=(list [to=address:smart amount=@ud])
       ==
   ==
@@ -122,4 +123,22 @@
   ?:  (gth meta-a meta-b)
     (cat 3 meta-a meta-b)
   (cat 3 meta-b meta-a)
+::
+::  might nuke state and remove these old vases, unnecessary
++$  state-0
+  $: 
+      our-town=@ux
+      our-address=(unit @ux)
+      amm-id=@ux
+      pools=(map id:smart pool-data)
+      txs=(list old-tx)
+      pending-tx=(unit old-tx)
+  ==
++$  old-tx 
+  $:
+    input=[meta=id:smart amount=@ud]
+    hash=(unit id:smart)
+    status=?(%pending %failed %confirmed)
+    output=[meta=id:smart amount=@ud]
+  == 
 --

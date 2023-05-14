@@ -2,10 +2,10 @@
     title+'AMM'
     info+'Automated Market Maker on Uqbar'
     color+0xf2.f3ef  
-    glob-http+['https://testmoon.redacted.pm/glob-0v4.6527d.jhuhu.a2sf5.s5br5.vdl8r.glob' 0v4.6527d.jhuhu.a2sf5.s5br5.vdl8r]
+    glob-http+['https://testmoon.redacted.pm/glob-0v1.ged3l.curmn.4gssq.q20a4.658bh.glob' 0v1.ged3l.curmn.4gssq.q20a4.658bh]
     base+'amm'
-    image+'https://i.imgur.com/zL2BMq0.jpg'
-    version+[0 1 3]
+    image+'https://i.imgur.com/BTAwRzY.png'
+    version+[0 2 0]
     website+'https://uqbar.network'
     license+'MIT'
 ==
