@@ -1,4 +1,5 @@
 /-  *amm, indexer=zig-indexer, wallet=zig-wallet
+/+  eng=zig-sys-engine
 |%
 ++  fetch
   |_  [[our=ship now=@da] =address:smart amm-id=id:smart town=id:smart]
@@ -13,7 +14,7 @@
           %+  weld  i-scry
           /newest/source/(scot %ux town)/(scot %ux amm-id)/noun
       ==
-    ~&  update
+    ::  ~&  update
     ?@  update  ~
     ::  for each pool, parse
     ?:  ?=(%item -.update)
@@ -54,7 +55,7 @@
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit [id:smart token-account:wallet])
     ?~  found=(token-meta meta-id)  ~
-    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    =+  id=(hash-data:eng source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     ((soft ,[@ux token-account:wallet]) [id +.u.g])
   ::
@@ -63,7 +64,7 @@
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit [id=id:smart token-account:wallet salt=@])
     ?~  found=(token-meta meta-id)  ~
-    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    =+  id=(hash-data:eng source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     ((soft ,[@ux token-account:wallet @]) [id +.u.g salt.u.found])
   ::
@@ -71,7 +72,7 @@
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit [id=id:smart source=id:smart])
     ?~  found=(token-meta meta-id)  ~
-    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    =+  id=(hash-data:eng source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     `[id source.u.found]
   ::
@@ -79,7 +80,7 @@
     |=  [holder=address:smart meta-id=id:smart]
     ^-  (unit id:smart)
     ?~  found=(token-meta meta-id)  ~
-    =+  id=(hash-data:smart source.u.found holder town salt.u.found)
+    =+  id=(hash-data:eng source.u.found holder town salt.u.found)
     ?~  g=(item-data id)  ~
     `id
   ++  get-contract
@@ -94,8 +95,8 @@
   ++  fill-pool
     |=  raw=pool:amm-lib
     ^-  (unit pool-data)
-    ~&  >  "filling pool"
-    ~&  raw
+    ::  ~&  >  "filling pool"
+    ::  ~&  raw
     ::  gather metadata for each token in pool
     ?~  a=(token-meta meta.token-a.raw)  ~
     =*  metadata-a  +.u.a
