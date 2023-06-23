@@ -16,6 +16,8 @@
       txs=(list tx)
       pending-tx=(unit tx)
   ==
+::  on bacdun, if on local, replace.
+++  amm-id  0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe
 ::
 +$  action
   $%  

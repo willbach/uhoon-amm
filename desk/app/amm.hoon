@@ -20,16 +20,7 @@
 ::
 ++  on-init
   :-  ~
-  ::  the AMM contract id
-  =+  0x4e42.efe6.cf7c.2322.c82c.72a4.5912.a712.c338.f44a.5ab0.1bbc.5383.94fe.f64d.74fe
-  %=  this
-    our-town                    0x0
-    our-address                 ~      
-    amm-id                      -   :: on bacdun
-    pools                       ~
-    txs                         ~
-    pending-tx                  ~
-  ==
+  this(state *_state)
 ++  on-save  !>(state)
 ++  on-load
   |=  =vase
@@ -196,17 +187,16 @@
         contract=contract-id
         town=our-town
         :-  %noun
-        :*        
-              %push        :: note the ordering of the inputs
-              to=amm-id
-              amount=amount.payment.act
-              from-account=id:(need our-account.payment)
+        :*  %push        :: note the ordering of the inputs
+            to=amm-id
+            amount=amount.payment.act
+            from-account=id:(need our-account.payment)
             ::
-              ^-  action:amm-lib
-              :^    %swap     
-                  pool-id.act
-                [metadata.payment amount.payment.act -:(need our-account.payment)]
-              [metadata.receive amount.receive.act -:(need pool-account.receive)]
+            ^-  action:amm-lib
+            :^    %swap     
+                pool-id.act
+              [metadata.payment amount.payment.act -:(need our-account.payment)]
+            [metadata.receive amount.receive.act -:(need pool-account.receive)]
     ==  ==
       %deploy-token
     ?~  our-address

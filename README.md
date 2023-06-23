@@ -3,10 +3,13 @@ AMM contract for Uqbar in the style of Uniswap V2
 
 
 ##### todos:
-- sequencer receipts change pool balances/allowances?
-- routing contract? 
+- sequencer receipts change pool balances/allowances
+- routing contract
 
 #### build
+If you're going to build this on local, note that some of the contract addresses will be different than on the ~bacdun testnet. 
+
+You'll need to change the `amm-id` in `sur/amm.hoon` to `0xbd1.f4a1.b3eb.85b4.157f.bff2.3945.3ff8.8104.b8ac.425d.74f5.a799.d159.54a5.dc8b`, or whatever your local deployed contract address is. 
 
 These commands assume:
 
@@ -25,6 +28,7 @@ These commands assume:
 - Our zigs item `0x7810.2b9f.109c.e44e.7de3.cd7b.ea4f.45dd.aed8.054c.0b52.b2c8.2788.93c6.5bb4.bb85`
 
 - fungible contract ID `0x7abb.3cfe.50ef.afec.95b7.aa21.4962.e859.87a0.b22b.ec9b.3812.69d3.296b.24e1.d72a`
+  :: note, newest local version of this is `0xb9e2.87cd.4214.2ea4.5950.2e8e.b945.68a9.a18b.ce4d.9d9d.ac69.5531.da24.fd84.42b5`
 
 - SQUID token `0xe3e.17c6.36d1.f0a7.d037.9553.9d60.f44c.8a8b.d57a.f800.bab2.334e.60a2.3cda.4d17`
 
@@ -92,3 +96,5 @@ do a swap! (paying 0.01 ZIG, expecting to receive *at least* 0.009 ST):
 :amm &amm-action [%swap pool-id=0x3276.ca9b.72b7.f533.c682.6806.6524.83ca.53e8.83d4.5b29.a6d8.c305.9ecd.9125.4a7f payment=[0x61.7461.6461.7465.6d2d.7367.697a 10.000.000.000.000.000] receive=[0xe3e.17c6.36d1.f0a7.d037.9553.9d60.f44c.8a8b.d57a.f800.bab2.334e.60a2.3cda.4d17 9.000.000.000.000.000]]
 :uqbar &wallet-poke [%submit from=0x7a9a.97e0.ca10.8e1e.273f.0000.8dca.2b04.fc15.9f70 hash=0xbede.aca7.cfb6.7392.3e1d.3e76.1bfa.586b gas=[rate=1 bud=1.000.000]]
 ```
+
+You can also test the amm straight via UI or the gall app after deploying it, `|install our %amm`. 
